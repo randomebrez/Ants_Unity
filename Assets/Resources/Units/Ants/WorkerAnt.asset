@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b5cc549e66934d43befa8e81b6ae539, type: 3}
+  m_Name: WorkerAnt
+  m_EditorClassIdentifier: 
+  _statistics:
+    MaxSpeed: 2
+  AntType: 0
+  AntPrefab: {fileID: -5730626997778548948, guid: fa1be99714fd34446977b8e1d9eb7be8, type: 3}
