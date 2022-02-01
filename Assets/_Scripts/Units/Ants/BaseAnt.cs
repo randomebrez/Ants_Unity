@@ -13,7 +13,7 @@ namespace mew
         private Transform _body;
         private Transform _head;
 
-        public float SteerStrength = 1;
+        public float SteerStrength = 3;
         public float WanderStrength = 1;
 
         public abstract void Move();
@@ -24,7 +24,7 @@ namespace mew
             _body = transform.GetChild(0);
             _head = transform.GetChild(1);
 
-            _desiredDirection = BodyHeadAxe();
+            _desiredDirection = BodyHeadAxis().normalized;
         }
 
         void Update()
@@ -32,6 +32,8 @@ namespace mew
             Move();
         }
 
-        protected Vector3 BodyHeadAxe() => _head.position - _body.position;
+        // Get axis from body to head.
+        // In order to have that vector following the ant, one need to add ant position (so that position will always be the origin of the vector)
+        protected Vector3 BodyHeadAxis() => _position + (_head.position - _body.position);
     }
 }
