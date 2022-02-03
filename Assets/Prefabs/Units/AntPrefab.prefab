@@ -143,8 +143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 882d25b344b49d542bcc63dbb9d0d8b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SteerStrength: 1
-  WanderStrength: 1
+  SteerStrength: 5
+  WanderStrength: 10
 --- !u!1 &8351271572746209954
 GameObject:
   m_ObjectHideFlags: 0
