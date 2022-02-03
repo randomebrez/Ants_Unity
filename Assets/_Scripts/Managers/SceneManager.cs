@@ -35,7 +35,7 @@ public class SceneManager : Singleton<SceneManager>
 
     public void HandleStartingState()
     {
-        EnvironmentManager.Instance.SpawnGround(0.1f);
+        EnvironmentManager.Instance.SpawnGround();
     }
 
     public void HandleSpawningAnts()

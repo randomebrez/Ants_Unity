@@ -9,19 +9,41 @@ namespace mew
         public override void Move()
         {
             var random = Random.insideUnitCircle;
-            var frontRandomDirection = Quaternion.Euler(0, Vector3.Angle(Vector3.forward, BodyHeadAxe()), 0) * new Vector2(random.x, Mathf.Abs(random.y));
 
-            _desiredDirection = (_desiredDirection + new Vector3(frontRandomDirection.x, 0, frontRandomDirection.y) * WanderStrength).normalized;
+            // Random direction shouldn't be in the back circular arc of the ant.
+            // Accepted direction are the 85% of the unit circle in front of the ant
+            var randomDirectionAngle = Vector3.SignedAngle(BodyHeadAxis, new Vector3(random.x, 0, random.y), Vector3.up);
+            if (true || Mathf.Abs(randomDirectionAngle) < 157)
+            {
+                _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.y) * WanderStrength).normalized;
+                _desiredDirection.y = 0;
+            }
 
             var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
             var desiredSteeringForce = (desiredVelocity - _velocity) * SteerStrength;
+
+            // get acceleration
             var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, SteerStrength);
 
+            // set new velocity
             _velocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
+
+            // set new position
             _position += _velocity * Time.deltaTime;
-            var angle = Vector3.Angle(BodyHeadAxe(), _velocity);
-            //var angle = Mathf.Atan2(_velocity.z, _velocity.x) * Mathf.Rad2Deg;
-            transform.SetPositionAndRotation(_position, Quaternion.Euler(0, angle, 0));
+
+            // calculate the rotation to go in the new direction
+            var angle = Vector3.SignedAngle(BodyHeadAxis, _velocity, Vector3.up);
+
+            // Apply it to the ant game object
+            transform.SetPositionAndRotation(_position, Quaternion.Euler(0,transform.rotation.eulerAngles.y + angle, 0));
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(_position, _position + BodyHeadAxis * 5);
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(_position, _position + _velocity * 5);
         }
     }
 }

@@ -7,26 +7,28 @@ public class Ground : MonoBehaviour
     public GameObject BlockPrefab;
     public LayerMask Everything;
     public LayerMask UnwalkableMask;
-    public Vector3 GridWorldSize;
     public GameObject BlockContainer;
     public float NodeRadius { get; set; }
     public Dictionary<int, Block> Path = null;
 
+    private Vector3 _gridWorldSize;
     private GroundBlock[,] _grid;
     private int _gridSizeX, _gridSizeY, _gridSizeZ;
     private float _nodeDiameter => 2 * NodeRadius;
     public int MaxSize => _gridSizeX * _gridSizeZ;
 
-    public void SetupGrid(float nodeRadius)
+    public void SetupGrid(Vector3 gridWorldSize, float nodeRadius)
     {
         NodeRadius = nodeRadius;
 
-        _gridSizeX = Mathf.RoundToInt(GridWorldSize.x / _nodeDiameter);
-        _gridSizeY = Mathf.RoundToInt(GridWorldSize.y / _nodeDiameter);
-        _gridSizeZ = Mathf.RoundToInt(GridWorldSize.z / _nodeDiameter);
+        _gridWorldSize = gridWorldSize;
+
+        _gridSizeX = Mathf.RoundToInt(_gridWorldSize.x / _nodeDiameter);
+        _gridSizeY = Mathf.RoundToInt(_gridWorldSize.y / _nodeDiameter);
+        _gridSizeZ = Mathf.RoundToInt(_gridWorldSize.z / _nodeDiameter);
 
         _grid = new GroundBlock[_gridSizeX, _gridSizeZ];
-        var wolrdBottomLeft = transform.position - Vector3.right * GridWorldSize.x / 2f - Vector3.forward * GridWorldSize.z / 2f;
+        var wolrdBottomLeft = transform.position - Vector3.right * _gridWorldSize.x / 2f - Vector3.forward * _gridWorldSize.z / 2f;
         var id = 0;
         for (int i = 0; i < _gridSizeX; i++)
         {
@@ -84,8 +86,8 @@ public class Ground : MonoBehaviour
 
     public Block BlockFromWorldPoint(Vector3 worldPosition)
     {
-        float percentX = (worldPosition.x + GridWorldSize.x / 2) / GridWorldSize.x;
-        float percentY = (worldPosition.z + GridWorldSize.z / 2) / GridWorldSize.z;
+        float percentX = (worldPosition.x + _gridWorldSize.x / 2) / _gridWorldSize.x;
+        float percentY = (worldPosition.z + _gridWorldSize.z / 2) / _gridWorldSize.z;
 
         percentX = Mathf.Clamp01(percentX);
         percentY = Mathf.Clamp01(percentY);
@@ -113,7 +115,7 @@ public class Ground : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position, new Vector3(GridWorldSize.x, 1, GridWorldSize.z));
+        Gizmos.DrawWireCube(transform.position, new Vector3(_gridWorldSize.x, 1, _gridWorldSize.z));
         if (_grid == null)
             return;
 
