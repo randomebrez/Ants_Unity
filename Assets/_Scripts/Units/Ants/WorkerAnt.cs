@@ -10,8 +10,7 @@ namespace mew
         {
             var random = Random.insideUnitCircle;
 
-            // Random direction shouldn't be in the back circular arc of the ant.
-            // Accepted direction are the 85% of the unit circle in front of the ant
+            // Random direction shouldn't be in the back circular arc of the ant. (4 degrees not allowed)
             var randomDirectionAngle = Vector3.SignedAngle(BodyHeadAxis, new Vector3(random.x, 0, random.y), Vector3.up);
             if (Mathf.Abs(randomDirectionAngle) < 178)
             {
