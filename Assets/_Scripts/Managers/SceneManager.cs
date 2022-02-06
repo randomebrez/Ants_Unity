@@ -24,7 +24,7 @@ public class SceneManager : Singleton<SceneManager>
             case SceneState.Starting:
                 HandleStartingState();
                 break;
-            case SceneState.SpawningAnts:
+            case SceneState.SpawningAntNest:
                 HandleSpawningAnts();
                 break;
         }
@@ -36,17 +36,18 @@ public class SceneManager : Singleton<SceneManager>
     public void HandleStartingState()
     {
         EnvironmentManager.Instance.SpawnGround();
+        ChangeState(SceneState.SpawningAntNest);
     }
 
     public void HandleSpawningAnts()
     {
-
+        UnitManager.Instance.SpawnAntNest();
     }
 
     [Serializable]
     public enum SceneState
     {
         Starting,
-        SpawningAnts
+        SpawningAntNest
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnvironmentManager : Singleton<EnvironmentManager>
 {
-    public Vector3 GroundSize = new Vector3(50, 0, 50);
+    public Vector3 GroundSize = new Vector3(75, 0, 50);
     public float NodeRadius = 1f;
 
     public GameObject GroundPrefab;
