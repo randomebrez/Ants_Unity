@@ -20,6 +20,7 @@ namespace mew
 
         void Start()
         {
+            _position = transform.position;
             _position.y = 1.25f;
             _body = transform.GetChild(0);
             _head = transform.GetChild(1);
