@@ -39,10 +39,6 @@ namespace mew
 
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(_position, _position + BodyHeadAxis * 5);
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLine(_position, _position + _velocity * 5);
         }
     }
 }

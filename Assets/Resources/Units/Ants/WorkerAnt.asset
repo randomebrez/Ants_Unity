@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: WorkerAnt
   m_EditorClassIdentifier: 
   _statistics:
-    MaxSpeed: 5
+    MaxSpeed: 10
+    VisionRadius: 7
+    VisionAngle: 50
   AntType: 0
   AntPrefab: {fileID: -5730626997778548948, guid: fa1be99714fd34446977b8e1d9eb7be8, type: 3}

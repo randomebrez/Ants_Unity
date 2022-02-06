@@ -36,14 +36,17 @@ public class SpawnerAnt : MonoBehaviour
         if (parent == null)
             parent = transform;
 
+        // Calculate random position and rotation to get out of the nest
         var randomPoint = Random.value * 2 * Mathf.PI;
-
         var randomVector = new Vector3(Mathf.Cos(randomPoint), 0, Mathf.Sin(randomPoint));
         var startPosition = transform.position + _radius * randomVector;
         var startAngle = Vector3.SignedAngle(Vector3.right, randomVector, Vector3.up);
 
+        // Ant game object
         var spawnedAnt = Instantiate(scriptableObject.AntPrefab, startPosition, Quaternion.Euler(0, startAngle, 0));
         spawnedAnt.transform.parent = parent;
+
+        //Set statistics according to scriptable object
         spawnedAnt.SetStats(scriptableObject.BaseStats);
     }
 }

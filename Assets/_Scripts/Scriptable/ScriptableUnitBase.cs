@@ -13,6 +13,8 @@ namespace mew
         public struct Stats
         {
             public int MaxSpeed;
+            public float VisionRadius;
+            public float VisionAngle;
         }
     }
 }
