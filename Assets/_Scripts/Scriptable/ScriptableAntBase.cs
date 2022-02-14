@@ -14,7 +14,7 @@ namespace mew
         public enum AntTypeEnum
         {
             Worker = 0,
-            Base = 1
+            BodyGuard = 1
         }
     }
 }

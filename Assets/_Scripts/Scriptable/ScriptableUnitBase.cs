@@ -16,6 +16,7 @@ namespace mew
             public float VisionRadius;
             public float VisionAngle;
             public float TargetDestroyTreshold;
+            public Color Color;
         }
     }
 }
