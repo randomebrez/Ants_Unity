@@ -4,6 +4,7 @@ using UnityEngine;
 public class SpawnerAnt : MonoBehaviour
 {
     private float _radius => transform.localScale.x;
+    private int antCounter = 0;
 
     // boolean value to know if it is able to spawnAnt
     private bool _activated = true;
@@ -31,7 +32,9 @@ public class SpawnerAnt : MonoBehaviour
 
     private void InstantiateUnit(ScriptableAntBase.AntTypeEnum antType, Transform parent = null)
     {
-        var scriptableObject = ResourceSystem.Instance.AntOfTypeGet(ScriptableAntBase.AntTypeEnum.Worker);
+        antCounter++;
+
+        var scriptableObject = ResourceSystem.Instance.AntOfTypeGet(antType);
 
         if (parent == null)
             parent = transform;
@@ -45,6 +48,7 @@ public class SpawnerAnt : MonoBehaviour
         // Ant game object
         var spawnedAnt = Instantiate(scriptableObject.AntPrefab, startPosition, Quaternion.Euler(0, startAngle, 0));
         spawnedAnt.transform.parent = parent;
+        spawnedAnt.name = $"{antType}_{antCounter}";
 
         //Set statistics according to scriptable object
         spawnedAnt.SetStats(scriptableObject.BaseStats);
