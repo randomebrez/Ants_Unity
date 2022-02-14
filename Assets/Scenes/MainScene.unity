@@ -570,6 +570,7 @@ MonoBehaviour:
   NodeRadius: 1
   GroundPrefab: {fileID: 716169139456191004, guid: eed89b8ca0186104398e50e3d153b356, type: 3}
   EnvironmentContainer: {fileID: 175875662}
+  FoodPrefab: {fileID: 2995981860878911888, guid: c9e90e0b57e34d048968abadb70a3771, type: 3}
 --- !u!1 &1250572348
 GameObject:
   m_ObjectHideFlags: 0

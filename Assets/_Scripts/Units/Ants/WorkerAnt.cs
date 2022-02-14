@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace mew
@@ -7,6 +8,27 @@ namespace mew
     public class WorkerAnt : BaseAnt
     {
         public override void Move()
+        {
+            if (HasTarget)
+                MoveTowardTarget();
+
+            else if (_visionField.Objects.Any())
+            {
+                _target = _visionField.Objects.First().transform;
+                MoveTowardTarget();
+            }
+            else
+                RandomWalk();
+
+            base.Move();
+        }
+
+        private void MoveTowardTarget()
+        {
+            _desiredDirection = (_target.position - _position).normalized;
+        }
+
+        private void RandomWalk()
         {
             var random = Random.insideUnitCircle;
 
@@ -17,24 +39,6 @@ namespace mew
                 _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.y) * WanderStrength).normalized;
                 _desiredDirection.y = 0;
             }
-
-            var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
-            var desiredSteeringForce = (desiredVelocity - _velocity) * SteerStrength;
-
-            // get acceleration
-            var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, SteerStrength);
-
-            // set new velocity
-            _velocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
-
-            // set new position
-            _position += _velocity * Time.deltaTime;
-
-            // calculate the rotation to go in the new direction
-            var angle = Vector3.SignedAngle(BodyHeadAxis, _velocity, Vector3.up);
-
-            // Apply it to the ant game object
-            transform.SetPositionAndRotation(_position, Quaternion.Euler(0,transform.rotation.eulerAngles.y + angle, 0));
         }
 
         private void OnDrawGizmos()

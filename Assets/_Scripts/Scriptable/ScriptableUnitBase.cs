@@ -15,6 +15,7 @@ namespace mew
             public int MaxSpeed;
             public float VisionRadius;
             public float VisionAngle;
+            public float TargetDestroyTreshold;
         }
     }
 }

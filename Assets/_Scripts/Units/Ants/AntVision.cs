@@ -1,31 +1,108 @@
 using mew;
+using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class AntVision : MonoBehaviour
 {
-    public Color meshColor = Color.blue;
+    private BaseAnt _ant;
+    private ScriptableUnitBase.Stats _statistics;
+    private float _height = 0.1f;
 
+    public Color meshColor = Color.blue;
     private Mesh _mesh;
+
+
+    public LayerMask ObjectsLayer;
+    public LayerMask OcclusionLayer;
+
+    public List<GameObject> Objects
+    {
+        get
+        {
+            _objects.RemoveAll(t => !t);
+            return _objects;
+        }
+    }
+    private List<GameObject> _objects = new List<GameObject>();
+    private Collider[] _colliders = new Collider[50];
+    private int _count;
+
+    public int Count = 0;
+
+    public int ScanFrequency = 100;
+    private float _scanInterval;
+    private float _scanTimer;
 
     private void Start()
     {
-        var ant = GetComponentInParent<BaseAnt>();
-        _mesh = CreateWedgeMesh(ant.Stats.VisionRadius, ant.Stats.VisionAngle, 0.1f);
+        _ant = GetComponentInParent<BaseAnt>();
+        _statistics = _ant.Stats;
+        _mesh = CreateWedgeMesh(_height);
+
+        _scanInterval = 1.0f / ScanFrequency;
     }
 
-    private Mesh CreateWedgeMesh(float distance, float angle, float height)
+    private void Update()
+    {
+        _scanTimer -= Time.deltaTime;
+        if (_scanTimer < 0)
+        {
+            _scanTimer += _scanInterval;
+            Scan();
+        }
+    }
+
+    private void Scan()
+    {
+        _count = Physics.OverlapSphereNonAlloc(transform.position, _statistics.VisionRadius, _colliders, ObjectsLayer, QueryTriggerInteraction.Collide);
+
+        _objects.Clear();
+        for (int i = 0; i < _count; i++)
+        {
+            var obj = _colliders[i].gameObject;
+            if (IsInsight(obj))
+                _objects.Add(obj);
+        }
+        Count = _objects.Count;
+    }
+
+    public bool IsInsight(GameObject obj)
+    {
+        var position = transform.position;
+        var objPosition = obj.transform.position;
+        var direction = objPosition - position;
+
+        /*if (distance.y < 0 || distance.y > _height)
+            return false;*/
+
+        // Check on angle
+        if (Mathf.Abs(Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up)) > _statistics.VisionAngle)
+            return false;
+
+        // Check if no obstruction
+        position.y += _height / 2;
+        direction.y = position.y;
+        if (Physics.Linecast(position, direction, OcclusionLayer))
+            return false;
+
+        return true;
+    }
+
+    private Mesh CreateWedgeMesh(float height)
     {
         var mesh = new Mesh();
 
-        int numTriangles = 8;
+        int segments = 10;
+        int numTriangles = (segments * 4) + 2 + 2;
         int numVertices = numTriangles * 3;
 
         Vector3[] vertices = new Vector3[numVertices];
         int[] triangles = new int[numVertices];
 
         Vector3 bottomCenter = Vector3.zero;
-        Vector3 bottomLeft = Quaternion.Euler(0, -angle, 0) * Vector3.right * distance;
-        Vector3 bottomRight = Quaternion.Euler(0, angle, 0) * Vector3.right * distance;
+        Vector3 bottomLeft = Quaternion.Euler(0, -_statistics.VisionAngle, 0) * Vector3.right * _statistics.VisionRadius;
+        Vector3 bottomRight = Quaternion.Euler(0, _statistics.VisionAngle, 0) * Vector3.right * _statistics.VisionRadius;
 
         Vector3 topCenter = bottomCenter + Vector3.up * height;
         Vector3 topLeft = bottomLeft + Vector3.up * height;
@@ -51,24 +128,38 @@ public class AntVision : MonoBehaviour
         vertices[vertice++] = bottomRight;
         vertices[vertice++] = bottomCenter;
 
-        // far side
-        vertices[vertice++] = bottomLeft;
-        vertices[vertice++] = bottomRight;
-        vertices[vertice++] = topRight;
+        var currentAngle = -_statistics.VisionAngle;
+        var deltaAngle = (2 * _statistics.VisionAngle) / segments;
 
-        vertices[vertice++] = topRight;
-        vertices[vertice++] = topLeft;
-        vertices[vertice++] = bottomLeft;
+        for (int i = 0; i < segments; i++)
+        {
+            bottomLeft = Quaternion.Euler(0, currentAngle, 0) * Vector3.right * _statistics.VisionRadius;
+            bottomRight = Quaternion.Euler(0, currentAngle + deltaAngle, 0) * Vector3.right * _statistics.VisionRadius;
 
-        // top side
-        vertices[vertice++] = topCenter;
-        vertices[vertice++] = topLeft;
-        vertices[vertice++] = topRight;
+            topLeft = bottomLeft + Vector3.up * height;
+            topRight = bottomRight + Vector3.up * height;
 
-        // bot side
-        vertices[vertice++] = topCenter;
-        vertices[vertice++] = bottomRight;
-        vertices[vertice++] = bottomLeft;
+            // far side
+            vertices[vertice++] = bottomLeft;
+            vertices[vertice++] = bottomRight;
+            vertices[vertice++] = topRight;
+
+            vertices[vertice++] = topRight;
+            vertices[vertice++] = topLeft;
+            vertices[vertice++] = bottomLeft;
+
+            // top side
+            vertices[vertice++] = topCenter;
+            vertices[vertice++] = topLeft;
+            vertices[vertice++] = topRight;
+
+            // bot side
+            vertices[vertice++] = topCenter;
+            vertices[vertice++] = bottomRight;
+            vertices[vertice++] = bottomLeft;
+
+            currentAngle += deltaAngle;
+        }
 
         for (int i = 0; i < numVertices; i ++)
         {
@@ -88,6 +179,15 @@ public class AntVision : MonoBehaviour
         {
             Gizmos.color = meshColor;
             Gizmos.DrawMesh(_mesh, transform.position, transform.rotation);
+        }
+
+        Gizmos.color = Color.black;
+        Gizmos.DrawLine(transform.position, transform.position + _ant.BodyHeadAxis);
+
+        foreach(var obj in _objects)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(obj.transform.position, 1f);
         }
     }
 }
