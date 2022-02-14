@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnvironmentManager : Singleton<EnvironmentManager>
@@ -9,6 +7,7 @@ public class EnvironmentManager : Singleton<EnvironmentManager>
 
     public GameObject GroundPrefab;
     public GameObject EnvironmentContainer;
+    public GameObject FoodPrefab;
 
     private Ground _ground;
 
@@ -19,5 +18,18 @@ public class EnvironmentManager : Singleton<EnvironmentManager>
 
         _ground = Instantiate(GroundPrefab, EnvironmentContainer.transform).GetComponent<Ground>();
         _ground.SetupGrid(GroundSize, NodeRadius);
+    }
+
+    public void SpawnFood()
+    {
+        var randomX = (Random.value - 0.5f) * GroundSize.x;
+        var randomZ = (Random.value - 0.5f) * GroundSize.z;
+        var spawnPosition = new Vector3(randomX, 1.1f, randomZ);
+        Instantiate(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform);
+    }
+
+    private void Update()
+    {
+        // Get mouse position to spawn food on click        
     }
 }

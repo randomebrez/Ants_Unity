@@ -36,6 +36,8 @@ public class SceneManager : Singleton<SceneManager>
     public void HandleStartingState()
     {
         EnvironmentManager.Instance.SpawnGround();
+        for (int i = 0; i < 50; i++)
+            EnvironmentManager.Instance.SpawnFood();
         ChangeState(SceneState.SpawningAntNest);
     }
 
