@@ -25,7 +25,12 @@ namespace mew
 
         private void MoveTowardTarget()
         {
-            _desiredDirection = (_target.position - _position).normalized;
+            _desiredDirection = _target.position - _position;
+
+            // Normalize if above one
+            // Otherwise it will slow down the ant until it reaches the target
+            if (Mathf.Sqrt(_desiredDirection.x * _desiredDirection.x + _desiredDirection.y * _desiredDirection.y + _desiredDirection.z * _desiredDirection.z) > 1)
+                _desiredDirection = _desiredDirection.normalized;
         }
 
         private void RandomWalk()

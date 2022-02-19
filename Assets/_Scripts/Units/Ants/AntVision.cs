@@ -109,6 +109,11 @@ public class AntVision : MonoBehaviour
         return true;
     }
 
+    public bool IsMoveValid(Vector3 from, Vector3 to)
+    {
+        return !Physics.Linecast(from, to, OcclusionLayer);
+    }
+
     private Mesh CreateWedgeMesh(float height)
     {
         var mesh = new Mesh();
@@ -191,12 +196,6 @@ public class AntVision : MonoBehaviour
         mesh.RecalculateNormals();
 
         return mesh;
-    }
-
-    public bool IsMoveValid(Vector3 from, Vector3 to)
-    {
-        return true;
-        //  return !Physics.Raycast(from, to, OcclusionLayer);
     }
 
 

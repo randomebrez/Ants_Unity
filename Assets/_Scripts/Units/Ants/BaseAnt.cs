@@ -54,14 +54,27 @@ namespace mew
             // get acceleration
             var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, SteerStrength);
 
-            // set new velocity
-            _velocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
+            // calculate new velocity
+            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
 
-            // set new position
-            _position += _velocity * Time.deltaTime;
+            // calculate new position
+            var newPos = _position + newVelocity * Time.deltaTime;
+
+            // if ant ends in a obstacle, just rotate ant
+            switch (_visionField.IsMoveValid(_position, newPos))
+            {
+                case true:
+                    _position = newPos;
+                    _velocity = newVelocity;
+                    break;
+                case false:
+                    _velocity = Vector3.zero;
+                    break;
+            }
 
             // calculate the rotation to go in the new direction
-            var angle = Vector3.SignedAngle(BodyHeadAxis, _velocity, Vector3.up);
+            var angle = Vector3.SignedAngle(BodyHeadAxis, newVelocity, Vector3.up);
+
 
             // Apply it to the ant game object
             transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + angle, 0));
