@@ -16,19 +16,26 @@ public class AntVision : MonoBehaviour
     public LayerMask ObjectsLayer;
     public LayerMask OcclusionLayer;
 
-    public List<GameObject> Objects
+    public List<GameObject> Collectables
     {
         get
         {
-            _objects.RemoveAll(t => !t);
-            return _objects;
+            _collectables.RemoveAll(t => !t);
+            return _collectables;
         }
     }
-    private List<GameObject> _objects = new List<GameObject>();
+    public List<GameObject> Obstacles
+    {
+        get
+        {
+            _obstacles.RemoveAll(t => !t);
+            return _obstacles;
+        }
+    }
+    private List<GameObject> _collectables = new List<GameObject>();
+    private List<GameObject> _obstacles = new List<GameObject>();
     private Collider[] _colliders = new Collider[50];
     private int _count;
-
-    public int Count = 0;
 
     public int ScanFrequency = 100;
     private float _scanInterval;
@@ -50,6 +57,7 @@ public class AntVision : MonoBehaviour
         {
             _scanTimer += _scanInterval;
             Scan();
+            ScanObstables();
         }
     }
 
@@ -57,17 +65,29 @@ public class AntVision : MonoBehaviour
     {
         _count = Physics.OverlapSphereNonAlloc(transform.position, _statistics.VisionRadius, _colliders, ObjectsLayer, QueryTriggerInteraction.Collide);
 
-        _objects.Clear();
+        _collectables.Clear();
         for (int i = 0; i < _count; i++)
         {
             var obj = _colliders[i].gameObject;
             if (IsInsight(obj))
-                _objects.Add(obj);
+                _collectables.Add(obj);
         }
-        Count = _objects.Count;
     }
 
-    public bool IsInsight(GameObject obj)
+    private void ScanObstables()
+    {
+        _count = Physics.OverlapSphereNonAlloc(transform.position, _statistics.VisionRadius, _colliders, OcclusionLayer, QueryTriggerInteraction.Collide);
+
+        _obstacles.Clear();
+        for (int i = 0; i < _count; i++)
+        {
+            var obj = _colliders[i].gameObject;
+            if (IsInsight(obj, false))
+                _obstacles.Add(obj);
+        }
+    }
+
+    public bool IsInsight(GameObject obj, bool checkOcclusion = true)
     {
         var position = transform.position;
         var objPosition = obj.transform.position;
@@ -83,7 +103,7 @@ public class AntVision : MonoBehaviour
         // Check if no obstruction
         position.y += _height / 2;
         direction.y = position.y;
-        if (Physics.Linecast(position, direction, OcclusionLayer))
+        if (checkOcclusion && Physics.Linecast(position, direction, OcclusionLayer))
             return false;
 
         return true;
@@ -173,6 +193,13 @@ public class AntVision : MonoBehaviour
         return mesh;
     }
 
+    public bool IsMoveValid(Vector3 from, Vector3 to)
+    {
+        return true;
+        //  return !Physics.Raycast(from, to, OcclusionLayer);
+    }
+
+
     private void OnDrawGizmos()
     {
         if (_mesh != null)
@@ -184,10 +211,16 @@ public class AntVision : MonoBehaviour
         Gizmos.color = Color.black;
         Gizmos.DrawLine(transform.position, transform.position + _ant.BodyHeadAxis);
 
-        foreach(var obj in _objects)
+        foreach(var obj in _collectables)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(obj.transform.position, 1f);
+        }
+
+        foreach (var obj in _obstacles)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireCube(obj.transform.position, Vector3.one);
         }
     }
 }

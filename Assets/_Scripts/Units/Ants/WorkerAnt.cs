@@ -12,9 +12,9 @@ namespace mew
             if (HasTarget)
                 MoveTowardTarget();
 
-            else if (_visionField.Objects.Any())
+            else if (_visionField.Collectables.Any())
             {
-                _target = _visionField.Objects.First().transform;
+                _target = _visionField.Collectables.First().transform;
                 MoveTowardTarget();
             }
             else
