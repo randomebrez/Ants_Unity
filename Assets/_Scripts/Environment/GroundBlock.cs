@@ -1,6 +1,4 @@
 using Assets.Dtos;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GroundBlock : MonoBehaviour
@@ -11,24 +9,20 @@ public class GroundBlock : MonoBehaviour
     public Material UnwalkableMaterial;
 
     private MeshRenderer _renderer;
+    [Range(0,31)] public int OcclusionLayer;
 
     private void Awake()
     {
-        _renderer = GetComponent<MeshRenderer>();
+        _renderer = GetComponentInChildren<MeshRenderer>();
     }
 
-    private void Update()
+    public void SetWalkable()
     {
-
+        _renderer.material = WalkableMaterial;
     }
 
-    public void Setup(bool walkable)
+    public void SetUnwalkable()
     {
-        if (walkable)
-            _renderer.material = WalkableMaterial;
-        else
-        {
-            _renderer.material = UnwalkableMaterial;
-        }
+        _renderer.material = UnwalkableMaterial;
     }
 }

@@ -5,9 +5,11 @@ using UnityEngine;
 public class Ground : MonoBehaviour
 {
     public GameObject BlockPrefab;
+    public GameObject WallPrefab;
     public LayerMask Everything;
     public LayerMask UnwalkableMask;
     public GameObject BlockContainer;
+    public Transform WallContainer;
     public float NodeRadius { get; set; }
     public Dictionary<int, Block> Path = null;
 
@@ -26,6 +28,7 @@ public class Ground : MonoBehaviour
         _gridSizeX = Mathf.RoundToInt(_gridWorldSize.x / _nodeDiameter);
         _gridSizeY = Mathf.RoundToInt(_gridWorldSize.y / _nodeDiameter);
         _gridSizeZ = Mathf.RoundToInt(_gridWorldSize.z / _nodeDiameter);
+        _gridWorldSize = new Vector3(_gridSizeX * _nodeDiameter, 0, _gridSizeZ * _nodeDiameter);
 
         _grid = new GroundBlock[_gridSizeX, _gridSizeZ];
         var wolrdBottomLeft = transform.position - Vector3.right * _gridWorldSize.x / 2f - Vector3.forward * _gridWorldSize.z / 2f;
@@ -39,7 +42,7 @@ public class Ground : MonoBehaviour
                 var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, BlockContainer.transform);
                 var component = blockGo.GetComponent<GroundBlock>();
                 blockGo.transform.localScale = new Vector3(_nodeDiameter, 1f, _nodeDiameter);
-                component.Setup(walkable);
+                component.SetWalkable();
                 component.Block = new Block(worldPosition, walkable, id);
                 blockGo.name = $"({i},{j})";
                 component.Block.XCoordinate = i;
@@ -50,6 +53,34 @@ public class Ground : MonoBehaviour
         }
 
         SetNeighbours();
+        SetupWalls();
+    }
+
+    public void SetupWalls()
+    {
+        var xPos = (_gridWorldSize.x + NodeRadius) / 2;
+        var zPos = (_gridWorldSize.z + NodeRadius) / 2;
+        var leftWallPos = new Vector3(0, 1f, - xPos);
+        var righttWallPos = new Vector3(0, 1f, xPos);
+        var topWallPos = new Vector3(0, 1f, zPos);
+        var botWallPos = new Vector3(0, 1f, - zPos);
+
+        var leftWall = Instantiate(WallPrefab, leftWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        leftWall.name = "LeftWall";
+        leftWall.WallWidth = _gridWorldSize.z + _nodeDiameter;
+        leftWall.BuildWall(0,90,0);
+        var rightWall = Instantiate(WallPrefab, righttWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        rightWall.name = "RightWall";
+        rightWall.WallWidth = _gridWorldSize.z + _nodeDiameter;
+        rightWall.BuildWall(0,90,0);
+        var topWall = Instantiate(WallPrefab, topWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        topWall.name = "TopWall";
+        topWall.WallWidth = _gridWorldSize.x + _nodeDiameter;
+        topWall.BuildWall();
+        var botWall = Instantiate(WallPrefab, botWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        botWall.name = "BotWall";
+        botWall.WallWidth = _gridWorldSize.x + _nodeDiameter;
+        botWall.BuildWall();
     }
 
     private void SetNeighbours()
