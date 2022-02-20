@@ -19,6 +19,7 @@ namespace mew
 
         public float SteerStrength = 3;
         private float _currentSteerStrength = 0f;
+        private float _currentMaxSpeed = 0f;
         public float WanderStrength = 1;
 
         public float expoMultiplicator = 100;
@@ -35,6 +36,7 @@ namespace mew
 
             _desiredDirection = BodyHeadAxis.normalized;
             _currentSteerStrength = SteerStrength;
+            _currentMaxSpeed = Stats.MaxSpeed;
         }
 
         void Update()
@@ -54,15 +56,19 @@ namespace mew
         // Once _desiredDirection is set ant movement always end like that
         public virtual void Move()
         {
-            _currentSteerStrength = GetSteeringForce();
-            var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
+            var multiplicator = GetStatisticMultiplicator();
+            _currentSteerStrength = multiplicator * SteerStrength;
+            _currentMaxSpeed = (1 / multiplicator) * Stats.MaxSpeed;
+
+
+            var desiredVelocity = _desiredDirection * _currentMaxSpeed;
             var desiredSteeringForce = (desiredVelocity - _velocity) * _currentSteerStrength;
 
             // get acceleration
             var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, SteerStrength);
 
             // calculate new velocity
-            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
+            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, _currentMaxSpeed);
 
             // calculate new position
             var newPos = _position + newVelocity * Time.deltaTime;
@@ -99,7 +105,10 @@ namespace mew
             foreach(var obstacle in _visionField.Obstacles)
             {
                 var dist = Vector3.Distance(_head.position, obstacle.transform.position);
-                var anglePortion = 2 * Stats.VisionAngle / dist + 0.1f;
+                    if (dist < 1)
+                        dist = 0.1f;
+
+                var anglePortion = Stats.VisionAngle / dist + 0.1f;
                 var obstacleAngle = transform.rotation.eulerAngles.y + Vector3.SignedAngle(BodyHeadAxis, obstacle.transform.position, Vector3.up);
                 openingPositions.Add(obstacleAngle - anglePortion / 2);
                 closingPositions.Add(obstacleAngle + anglePortion / 2);
@@ -256,19 +265,19 @@ namespace mew
             return (results, probaTotal);
         }
 
-        private float GetSteeringForce()
+        private float GetStatisticMultiplicator()
         {
             var obstaclesNumber = _visionField.Obstacles.Count;
 
             if (obstaclesNumber == 0)
-                return SteerStrength;
+                return 1;
 
             var normalizedDistance = GetNormalizedDistance();
 
             var expoArgument = 1 - 1 / normalizedDistance;
             var expo = 1 - Mathf.Exp(expoArgument);
-            var SteeringForceMultiplicator = (steeringForceConstant - 1) * expo + 1;
-            return SteeringForceMultiplicator * SteerStrength;
+            var multiplicator = (steeringForceConstant - 1) * expo + 1;
+            return multiplicator;
         }
 
         private float GetNormalizedDistance()
