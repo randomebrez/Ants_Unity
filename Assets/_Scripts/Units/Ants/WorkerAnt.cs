@@ -35,13 +35,13 @@ namespace mew
 
         private void RandomWalk()
         {
-            var random = Random.insideUnitCircle;
+            var random = GetRandomDirection();
 
             // Random direction shouldn't be in the back circular arc of the ant. (4 degrees not allowed)
-            var randomDirectionAngle = Vector3.SignedAngle(BodyHeadAxis, new Vector3(random.x, 0, random.y), Vector3.up);
+            var randomDirectionAngle = Vector3.SignedAngle(BodyHeadAxis, new Vector3(random.x, 0, random.z), Vector3.up);
             if (Mathf.Abs(randomDirectionAngle) < 178)
             {
-                _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.y) * WanderStrength).normalized;
+                _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.z) * WanderStrength).normalized;
                 _desiredDirection.y = 0;
             }
         }
