@@ -13,6 +13,8 @@ namespace mew
         private Transform _head;
         protected AntVision _visionField;
 
+        private const float Delta = 0.00001f;
+
         protected bool HasTarget => _target != null;
         protected Transform _target = null;
         protected float _targetTreshold = 0.3f;
@@ -50,6 +52,8 @@ namespace mew
         // Get axis from body to head.
         // In order to have that vector following the ant, one need to add ant position (so that position will always be the origin of the vector)
         public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
+
+        public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
 
 
         // Set _desiredDirection in non abstract classes
@@ -105,10 +109,10 @@ namespace mew
             foreach(var obstacle in _visionField.Obstacles)
             {
                 var dist = Vector3.Distance(_head.position, obstacle.transform.position);
-                    if (dist < 1)
-                        dist = 0.1f;
+                if (dist < 1)
+                    dist = Delta;
 
-                var anglePortion = Stats.VisionAngle / dist + 0.1f;
+                var anglePortion = Stats.VisionAngle / dist;
                 var obstacleAngle = transform.rotation.eulerAngles.y + Vector3.SignedAngle(BodyHeadAxis, obstacle.transform.position, Vector3.up);
                 openingPositions.Add(obstacleAngle - anglePortion / 2);
                 closingPositions.Add(obstacleAngle + anglePortion / 2);
@@ -214,7 +218,10 @@ namespace mew
                     //var inhibitedProbability = baseInhibitedProbability * distMean / Stats.VisionRadius;
 
                     //Exponential
-                    var inhibitedProbability = baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * distMean / (distMean - Stats.VisionRadius - 0.1f)));
+                    var expoArg = (distMean - PhysicalLength) / (distMean - (1 + Delta));
+                    // If walls are really too close for that portion (meaning closer than the ant body to head distance)
+                    // Directly set the probability to choose this zone as next direction to 0
+                    var inhibitedProbability = distMean > PhysicalLength ? baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg)) : 0;
 
                     results.Add((openingPositions[currentOpenerIndex.Value], inhibitedPortion, inhibitedProbability));
                     results.Add((closingPositions[closingPositions.Count - 1], followingUnchangedPortion, baseFollowingProbability));
@@ -249,7 +256,11 @@ namespace mew
                     //var inhibitedProbability = baseInhibitedProbability * distMean / Stats.VisionRadius;
 
                     //Exponential
-                    var inhibitedProbability = baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * distMean / (distMean - Stats.VisionRadius - 0.1f)));
+                    //Exponential
+                    var expoArg = (distMean - PhysicalLength) / (distMean - (1 + Delta));
+                    // If walls are really too close for that portion (meaning closer than the ant body to head distance)
+                    // Directly set the probability to choose this zone as next direction to 0
+                    var inhibitedProbability = distMean > PhysicalLength ? baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg)) : 0;
 
                     results.Add((openingPositions[currentOpenerIndex.Value], inhibitedPortion, inhibitedProbability));
                     results.Add((closingPositions[closingIndex], followingUnchangedPortion, baseFollowingProbability));
