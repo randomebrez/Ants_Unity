@@ -81,6 +81,30 @@ public class Ground : MonoBehaviour
         botWall.name = "BotWall";
         botWall.WallWidth = _gridWorldSize.x + _nodeDiameter;
         botWall.BuildWall();
+
+        BuildRandomWall();
+    }
+
+    public void BuildRandomWall()
+    {
+        var number = Mathf.RoundToInt(Random.value * 10);
+
+        var HConstraint = _gridWorldSize.x / 2;
+        var VConstraint = _gridWorldSize.z / 2;
+        for (int i = 0; i < number; i++)
+        {
+            var xPos = Mathf.RoundToInt((Random.value - 0.5f) * HConstraint);
+            var zPos = Mathf.RoundToInt((Random.value - 0.5f) * VConstraint);
+            var randomPosition = new Vector3(xPos, 1f, zPos);
+            // 0 if horizontal, 1 if vertical
+            var isRotated = Mathf.RoundToInt(Random.value);
+            var condition = (1 - isRotated) * (HConstraint - Mathf.Abs(randomPosition.x)) + isRotated * (VConstraint - Mathf.Abs(randomPosition.z));
+            var randomWidth = Random.value * condition;
+            var wall = Instantiate(WallPrefab, randomPosition, Quaternion.identity, WallContainer).GetComponent<Wall>();
+            wall.name = $"RandomWall_{i}";
+            wall.WallWidth = randomWidth;
+            wall.BuildWall(0, isRotated * 90, 0);
+        }
     }
 
     private void SetNeighbours()
