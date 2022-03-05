@@ -76,6 +76,7 @@
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BasePheromone.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptablePheromoneBase.cs" />
+    <Compile Include="Assets\Dtos\Target.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

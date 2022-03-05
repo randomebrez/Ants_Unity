@@ -212,6 +212,9 @@ public class AntVision : MonoBehaviour
 
         foreach(var obj in _collectables)
         {
+            if (obj == null)
+                continue;
+
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(obj.transform.position, 1f);
         }

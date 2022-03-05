@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Assets.Dtos;
 using System.Linq;
 using UnityEngine;
 
@@ -7,25 +6,71 @@ namespace mew
 {
     public class WorkerAnt : BaseAnt
     {
+        public bool _carryingFood;
         public override void Move()
         {
-            if (HasTarget)
+            if (HasTarget || ScanForNest() || ScanForFood())
                 MoveTowardTarget();
-
-            else if (_visionField.Collectables.Any())
-            {
-                _target = _visionField.Collectables.First().transform;
-                MoveTowardTarget();
-            }
             else
                 RandomWalk();
 
             base.Move();
         }
 
+
+        public override void OnTargetReach()
+        {
+            if (_target == null)
+                return;
+
+            switch (_target.Type)
+            {
+                case TargetTypeEnum.Food:
+                    _carryingFood = true;
+                    Destroy(_target.Transform.gameObject);
+                    break;
+                case TargetTypeEnum.Nest:
+                    _carryingFood = false;
+                    break;
+            }
+
+            _target.Active = false;
+        }
+
+        private bool ScanForNest()
+        {
+            if (!_carryingFood || _visionField.Collectables.Any(t => t.transform.name == _nest.name) == false)
+                return false;
+
+            _target = new Target { Type = TargetTypeEnum.Nest, Transform = _nest, Active = true };
+            return true;
+        }
+
+        private bool ScanForFood()
+        {
+            if (_carryingFood)
+                return false;
+
+            var food = _visionField.Collectables.FirstOrDefault(t => t.tag == "Food");
+            if (food == null)
+                return false;
+
+            _target = new Target { Type = TargetTypeEnum.Food, Transform = food.transform, Active = true };
+            return true;
+        }
+
+        internal override void DropPheromone()
+        {
+            if (_carryingFood)
+                base.DropPheromone();
+        }
+
         private void MoveTowardTarget()
         {
-            _desiredDirection = _target.position - _position;
+            if (!HasTarget)
+                return;
+
+            _desiredDirection = _target.Transform.position - _position;
 
             // Normalize if above one
             // Otherwise it will slow down the ant until it reaches the target

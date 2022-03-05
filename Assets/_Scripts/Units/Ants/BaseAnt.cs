@@ -1,3 +1,4 @@
+using Assets.Dtos;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace mew
 
         private Transform _body;
         private Transform _head;
+        protected Transform _nest;
         protected AntVision _visionField;
 
         [Range(0,1)]public float theta = 0.005f;
@@ -19,8 +21,8 @@ namespace mew
 
         private const float Delta = 0.00001f;
 
-        protected bool HasTarget => _target != null;
-        protected Transform _target = null;
+        protected bool HasTarget => _target.Active && _target.Transform != null;
+        protected Target _target = new Target();
         protected float _targetTreshold = 0.3f;
 
         public float SteerStrength = 3;
@@ -37,6 +39,7 @@ namespace mew
             _position.y = 1.25f;
             _body = transform.GetChild(0);
             _head = transform.GetChild(1);
+            _nest = transform.parent;
 
             _visionField = _head.GetComponent<AntVision>();
 
@@ -49,11 +52,14 @@ namespace mew
 
         void Update()
         {
-            if (TargetDistance() < Stats.TargetDestroyTreshold)
-                DestroyTarget();
-
             Move();
             DropPheromone();
+
+            if (!HasTarget)
+                return;
+
+            if (TargetDistance() < Stats.TargetDestroyTreshold)
+                OnTargetReach();
         }
 
         /* Get axis from body to head.
@@ -147,18 +153,14 @@ namespace mew
             return Quaternion.Euler(0, transform.rotation.eulerAngles.y + randomAngle, 0) * BodyHeadAxis * randomNorm;
         }
 
-        public virtual void DestroyTarget()
-        {
-            if (HasTarget)
-                Destroy(_target.gameObject);
-        }
+        public abstract void OnTargetReach();
 
         public float TargetDistance()
         {
             if (!HasTarget)
                 return float.MaxValue;
 
-            var distance = _target.position - _position;
+            var distance = _target.Transform.position - _position;
             return Mathf.Sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
         }
 
@@ -312,7 +314,7 @@ namespace mew
             return temp > 1 ? 1 : temp;
         }
 
-        private void DropPheromone()
+        internal virtual void DropPheromone()
         {
             var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(ScriptablePheromoneBase.PheromoneTypeEnum.Wander);
             var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _body.position, Quaternion.identity, PheromoneContainer);
