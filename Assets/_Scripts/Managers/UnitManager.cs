@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using mew;
 
-public class UnitManager : Singleton<UnitManager>
+internal class UnitManager : BaseManager<UnitManager>
 {
     public SpawnerAnt SpawnerAntPrefab;
     public GameObject UnitsContainer;
@@ -14,12 +14,16 @@ public class UnitManager : Singleton<UnitManager>
 
     public void SpawnAntNest()
     {
-        var randomX = (Random.value - 0.5f) * GetGroundSize.x;
-        var randomZ = (Random.value - 0.5f) * GetGroundSize.z;
+        var randomX = (Random.value - 0.5f) * GetGroundSize.x - 1;
+        var randomZ = (Random.value - 0.5f) * GetGroundSize.z - 1;
 
-        var spawned = Instantiate(SpawnerAntPrefab, new Vector3(randomX, 0, randomZ), Quaternion.identity, UnitsContainer.transform);
+        var spawnerMaxRange = Mathf.Max(SpawnerAntPrefab.transform.lossyScale.x, SpawnerAntPrefab.transform.lossyScale.y, SpawnerAntPrefab.transform.lossyScale.z);
+        var spawned = InstantiateObject(SpawnerAntPrefab.gameObject, new Vector3(randomX, 0, randomZ), Quaternion.identity, UnitsContainer.transform, spawnerMaxRange * 1.5f);
+        if (spawned == null)
+            return;
+
         var id = _spawners.Count + 1;
-        _spawners.Add(id, spawned);
+        _spawners.Add(id, spawned.GetComponent<SpawnerAnt>());
     }
 
     private void Update()

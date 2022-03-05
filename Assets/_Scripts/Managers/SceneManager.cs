@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SceneManager : Singleton<SceneManager>
+internal class SceneManager : BaseManager<SceneManager>
 {
     public static event Action<SceneState> OnBeforeStateChanged;
     public static event Action<SceneState> OnAfterStateChanged;

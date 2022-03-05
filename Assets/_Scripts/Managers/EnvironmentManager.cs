@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnvironmentManager : Singleton<EnvironmentManager>
+internal class EnvironmentManager : BaseManager<EnvironmentManager>
 {
     public Vector3 GroundSize = new Vector3(75, 0, 50);
     public float NodeRadius = 1f;
@@ -25,7 +25,7 @@ public class EnvironmentManager : Singleton<EnvironmentManager>
         var randomX = (Random.value - 0.5f) * GroundSize.x;
         var randomZ = (Random.value - 0.5f) * GroundSize.z;
         var spawnPosition = new Vector3(randomX, 1.1f, randomZ);
-        Instantiate(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform);
+        InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * NodeRadius);
     }
 
     private void Update()
