@@ -13,6 +13,10 @@ namespace mew
         private Transform _head;
         protected AntVision _visionField;
 
+        [Range(0,1)]public float theta = 0.005f;
+
+        public Transform PheromoneContainer;
+
         private const float Delta = 0.00001f;
 
         protected bool HasTarget => _target != null;
@@ -39,6 +43,8 @@ namespace mew
             _desiredDirection = BodyHeadAxis.normalized;
             _currentSteerStrength = SteerStrength;
             _currentMaxSpeed = Stats.MaxSpeed;
+
+            PheromoneContainer = transform.parent.parent.parent.GetChild(1);
         }
 
         void Update()
@@ -47,17 +53,18 @@ namespace mew
                 DestroyTarget();
 
             Move();
+            DropPheromone();
         }
 
-        // Get axis from body to head.
-        // In order to have that vector following the ant, one need to add ant position (so that position will always be the origin of the vector)
+        /* Get axis from body to head.
+         In order to have that vector following the ant, one need to add ant position (so that position will always be the origin of the vector)*/
         public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
 
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
 
 
-        // Set _desiredDirection in non abstract classes
-        // Once _desiredDirection is set ant movement always end like that
+        /* Set _desiredDirection in non abstract classes
+         Once _desiredDirection is set ant movement always end like that*/
         public virtual void Move()
         {
             var multiplicator = GetStatisticMultiplicator();
@@ -112,7 +119,7 @@ namespace mew
                 if (dist < 1)
                     dist = Delta;
 
-                var anglePortion = Stats.VisionAngle / dist;
+                var anglePortion = (theta -1 ) * (Stats.VisionAngle * dist / Stats.VisionRadius) + Stats.VisionAngle;
                 var obstacleAngle = transform.rotation.eulerAngles.y + Vector3.SignedAngle(BodyHeadAxis, obstacle.transform.position, Vector3.up);
                 openingPositions.Add(obstacleAngle - anglePortion / 2);
                 closingPositions.Add(obstacleAngle + anglePortion / 2);
@@ -218,10 +225,12 @@ namespace mew
                     //var inhibitedProbability = baseInhibitedProbability * distMean / Stats.VisionRadius;
 
                     //Exponential
-                    var expoArg = (distMean - PhysicalLength) / (distMean - (1 + Delta));
+                    var expoArg = (distMean - PhysicalLength/10) / (distMean - (1 + Delta));
+                    //var expoArg = distMean / (distMean - (1 + Delta));
                     // If walls are really too close for that portion (meaning closer than the ant body to head distance)
                     // Directly set the probability to choose this zone as next direction to 0
-                    var inhibitedProbability = distMean > PhysicalLength ? baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg)) : 0;
+                    var inhibitedProbability = distMean > PhysicalLength/10 ? baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg)) : 0;
+                    //var inhibitedProbability = baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg));
 
                     results.Add((openingPositions[currentOpenerIndex.Value], inhibitedPortion, inhibitedProbability));
                     results.Add((closingPositions[closingPositions.Count - 1], followingUnchangedPortion, baseFollowingProbability));
@@ -301,6 +310,13 @@ namespace mew
             }
             var temp = result / obstacles.Count;
             return temp > 1 ? 1 : temp;
+        }
+
+        private void DropPheromone()
+        {
+            var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(ScriptablePheromoneBase.PheromoneTypeEnum.Wander);
+            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _body.position, Quaternion.identity, PheromoneContainer);
+            pheromone.SetCaracteristics(scriptablePheromone.BaseCaracteristics);
         }
     }
 }
