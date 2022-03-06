@@ -7,7 +7,7 @@ using mew;
 public class BasePheromone : MonoBehaviour
 {
     private MeshRenderer _renderer;
-    private Pheromone _pheromone;
+    public Pheromone Pheromone;
     private Timer _timer;
     private bool _expired = false;
 
@@ -20,7 +20,8 @@ public class BasePheromone : MonoBehaviour
     void Start()
     {
         _renderer = GetComponent<MeshRenderer>();
-        _pheromone = new Pheromone
+        _renderer.material.color = Caracteristics.Color;
+        Pheromone = new Pheromone
         {
             CreationDate = DateTime.UtcNow,
             Lifetime = new TimeSpan(0, 0, Caracteristics.Duration)
@@ -34,7 +35,8 @@ public class BasePheromone : MonoBehaviour
         if (_expired)
             Destroy(gameObject);
 
-        var percentDone = (DateTime.UtcNow - _pheromone.CreationDate).TotalSeconds/Caracteristics.Duration;
+        var percentDone = (DateTime.UtcNow - Pheromone.CreationDate).TotalSeconds / Caracteristics.Duration;
+        Pheromone.Density *= (1 - (float)percentDone);
         var color = _renderer.material.color;
         color.a = Mathf.Max(0, 1 - (float)percentDone);
         _renderer.material.color = color;

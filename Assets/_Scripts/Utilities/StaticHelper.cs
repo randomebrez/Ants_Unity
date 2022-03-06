@@ -28,5 +28,11 @@ namespace Assets._Scripts.Utilities
 
             SetRecursiveLayer(newList, layerId);
         }
+
+        public static float ComputeExponentialProbability(float x, float offset, float argumentMultiplicator, float deltaZero)
+        {
+            var expoArg = (x - offset) / (x - (1 + deltaZero));
+            return 1 - Mathf.Exp(argumentMultiplicator * expoArg);
+        }
     }
 }

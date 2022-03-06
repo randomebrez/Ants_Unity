@@ -1,3 +1,4 @@
+using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,8 @@ namespace mew
 {
     public abstract class BaseAnt : UnitBase
     {
+        private const int ScannerSubdivision = 50;
+
         protected Vector3 _position;
         protected Vector3 _velocity;
         protected Vector3 _desiredDirection;
@@ -13,13 +16,13 @@ namespace mew
         private Transform _body;
         private Transform _head;
         protected Transform _nest;
-        protected AntVision _visionField;
-
-        [Range(0,1)]public float theta = 0.005f;
+        protected AntScannerManager _scannerManager;
 
         public Transform PheromoneContainer;
 
-        private const float Delta = 0.00001f;
+        protected int _dropPheroFrequency = 10;
+        protected float _dropPheroInterval;
+        protected float _dropPheroTimer;
 
         protected bool HasTarget => _target.Active && _target.Transform != null;
         protected Target _target = new Target();
@@ -41,7 +44,10 @@ namespace mew
             _head = transform.GetChild(1);
             _nest = transform.parent;
 
-            _visionField = _head.GetComponent<AntVision>();
+            _scannerManager = _head.GetComponentInChildren<AntScannerManager>();
+            _scannerManager.ScannerSubdivisionSet(ScannerSubdivision);
+
+            _dropPheroInterval = 1.0f / _dropPheroFrequency;
 
             _desiredDirection = BodyHeadAxis.normalized;
             _currentSteerStrength = SteerStrength;
@@ -91,7 +97,7 @@ namespace mew
             var newPos = _position + newVelocity * Time.deltaTime;
 
             // if ant ends in a obstacle, just rotate ant
-            switch (_visionField.IsMoveValid(_position, newPos))
+            switch (_scannerManager.IsMoveValid(_position, newPos))
             {
                 case true:
                     _position = newPos;
@@ -112,44 +118,26 @@ namespace mew
 
         protected Vector3 GetRandomDirection()
         {
-            var openingPositions = new List<float>();
-            var closingPositions = new List<float>();
-            var distances = new List<float>();
-
-            if (_visionField.Obstacles.Count > 0)
-                //Debug.Log("Obstacles");
-
-            foreach(var obstacle in _visionField.Obstacles)
-            {
-                var dist = Vector3.Distance(_head.position, obstacle.transform.position);
-                if (dist < 1)
-                    dist = Delta;
-
-                var anglePortion = (theta -1 ) * (Stats.VisionAngle * dist / Stats.VisionRadius) + Stats.VisionAngle;
-                var obstacleAngle = transform.rotation.eulerAngles.y + Vector3.SignedAngle(BodyHeadAxis, obstacle.transform.position, Vector3.up);
-                openingPositions.Add(obstacleAngle - anglePortion / 2);
-                closingPositions.Add(obstacleAngle + anglePortion / 2);
-                distances.Add(dist);
-            }
-
-            var (inhibitedPortions, probaSum) = GetInhibitedDirections(openingPositions, closingPositions, distances);
+            var inhibitedProbabilties = _scannerManager.GetProbabilities();
 
             var randomNumber = Random.value;
             var foundZone = false;
             var sum = 0f;
             var count = 0;
-            while(foundZone == false && count < inhibitedPortions.Count)
+            while(foundZone == false && count < inhibitedProbabilties.Count)
             {
-                sum += inhibitedPortions[count].probability / probaSum;
+                sum += inhibitedProbabilties[count];
                 if (randomNumber < sum)
                     foundZone = true;
 
                 count++;
             }
-            
-            var randomAngle = (inhibitedPortions[count - 1].startingPoint + Random.value * inhibitedPortions[count - 1].portion);
-            var randomNorm = Random.value;
 
+            var deltaAngle = 360 / ScannerSubdivision;
+            var startingAngle = -180 + (count - 1) * deltaAngle;
+
+            var randomAngle = (startingAngle + Random.value * deltaAngle);
+            var randomNorm = Random.value;
             return Quaternion.Euler(0, transform.rotation.eulerAngles.y + randomAngle, 0) * BodyHeadAxis * randomNorm;
         }
 
@@ -164,137 +152,16 @@ namespace mew
             return Mathf.Sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
         }
 
-        private (List<(float startingPoint, float portion, float probability)> portions, float probaSum) GetInhibitedDirections(List<float> openingPositions, List<float> closingPositions, List<float> distances)
-        {
-            if (openingPositions.Count == 0)
-                return (new List<(float ,float, float)> { (-178, 356, 1) }, 1);
-
-            openingPositions.Sort();
-            closingPositions.Sort();
-
-            var results = new List<(float startingPoint, float portion, float distance)>();
-
-            var openingIndex = 0;
-            int? currentOpenerIndex = null;
-            var closingIndex = 0;
-
-            var distSum = 0f;
-
-            // Start circle from angle -180 to 180;
-            // Portions have reduced probability if between an open position and a close position
-            // Portions have unchanged probability if between a close position and an open position
-            //      and from minimum angle to first open position, and from last close position to maximum angle
-
-
-            //first portion, unchanged probability
-            var firstProba = (openingPositions[0] + 178) / 356;
-            results.Add((-178, openingPositions[0] + 178, firstProba));
-
-            // to ensure to have a proba law in the end
-            var probaTotal = firstProba;
-
-
-            while (openingIndex + closingIndex < openingPositions.Count + closingPositions.Count)
-            {
-                if (currentOpenerIndex.HasValue == false)
-                {
-                    currentOpenerIndex = openingIndex;
-                    openingIndex++;
-                    continue;
-                }
-
-                if (openingIndex == openingPositions.Count)
-                {
-                    // for the last portion 
-                    // --> sum all remaining distances
-                    // --> add an inhibited portion
-                    // --> Add last unchanged portion
-
-                    for(int j = closingIndex; j < closingPositions.Count; j++)
-                    {
-                        distSum += distances[j];
-                    }
-                    closingIndex = closingPositions.Count;
-
-                    var inhibitedPortion = closingPositions[closingIndex - 1] - openingPositions[currentOpenerIndex.Value];
-                    var followingUnchangedPortion = 178 - closingPositions[closingPositions.Count - 1];
-
-                    var baseInhibitedProbability = inhibitedPortion / 356;
-                    var baseFollowingProbability = followingUnchangedPortion / 356;
-
-                    var distMean = distSum / (closingPositions.Count - currentOpenerIndex.Value);
-                    //Linear
-                    //var inhibitedProbability = baseInhibitedProbability * distMean / Stats.VisionRadius;
-
-                    //Exponential
-                    var expoArg = (distMean - PhysicalLength/10) / (distMean - (1 + Delta));
-                    //var expoArg = distMean / (distMean - (1 + Delta));
-                    // If walls are really too close for that portion (meaning closer than the ant body to head distance)
-                    // Directly set the probability to choose this zone as next direction to 0
-                    var inhibitedProbability = distMean > PhysicalLength/10 ? baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg)) : 0;
-                    //var inhibitedProbability = baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg));
-
-                    results.Add((openingPositions[currentOpenerIndex.Value], inhibitedPortion, inhibitedProbability));
-                    results.Add((closingPositions[closingPositions.Count - 1], followingUnchangedPortion, baseFollowingProbability));
-                    var probaToAdd = baseFollowingProbability + inhibitedProbability;
-                    probaTotal += baseFollowingProbability + inhibitedProbability;
-                    continue;
-                }
-
-                if (openingIndex != closingIndex)
-                {
-                    if (openingPositions[openingIndex] < closingPositions[closingIndex])
-                        openingIndex++;
-                    else
-                    {
-                        distSum += distances[closingIndex]/ Stats.VisionRadius;
-                        closingIndex++;
-                    }
-                }
-                else
-                {
-                    // When we close a portion of changed probability
-                    // --> Add it with below 1 probability multiplicator
-                    //--> Add a portion of unchanged probability from last close to next open
-                    var inhibitedPortion = closingPositions[closingIndex] - openingPositions[currentOpenerIndex.Value];
-                    var followingUnchangedPortion = openingPositions[openingIndex] - closingPositions[closingIndex];
-
-                    var baseInhibitedProbability = inhibitedPortion / 356;
-                    var baseFollowingProbability = followingUnchangedPortion / 356;
-
-                    var distMean = distSum / (closingIndex - currentOpenerIndex.Value + 1);
-                    // Linear
-                    //var inhibitedProbability = baseInhibitedProbability * distMean / Stats.VisionRadius;
-
-                    //Exponential
-                    //Exponential
-                    var expoArg = (distMean - PhysicalLength) / (distMean - (1 + Delta));
-                    // If walls are really too close for that portion (meaning closer than the ant body to head distance)
-                    // Directly set the probability to choose this zone as next direction to 0
-                    var inhibitedProbability = distMean > PhysicalLength ? baseInhibitedProbability * (1 - Mathf.Exp(expoMultiplicator * expoArg)) : 0;
-
-                    results.Add((openingPositions[currentOpenerIndex.Value], inhibitedPortion, inhibitedProbability));
-                    results.Add((closingPositions[closingIndex], followingUnchangedPortion, baseFollowingProbability));
-
-                    probaTotal += baseFollowingProbability + inhibitedProbability;
-
-                    currentOpenerIndex = null;
-
-                    distSum = 0;
-                }
-            }
-
-            return (results, probaTotal);
-        }
+        
 
         private float GetStatisticMultiplicator()
         {
-            var obstaclesNumber = _visionField.Obstacles.Count;
+            var obstaclesNumber = _scannerManager.ObstaclesInRangeCount();
 
             if (obstaclesNumber == 0)
                 return 1;
 
-            var normalizedDistance = GetNormalizedDistance();
+            var normalizedDistance = GetNormalizedDistanceToObstacles();
 
             var expoArgument = 1 - 1 / normalizedDistance;
             var expo = 1 - Mathf.Exp(expoArgument);
@@ -302,23 +169,26 @@ namespace mew
             return multiplicator;
         }
 
-        private float GetNormalizedDistance()
+        private float GetNormalizedDistanceToObstacles()
         {
-            var result = 0f;
-            var obstacles = _visionField.Obstacles;
-            foreach(var obstacle in obstacles)
-            {
-                result += Vector3.Distance(_head.position, obstacle.transform.position) / Stats.VisionRadius;
-            }
-            var temp = result / obstacles.Count;
+            var temp = _scannerManager.GetObstacleInRangeNormalizedDistance(_head.position, Stats.VisionRadius);
             return temp > 1 ? 1 : temp;
         }
 
         internal virtual void DropPheromone()
         {
-            var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(ScriptablePheromoneBase.PheromoneTypeEnum.Wander);
+            _dropPheroTimer -= Time.deltaTime;
+            if (_dropPheroTimer > 0)
+                return;
+            
+            _dropPheroTimer += _dropPheroInterval;
+
+            // Spawn pheromone
+            var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(GetPheroType());
             var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _body.position, Quaternion.identity, PheromoneContainer);
             pheromone.SetCaracteristics(scriptablePheromone.BaseCaracteristics);
         }
+
+        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
     }
 }

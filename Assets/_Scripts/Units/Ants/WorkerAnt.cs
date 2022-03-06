@@ -39,7 +39,7 @@ namespace mew
 
         private bool ScanForNest()
         {
-            if (!_carryingFood || _visionField.Collectables.Any(t => t.transform.name == _nest.name) == false)
+            if (!_carryingFood || _scannerManager.IsNestInSight(_nest.name).answer == false)
                 return false;
 
             _target = new Target { Type = TargetTypeEnum.Nest, Transform = _nest, Active = true };
@@ -51,18 +51,20 @@ namespace mew
             if (_carryingFood)
                 return false;
 
-            var food = _visionField.Collectables.FirstOrDefault(t => t.tag == "Food");
-            if (food == null)
+            var foodObjects = _scannerManager.CollectablesListByTag("Food");
+            if (foodObjects.Count <= 0)
                 return false;
 
-            _target = new Target { Type = TargetTypeEnum.Food, Transform = food.transform, Active = true };
+            _target = new Target { Type = TargetTypeEnum.Food, Transform = foodObjects.First().transform, Active = true };
             return true;
         }
 
-        internal override void DropPheromone()
+        protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
         {
             if (_carryingFood)
-                base.DropPheromone();
+                return ScriptablePheromoneBase.PheromoneTypeEnum.CarryFood;
+
+            return ScriptablePheromoneBase.PheromoneTypeEnum.Wander;
         }
 
         private void MoveTowardTarget()

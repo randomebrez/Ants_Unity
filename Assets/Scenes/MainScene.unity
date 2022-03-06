@@ -152,6 +152,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1979195729}
+  - {fileID: 2146489897}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -199,6 +200,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b74e4c11680894447ad19903c8d1fdcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObstructionLayer:
+    serializedVersion: 2
+    m_Bits: 64
   SpawnerAntPrefab: {fileID: 923733167726499974, guid: c7f2662e3c151c94897e407db61722a2, type: 3}
   UnitsContainer: {fileID: 1979195728}
 --- !u!1 &564053691
@@ -522,6 +526,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 250485cf0412cd749b7722c0c9a8026f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObstructionLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &1138611253
 GameObject:
   m_ObjectHideFlags: 0
@@ -566,7 +573,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebc991ec1e087e44898b5834656073eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GroundSize: {x: 50, y: 0, z: 50}
+  ObstructionLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  GroundSize: {x: 70, y: 0, z: 45}
   NodeRadius: 1
   GroundPrefab: {fileID: 716169139456191004, guid: eed89b8ca0186104398e50e3d153b356, type: 3}
   EnvironmentContainer: {fileID: 175875662}
@@ -846,7 +856,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.859745, y: 1}
+    m_SensorSize: {x: 1.8407872, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -871,3 +881,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!1 &2146489896
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2146489897}
+  m_Layer: 0
+  m_Name: PheromoneContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2146489897
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2146489896}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 175875663}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
