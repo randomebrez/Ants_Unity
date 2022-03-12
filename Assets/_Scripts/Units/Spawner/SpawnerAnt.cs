@@ -51,6 +51,6 @@ public class SpawnerAnt : MonoBehaviour
         spawnedAnt.name = $"{antType}_{antCounter}";
 
         //Set statistics according to scriptable object
-        spawnedAnt.SetStats(scriptableObject.BaseStats);
+        spawnedAnt.Initialyze(scriptableObject.BaseStats);
     }
 }

@@ -22,7 +22,7 @@ public class ResourceSystem : Singleton<ResourceSystem>
         _antsDict = Ants.ToDictionary(t => t.AntType, t => t);
 
         Pheromones = Resources.LoadAll<ScriptablePheromoneBase>("Units/Pheromones").ToList();
-        _pheromonesDict = Pheromones.ToDictionary(t => t.PheromoneType, t => t);
+        _pheromonesDict = Pheromones.ToDictionary(t => t.BaseCaracteristics.PheromoneType, t => t);
     }
 
     public ScriptableAntBase AntOfTypeGet(ScriptableAntBase.AntTypeEnum type) => _antsDict[type];

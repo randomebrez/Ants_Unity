@@ -82,7 +82,7 @@ namespace mew
 
         private void RandomWalk()
         {
-            var random = GetRandomDirection();
+            var random = GetRandomDirection(_carryingFood);
 
             // Random direction shouldn't be in the back circular arc of the ant. (4 degrees not allowed)
             var randomDirectionAngle = Vector3.SignedAngle(BodyHeadAxis, new Vector3(random.x, 0, random.z), Vector3.up);

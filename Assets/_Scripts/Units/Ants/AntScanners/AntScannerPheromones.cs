@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using mew;
 
 public class AntScannerPheromones : AntScannerBase
 {
@@ -15,6 +18,18 @@ public class AntScannerPheromones : AntScannerBase
             var pheromone = obj.GetComponent<BasePheromone>().Pheromone;
             sum += pheromone.Density;
         }
+        return sum;
+    }
+
+    public float GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
+    {
+        var sum = 0f;
+        var pheroDensities = Objects[index]
+            .Where(t => t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == type)
+            .Select(t => t.GetComponent<BasePheromone>().Pheromone.Density);
+
+        foreach (var density in pheroDensities)
+            sum += density;
         return sum;
     }
 

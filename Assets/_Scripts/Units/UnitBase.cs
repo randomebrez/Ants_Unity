@@ -8,6 +8,9 @@ namespace mew
     {
         public ScriptableUnitBase.Stats Stats { get; private set; }
 
-        public virtual void SetStats(ScriptableUnitBase.Stats stats) => Stats = stats;
+        public virtual void Initialyze(ScriptableUnitBase.Stats stats)
+        {
+            Stats = stats;
+        }
     }
 }

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public abstract class AntScannerBase : MonoBehaviour
 {
+    private bool _initialyzed = false;
+
     [SerializeField]
     protected LayerMask ScanningMainLayer;
     [SerializeField]
@@ -31,7 +33,7 @@ public abstract class AntScannerBase : MonoBehaviour
         }
     }
     private List<GameObject> _objects = new List<GameObject>();
-    private Collider[] _colliders = new Collider[50];
+    private Collider[] _colliders = new Collider[150];
 
     private int _count;
 
@@ -49,8 +51,9 @@ public abstract class AntScannerBase : MonoBehaviour
 
     public abstract float GetPortionValue(int index);
 
-    public void ScannerSubdivisionSet(int scannerSubdivision)
+    public void Initialyze(BaseAnt ant, int scannerSubdivision)
     {
+        _ant = ant;
         _scannerSubdivision = scannerSubdivision;
 
         var deltaTheta = 360 / _scannerSubdivision;
@@ -60,6 +63,8 @@ public abstract class AntScannerBase : MonoBehaviour
             current += i * deltaTheta;
             _subdivisions.Add(current);
         }
+
+        _initialyzed = true;
     }
 
     private void Start()
@@ -70,6 +75,9 @@ public abstract class AntScannerBase : MonoBehaviour
 
     private void Update()
     {
+        if (_initialyzed == false)
+            return;
+
         _scanTimer -= Time.deltaTime;
         if (_scanTimer < 0)
         {
@@ -77,6 +85,7 @@ public abstract class AntScannerBase : MonoBehaviour
             Scan();
         }
     }
+
 
 
     protected virtual void Scan()

@@ -8,7 +8,6 @@ namespace mew
         [SerializeField] private Caracteristics _caracteristics;
         public Caracteristics BaseCaracteristics => _caracteristics;
 
-        public PheromoneTypeEnum PheromoneType;
         public BasePheromone PheromonePrefab;
 
         public enum PheromoneTypeEnum
@@ -20,6 +19,7 @@ namespace mew
         [System.Serializable]
         public struct Caracteristics
         {
+            public PheromoneTypeEnum PheromoneType;
             public int Duration;
             public Color Color;
         }

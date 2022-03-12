@@ -15,7 +15,7 @@ public class AntScannerObstacles : AntScannerBase
         return !Physics.Linecast(from, to, OcclusionLayer);
     }
 
-    private Mesh CreateWedgeMesh(float height)
+    public Mesh CreateWedgeMesh(float height)
     {
         var mesh = new Mesh();
 
@@ -27,8 +27,8 @@ public class AntScannerObstacles : AntScannerBase
         int[] triangles = new int[numVertices];
 
         Vector3 bottomCenter = Vector3.zero;
-        Vector3 bottomLeft = Quaternion.Euler(0, - _ant.Stats.VisionAngle, 0) * Vector3.right * _ant.Stats.VisionRadius;
-        Vector3 bottomRight = Quaternion.Euler(0, _ant.Stats.VisionAngle, 0) * Vector3.right * _ant.Stats.VisionRadius;
+        Vector3 bottomLeft = Quaternion.Euler(0, -ScannerAngle, 0) * Vector3.right * ScannerRadius;
+        Vector3 bottomRight = Quaternion.Euler(0, ScannerAngle, 0) * Vector3.right * ScannerRadius;
 
         Vector3 topCenter = bottomCenter + Vector3.up * height;
         Vector3 topLeft = bottomLeft + Vector3.up * height;
@@ -54,13 +54,13 @@ public class AntScannerObstacles : AntScannerBase
         vertices[vertice++] = bottomRight;
         vertices[vertice++] = bottomCenter;
 
-        var currentAngle = -_ant.Stats.VisionAngle;
-        var deltaAngle = (2 * _ant.Stats.VisionAngle) / segments;
+        var currentAngle = -ScannerAngle;
+        var deltaAngle = (2 * ScannerAngle) / segments;
 
         for (int i = 0; i < segments; i++)
         {
-            bottomLeft = Quaternion.Euler(0, currentAngle, 0) * Vector3.right * _ant.Stats.VisionRadius;
-            bottomRight = Quaternion.Euler(0, currentAngle + deltaAngle, 0) * Vector3.right * _ant.Stats.VisionRadius;
+            bottomLeft = Quaternion.Euler(0, currentAngle, 0) * Vector3.right * ScannerRadius;
+            bottomRight = Quaternion.Euler(0, currentAngle + deltaAngle, 0) * Vector3.right * ScannerRadius;
 
             topLeft = bottomLeft + Vector3.up * height;
             topRight = bottomRight + Vector3.up * height;
@@ -96,27 +96,30 @@ public class AntScannerObstacles : AntScannerBase
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
 
+        _mesh = mesh;
         return mesh;
     }
-
-
-    /*private void OnDrawGizmos()
-    {
-        if (_mesh != null)
-        {
-            Gizmos.color = meshColor;
-            Gizmos.DrawMesh(_mesh, transform.position, transform.rotation);
-        }
-    }*/
 
     public override float GetPortionValue(int index)
     {
         var sum = 0f;
         foreach(var obj in Objects[index])
         {
-            sum+= Vector3.Distance(_ant.transform.position, obj.transform.position) / _ant.Stats.VisionRadius;
+            sum+= Vector3.Distance(_ant.transform.position, obj.transform.position) / ScannerRadius;
         }
         return sum == 0f ? 1 : sum;
+    }
+
+    protected override bool IsInSight(GameObject obj)
+    {
+        var position = transform.position;
+        var objPosition = obj.transform.position;
+        var direction = objPosition - position;
+
+        if (direction.magnitude < _ant.PhysicalLength * 2)
+            return true;
+
+        return base.IsInSight(obj);
     }
 
     private void OnDrawGizmos()
@@ -125,6 +128,12 @@ public class AntScannerObstacles : AntScannerBase
         foreach (var obstacle in ObjectsFlattenList)
         {
             Gizmos.DrawWireCube(obstacle.transform.position, Vector3.one);
+        }
+
+        if (_mesh != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawMesh(_mesh, transform.position, transform.rotation);
         }
     }
 }

@@ -82,7 +82,7 @@ public class Ground : MonoBehaviour
         botWall.WallWidth = _gridWorldSize.x + _nodeDiameter;
         botWall.BuildWall();
 
-        BuildRandomWall();
+        //BuildRandomWall();
     }
 
     public void BuildRandomWall()

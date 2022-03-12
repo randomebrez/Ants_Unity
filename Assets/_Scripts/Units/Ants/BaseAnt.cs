@@ -7,7 +7,9 @@ namespace mew
 {
     public abstract class BaseAnt : UnitBase
     {
-        private const int ScannerSubdivision = 50;
+        private const int ScannerSubdivision = 10;
+
+        private bool _initialyzed = false;
 
         protected Vector3 _position;
         protected Vector3 _velocity;
@@ -18,7 +20,7 @@ namespace mew
         protected Transform _nest;
         protected AntScannerManager _scannerManager;
 
-        public Transform PheromoneContainer;
+        private Transform PheromoneContainer;
 
         protected int _dropPheroFrequency = 10;
         protected float _dropPheroInterval;
@@ -29,14 +31,16 @@ namespace mew
         protected float _targetTreshold = 0.3f;
 
         public float SteerStrength = 3;
-        private float _currentSteerStrength = 0f;
-        private float _currentMaxSpeed = 0f;
+        public float _currentSteerStrength = 0f;
+        public float _currentMaxSpeed = 0f;
         public float WanderStrength = 1;
+
+        public List<float> Probabilities = new List<float>();
 
         public float expoMultiplicator = 100;
         public float steeringForceConstant = 10;
 
-        void Start()
+        private void Awake()
         {
             _position = transform.position;
             _position.y = 1.25f;
@@ -45,10 +49,13 @@ namespace mew
             _nest = transform.parent;
 
             _scannerManager = _head.GetComponentInChildren<AntScannerManager>();
-            _scannerManager.ScannerSubdivisionSet(ScannerSubdivision);
+            
 
             _dropPheroInterval = 1.0f / _dropPheroFrequency;
+        }
 
+        void Start()
+        {
             _desiredDirection = BodyHeadAxis.normalized;
             _currentSteerStrength = SteerStrength;
             _currentMaxSpeed = Stats.MaxSpeed;
@@ -58,6 +65,9 @@ namespace mew
 
         void Update()
         {
+            if (_initialyzed == false)
+                return;
+
             Move();
             DropPheromone();
 
@@ -66,6 +76,16 @@ namespace mew
 
             if (TargetDistance() < Stats.TargetDestroyTreshold)
                 OnTargetReach();
+        }
+
+        public override void Initialyze(ScriptableUnitBase.Stats stats)
+        {
+            base.Initialyze(stats);
+
+            _scannerManager.InitialyzeScanners(ScannerSubdivision);
+            _scannerManager.CreateMesh();
+
+            _initialyzed = true;
         }
 
         /* Get axis from body to head.
@@ -79,9 +99,11 @@ namespace mew
          Once _desiredDirection is set ant movement always end like that*/
         public virtual void Move()
         {
-            var multiplicator = GetStatisticMultiplicator();
-            _currentSteerStrength = multiplicator * SteerStrength;
-            _currentMaxSpeed = (1 / multiplicator) * Stats.MaxSpeed;
+            var expoValue = InRangeObstaclesScoreGet();
+            var steerStrengthMultiplicator = GetMultiplicator(SteerStrength, expoValue);
+            var maxSpeedMultiplicator = GetMultiplicator(Stats.MaxSpeed, expoValue);
+            _currentSteerStrength = steerStrengthMultiplicator * SteerStrength;
+            _currentMaxSpeed = (1 / maxSpeedMultiplicator) * Stats.MaxSpeed;
 
 
             var desiredVelocity = _desiredDirection * _currentMaxSpeed;
@@ -116,9 +138,10 @@ namespace mew
             transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + angle, 0));
         }
 
-        protected Vector3 GetRandomDirection()
+        protected Vector3 GetRandomDirection(bool carryFood)
         {
-            var inhibitedProbabilties = _scannerManager.GetProbabilities();
+            Probabilities = _scannerManager.GetProbabilities(carryFood);
+            var inhibitedProbabilties = Probabilities;
 
             var randomNumber = Random.value;
             var foundZone = false;
@@ -152,27 +175,17 @@ namespace mew
             return Mathf.Sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
         }
 
-        
-
-        private float GetStatisticMultiplicator()
+        private float GetMultiplicator(float caracteristicConstant, float expoValue)
         {
-            var obstaclesNumber = _scannerManager.ObstaclesInRangeCount();
-
-            if (obstaclesNumber == 0)
-                return 1;
-
-            var normalizedDistance = GetNormalizedDistanceToObstacles();
-
-            var expoArgument = 1 - 1 / normalizedDistance;
-            var expo = 1 - Mathf.Exp(expoArgument);
-            var multiplicator = (steeringForceConstant - 1) * expo + 1;
+            var multiplicator = (1 - caracteristicConstant) * expoValue + caracteristicConstant;
             return multiplicator;
         }
 
-        private float GetNormalizedDistanceToObstacles()
+        private float InRangeObstaclesScoreGet()
         {
-            var temp = _scannerManager.GetObstacleInRangeNormalizedDistance(_head.position, Stats.VisionRadius);
-            return temp > 1 ? 1 : temp;
+            var obstacleDistance = _scannerManager.GetObstacleInRangeNormalizedDistance(_head.position, Stats.VisionRadius);
+            obstacleDistance = obstacleDistance > 1 ? 1 : obstacleDistance;
+            return StaticHelper.ComputeExponentialProbability(obstacleDistance, PhysicalLength / Stats.VisionRadius, 1f);
         }
 
         internal virtual void DropPheromone()
