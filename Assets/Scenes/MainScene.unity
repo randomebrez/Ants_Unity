@@ -576,7 +576,7 @@ MonoBehaviour:
   ObstructionLayer:
     serializedVersion: 2
     m_Bits: 64
-  GroundSize: {x: 70, y: 0, z: 45}
+  GroundSize: {x: 75, y: 0, z: 45}
   NodeRadius: 1
   GroundPrefab: {fileID: 716169139456191004, guid: eed89b8ca0186104398e50e3d153b356, type: 3}
   EnvironmentContainer: {fileID: 175875662}

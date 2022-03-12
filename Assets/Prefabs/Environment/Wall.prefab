@@ -48,4 +48,5 @@ MonoBehaviour:
   WallHeight: 4
   BrickWidth: 1
   BrickHeight: 0.5
+  WallThickness: 2
   BrickPrefab: {fileID: 8595144001282355072, guid: 59d4ac6d29927af4f9e9c2bfbf60594f, type: 3}

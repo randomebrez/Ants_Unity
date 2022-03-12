@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CarryFoodPheromone
   m_EditorClassIdentifier: 
   _caracteristics:
+    PheromoneType: 1
     Duration: 20
     Color: {r: 1, g: 0, b: 0, a: 1}
   PheromoneType: 1
