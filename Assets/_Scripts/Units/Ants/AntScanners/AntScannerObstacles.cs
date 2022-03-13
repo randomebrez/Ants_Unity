@@ -4,7 +4,7 @@ using UnityEngine;
 public class AntScannerObstacles : AntScannerBase
 {
     private Mesh _mesh;
-
+    private float _avoidDistance => _ant.PhysicalLength;
     protected override float ScannerAngle => _ant.Stats.VisionAngle;
     protected override bool CheckObtruction => true;
 
@@ -13,6 +13,35 @@ public class AntScannerObstacles : AntScannerBase
     public bool IsMoveValid(Vector3 from, Vector3 to)
     {
         return !Physics.Linecast(from, to, OcclusionLayer);
+    }
+
+    public bool IsHeadingForCollision()
+    {
+        RaycastHit hit;
+        if (Physics.SphereCast(transform.position, _ant.Stats.BoundRadius, _ant.BodyHeadAxis, out hit, _avoidDistance, OcclusionLayer))
+        {
+            return true;
+        }
+        else { }
+        return false;
+    }
+
+    public Vector3 ObstacleRays()
+    {
+        var deltaTheta = 360f / _scannerSubdivision;
+        var currentAngle = -180f + deltaTheta / 2f;
+        var antAxe = _ant.BodyHeadAxis;
+        for (int i = 0; i < _scannerSubdivision; i++)
+        {
+            Vector3 dir = Quaternion.Euler(0, currentAngle, 0) * antAxe;
+            Ray ray = new Ray(_ant.transform.position, dir);
+            if (!Physics.SphereCast(ray, _ant.Stats.BoundRadius, _avoidDistance, OcclusionLayer))
+            {
+                return dir;
+            }
+        }
+
+        return antAxe;
     }
 
     public Mesh CreateWedgeMesh(float height)
@@ -102,12 +131,15 @@ public class AntScannerObstacles : AntScannerBase
 
     public override float GetPortionValue(int index)
     {
-        var sum = 0f;
+        var currentMin = ScannerRadius;
         foreach(var obj in Objects[index])
         {
-            sum+= Vector3.Distance(_ant.transform.position, obj.transform.position) / ScannerRadius;
+            var distance = Vector3.Distance(_ant.transform.position, obj.transform.position);
+
+            if (distance < currentMin)
+                currentMin = distance;
         }
-        return sum == 0f ? 1 : sum;
+        return currentMin / ScannerRadius;
     }
 
     protected override bool IsInSight(GameObject obj)
@@ -116,7 +148,7 @@ public class AntScannerObstacles : AntScannerBase
         var objPosition = obj.transform.position;
         var direction = objPosition - position;
 
-        if (direction.magnitude < _ant.PhysicalLength * 2)
+        if (direction.magnitude < _ant.PhysicalLength * 4)
             return true;
 
         return base.IsInSight(obj);

@@ -13,7 +13,7 @@ public abstract class AntScannerBase : MonoBehaviour
     protected LayerMask OcclusionLayer;
     public Color color;
 
-    private int _scannerSubdivision;
+    protected int _scannerSubdivision;
     private List<float> _subdivisions = new List<float>();
 
     public Dictionary<int, List<GameObject>> Objects
@@ -56,12 +56,12 @@ public abstract class AntScannerBase : MonoBehaviour
         _ant = ant;
         _scannerSubdivision = scannerSubdivision;
 
-        var deltaTheta = 360 / _scannerSubdivision;
+        float deltaTheta = 360 / _scannerSubdivision;
         var current = -180f;
         for (int i = 0; i < _scannerSubdivision; i++)
         {
-            current += i * deltaTheta;
             _subdivisions.Add(current);
+            current += deltaTheta;
         }
 
         _initialyzed = true;
@@ -69,7 +69,6 @@ public abstract class AntScannerBase : MonoBehaviour
 
     private void Start()
     {
-        _ant = GetComponentInParent<BaseAnt>();
         _scanInterval = 1.0f / ScanFrequency;
     }
 
@@ -110,20 +109,18 @@ public abstract class AntScannerBase : MonoBehaviour
         var result = new Dictionary<int, List<GameObject>>();
 
         for(int i = 0; i < _scannerSubdivision; i ++)
-        {
             result.Add(i, new List<GameObject>());
-        }
 
 
-        var delta = 360 / _scannerSubdivision;
+        var delta = 360f / _scannerSubdivision;
+        var position = transform.position;
         foreach (var obj in objects)
         {
-            var position = transform.position;
             var objPosition = obj.transform.position;
             var direction = objPosition - position;
-            var angle = Mathf.Abs(Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up));
+            var angle = Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up);
 
-            var portionIndex = _subdivisions.Any(t => t >= angle) ?_subdivisions.FindIndex(t => t >= angle): _subdivisions.Count;
+            var portionIndex = _subdivisions.Any(t => t > angle) ? _subdivisions.FindIndex(t => t > angle): _subdivisions.Count;
             result[portionIndex - 1].Add(obj);
         }
 

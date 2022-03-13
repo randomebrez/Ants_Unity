@@ -30,10 +30,8 @@ namespace mew
         protected Target _target = new Target();
         protected float _targetTreshold = 0.3f;
 
-        public float SteerStrength = 3;
         public float _currentSteerStrength = 0f;
         public float _currentMaxSpeed = 0f;
-        public float WanderStrength = 1;
 
         public List<float> Probabilities = new List<float>();
 
@@ -46,7 +44,6 @@ namespace mew
             _position.y = 1.25f;
             _body = transform.GetChild(0);
             _head = transform.GetChild(1);
-            _nest = transform.parent;
 
             _scannerManager = _head.GetComponentInChildren<AntScannerManager>();
             
@@ -56,8 +53,9 @@ namespace mew
 
         void Start()
         {
+            _nest = transform.parent;
             _desiredDirection = BodyHeadAxis.normalized;
-            _currentSteerStrength = SteerStrength;
+            _currentSteerStrength = Stats.SteerStrength;
             _currentMaxSpeed = Stats.MaxSpeed;
 
             PheromoneContainer = transform.parent.parent.parent.GetChild(1);
@@ -100,20 +98,28 @@ namespace mew
         public virtual void Move()
         {
             var expoValue = InRangeObstaclesScoreGet();
-            var steerStrengthMultiplicator = GetMultiplicator(SteerStrength, expoValue);
+            var steerStrengthMultiplicator = GetMultiplicator(Stats.SteerStrength, expoValue);
             var maxSpeedMultiplicator = GetMultiplicator(Stats.MaxSpeed, expoValue);
-            _currentSteerStrength = steerStrengthMultiplicator * SteerStrength;
+            _currentSteerStrength = steerStrengthMultiplicator * Stats.SteerStrength;
             _currentMaxSpeed = (1 / maxSpeedMultiplicator) * Stats.MaxSpeed;
 
 
-            var desiredVelocity = _desiredDirection * _currentMaxSpeed;
-            var desiredSteeringForce = (desiredVelocity - _velocity) * _currentSteerStrength;
+            var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
+            var desiredSteeringForce = (desiredVelocity - _velocity) * Stats.SteerStrength;
 
             // get acceleration
-            var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, SteerStrength);
+            var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, Stats.SteerStrength);
+
+            var isHeadingForCollision = _scannerManager.IsHeadingForCollision();
+            if (isHeadingForCollision.isIt)
+            {
+                var avoidForce = (isHeadingForCollision.avoidDir.normalized * Stats.MaxSpeed - _velocity) * Stats.SteerStrength;
+                avoidForce.y = 0;
+                acceleration += Vector3.ClampMagnitude(avoidForce, Stats.SteerStrength) * Stats.AvoidCollisionForce;
+            }
 
             // calculate new velocity
-            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, _currentMaxSpeed);
+            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
 
             // calculate new position
             var newPos = _position + newVelocity * Time.deltaTime;
@@ -130,12 +136,10 @@ namespace mew
                     break;
             }
 
-            // calculate the rotation to go in the new direction
-            var angle = Vector3.SignedAngle(BodyHeadAxis, newVelocity, Vector3.up);
-
+            var rotation = Vector3.SignedAngle(BodyHeadAxis, newVelocity, Vector3.up);
 
             // Apply it to the ant game object
-            transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + angle, 0));
+            transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
         }
 
         protected Vector3 GetRandomDirection(bool carryFood)

@@ -18,7 +18,7 @@ public class AntScannerPheromones : AntScannerBase
             var pheromone = obj.GetComponent<BasePheromone>().Pheromone;
             sum += pheromone.Density;
         }
-        return sum;
+        return Objects[index].Count == 0 ? sum : sum / Objects[index].Count;
     }
 
     public float GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
@@ -30,7 +30,8 @@ public class AntScannerPheromones : AntScannerBase
 
         foreach (var density in pheroDensities)
             sum += density;
-        return sum;
+
+        return pheroDensities.Count() == 0 ? sum : sum / pheroDensities.Count();
     }
 
     private void OnDrawGizmos()

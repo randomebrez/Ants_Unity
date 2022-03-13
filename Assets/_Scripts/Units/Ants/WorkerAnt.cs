@@ -39,7 +39,10 @@ namespace mew
 
         private bool ScanForNest()
         {
-            if (!_carryingFood || _scannerManager.IsNestInSight(_nest.name).answer == false)
+            if (!_carryingFood)
+                return false;
+
+            if (_scannerManager.IsNestInSight(_nest.name).answer == false)
                 return false;
 
             _target = new Target { Type = TargetTypeEnum.Nest, Transform = _nest, Active = true };
@@ -73,6 +76,7 @@ namespace mew
                 return;
 
             _desiredDirection = _target.Transform.position - _position;
+            _desiredDirection.y = 0;
 
             // Normalize if above one
             // Otherwise it will slow down the ant until it reaches the target
@@ -84,13 +88,8 @@ namespace mew
         {
             var random = GetRandomDirection(_carryingFood);
 
-            // Random direction shouldn't be in the back circular arc of the ant. (4 degrees not allowed)
-            var randomDirectionAngle = Vector3.SignedAngle(BodyHeadAxis, new Vector3(random.x, 0, random.z), Vector3.up);
-            if (Mathf.Abs(randomDirectionAngle) < 178)
-            {
-                _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.z) * WanderStrength).normalized;
-                _desiredDirection.y = 0;
-            }
+            _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.z) * Stats.WanderStrength).normalized;
+            _desiredDirection.y = 0;
         }
 
         private void OnDrawGizmos()

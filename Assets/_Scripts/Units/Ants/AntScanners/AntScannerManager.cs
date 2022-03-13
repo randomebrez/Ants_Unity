@@ -17,7 +17,7 @@ public class AntScannerManager : MonoBehaviour
     }
     
     private const float NormalMu = 0f;
-    private const float NormalSigma = 240f;
+    private const float NormalSigma = 270f;
 
     private AntScannerObstacles _obstacleScanner;
     private AntScannerPheromones _pheromoneScanner;
@@ -62,12 +62,9 @@ public class AntScannerManager : MonoBehaviour
 
     private float GetPortionScore(int portionIndex, bool carryFood)
     {
-        var result = GetPortionBonus(portionIndex, carryFood) - GetPortionMalus(portionIndex);
-        if (result < 0)
-            return 0;
-        if (result > 1)
-            return 1;
-        return result;
+        var malus = GetPortionMalus(portionIndex);
+        var bonus = GetPortionBonus(portionIndex, carryFood);
+        return bonus - malus;
     }
 
     private float GetPortionBonus(int portionIndex, bool carryFood)
@@ -91,13 +88,7 @@ public class AntScannerManager : MonoBehaviour
         var obstacleValue = _obstacleScanner.GetPortionValue(portionIndex);
         var obstacleValueExp = StaticHelper.ComputeExponentialProbability(obstacleValue, _ant.PhysicalLength / _ant.Stats.VisionRadius, 1f);
 
-        var result = 1 - obstacleValueExp;
-        if (result < 0)
-            result = 0;
-        if (result > 1)
-            result = 1;
-
-        return result;
+        return 1 - obstacleValueExp;
     }
 
     private List<float> GetInhibitedDirections(List<float> portionScores)
@@ -112,7 +103,7 @@ public class AntScannerManager : MonoBehaviour
         var unnormedProbabilities = new List<float>();
 
         var portionNumber = portionScores.Count;
-        var deltaAngle = 360 / _subdivisons;
+        var deltaAngle = 360f / _subdivisons;
         var startingPoint = -180f + deltaAngle / 2;
 
         for (int i = 0; i < portionScores.Count; i++)
@@ -148,14 +139,17 @@ public class AntScannerManager : MonoBehaviour
         return count == 0 ? 1 : distance / count;
     }
 
-    public int ObstaclesInRangeCount()
-    {
-        return _obstacleScanner.GetCount;
-    }
-
     public bool IsMoveValid(Vector3 from, Vector3 to)
     {
         return _obstacleScanner.IsMoveValid(from, to);
+    }
+
+    public (bool isIt, Vector3 avoidDir) IsHeadingForCollision()
+    {
+        if (_obstacleScanner.IsHeadingForCollision() == false)
+            return (false, Vector3.zero);
+
+        return (true, _obstacleScanner.ObstacleRays());
     }
 
     #endregion

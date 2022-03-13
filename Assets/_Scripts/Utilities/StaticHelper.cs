@@ -37,7 +37,7 @@ namespace Assets._Scripts.Utilities
                 expoArg = 0;
             var tempResult = Mathf.Exp(argumentMultiplicator * expoArg);
             if (tempResult > 1)
-                return 0;
+                tempResult = 1;
             return 1 - tempResult;
         }
 

@@ -11,12 +11,10 @@ public class BasePheromone : MonoBehaviour
     private Timer _timer;
     private bool _expired = false;
 
-    //public ScriptablePheromoneBase.Caracteristics Caracteristics { get => new ScriptablePheromoneBase.Caracteristics { Color = Color.blue, Duration = 5 }; }
-
     public ScriptablePheromoneBase.Caracteristics Caracteristics { get; private set; }
     public virtual void SetCaracteristics(ScriptablePheromoneBase.Caracteristics caracteristics) => Caracteristics = caracteristics;
 
-        // Start is called before the first frame update
+    // Start is called before the first frame update
     void Start()
     {
         _renderer = GetComponent<MeshRenderer>();
@@ -24,7 +22,8 @@ public class BasePheromone : MonoBehaviour
         Pheromone = new Pheromone
         {
             CreationDate = DateTime.UtcNow,
-            Lifetime = new TimeSpan(0, 0, Caracteristics.Duration)
+            Lifetime = new TimeSpan(0, 0, Caracteristics.Duration),
+            Density = 1
         };
         TimerInitialize();
     }

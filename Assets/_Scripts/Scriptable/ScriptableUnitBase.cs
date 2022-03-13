@@ -12,11 +12,20 @@ namespace mew
         [System.Serializable]
         public struct Stats
         {
-            public int MaxSpeed;
+            // Base stats
+            public float MaxSpeed;
+            public float SteerStrength;
+            public float WanderStrength;
+            public Color Color;
+
+            // Vision
             public float VisionRadius;
             public float VisionAngle;
+
+            // Collision
             public float TargetDestroyTreshold;
-            public Color Color;
+            public float BoundRadius;
+            public float AvoidCollisionForce;
         }
     }
 }
