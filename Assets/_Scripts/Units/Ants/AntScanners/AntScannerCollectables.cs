@@ -1,4 +1,4 @@
-﻿using mew;
+﻿using System.Linq;
 using UnityEngine;
 
 public class AntScannerCollectables : AntScannerBase
@@ -13,12 +13,25 @@ public class AntScannerCollectables : AntScannerBase
         throw new System.NotImplementedException();
     }
 
-    private void OnDrawGizmos()
+    public (bool isIt, Transform nest) IsNestInSight(string nestName)
+    {
+        var colliders = Physics.OverlapSphere(transform.position, _ant.Stats.VisionRadius, ScanningMainLayer);
+        var nest = colliders.FirstOrDefault(t => t.name == nestName);
+        if (nest == null)
+            return (false, null);
+
+        if (Physics.Linecast(transform.position, nest.transform.position - transform.position, OcclusionLayer))
+            return (false, null);
+
+        return (true, nest.transform);
+    }
+
+    /*private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
         foreach (var obstacle in ObjectsFlattenList)
         {
             Gizmos.DrawWireCube(obstacle.transform.position, Vector3.one);
         }
-    }
+    }*/
 }

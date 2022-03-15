@@ -31,15 +31,15 @@ public class AntScannerPheromones : AntScannerBase
         foreach (var density in pheroDensities)
             sum += density;
 
-        return pheroDensities.Count() == 0 ? sum : sum / pheroDensities.Count();
+        return pheroDensities.Count() == 0 ? sum : sum / (pheroDensities.Count() * PortionSurface);
     }
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         foreach (var obstacle in ObjectsFlattenList)
         {
             Gizmos.DrawWireCube(obstacle.transform.position, Vector3.one);
         }
-    }
+    }*/
 }

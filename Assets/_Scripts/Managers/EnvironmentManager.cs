@@ -20,11 +20,13 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
         _ground.SetupGrid(GroundSize, NodeRadius);
     }
 
-    public void SpawnFood()
+    public void SpawnFood(float angle)
     {
-        var randomX = (Random.value - 0.5f) * GroundSize.x;
-        var randomZ = (Random.value - 0.5f) * GroundSize.z;
-        var spawnPosition = new Vector3(randomX, 1.1f, randomZ);
+        //var randomX = (Random.value - 0.5f) * GroundSize.x;
+        //var randomZ = (Random.value - 0.5f) * GroundSize.z;
+
+        var radius = GroundSize.z / 3f;
+        var spawnPosition = Quaternion.Euler(0, angle, 0) * (radius * Vector3.forward) + new Vector3(0,1.1f,0);
         InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * NodeRadius);
     }
 

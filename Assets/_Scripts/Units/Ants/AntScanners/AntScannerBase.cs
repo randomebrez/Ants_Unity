@@ -15,6 +15,7 @@ public abstract class AntScannerBase : MonoBehaviour
 
     protected int _scannerSubdivision;
     private List<float> _subdivisions = new List<float>();
+    protected float PortionSurface => (360f / _scannerSubdivision) * _ant.Stats.VisionRadius* _ant.Stats.VisionRadius / 2f;
 
     public Dictionary<int, List<GameObject>> Objects
     {

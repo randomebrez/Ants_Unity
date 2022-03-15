@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: WorkerAnt
   m_EditorClassIdentifier: 
   _statistics:
-    MaxSpeed: 10
-    SteerStrength: 5
+    MaxSpeed: 3
+    SteerStrength: 3
     WanderStrength: 1
     Color: {r: 0, g: 0.33982182, b: 1, a: 0}
     VisionRadius: 7
     VisionAngle: 50
     TargetDestroyTreshold: 0.3
     BoundRadius: 0.3
-    AvoidCollisionForce: 10
+    AvoidCollisionForce: 5
   AntType: 0
   AntPrefab: {fileID: -5730626997778548948, guid: fa1be99714fd34446977b8e1d9eb7be8, type: 3}

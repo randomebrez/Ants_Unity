@@ -154,7 +154,7 @@ public class AntScannerObstacles : AntScannerBase
         return base.IsInSight(obj);
     }
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
         foreach (var obstacle in ObjectsFlattenList)
@@ -167,5 +167,5 @@ public class AntScannerObstacles : AntScannerBase
             Gizmos.color = Color.yellow;
             Gizmos.DrawMesh(_mesh, transform.position, transform.rotation);
         }
-    }
+    }*/
 }

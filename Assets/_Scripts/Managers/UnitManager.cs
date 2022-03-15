@@ -21,7 +21,7 @@ internal class UnitManager : BaseManager<UnitManager>
             var randomZ = (Random.value - 0.5f) * GetGroundSize.z - 1;
 
             var spawnerMaxRange = Mathf.Max(SpawnerAntPrefab.transform.lossyScale.x, SpawnerAntPrefab.transform.lossyScale.y, SpawnerAntPrefab.transform.lossyScale.z);
-            spawned = InstantiateObject(SpawnerAntPrefab.gameObject, new Vector3(randomX, 0, randomZ), Quaternion.identity, UnitsContainer.transform, spawnerMaxRange * 1.5f);
+            spawned = InstantiateObject(SpawnerAntPrefab.gameObject, new Vector3(0, 0, 0), Quaternion.identity, UnitsContainer.transform, spawnerMaxRange * 1.5f);
         }
 
         var id = _spawners.Count + 1;

@@ -22,7 +22,8 @@ public class SpawnerAnt : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) == false)
             return;
 
-        InstantiateUnit(ScriptableAntBase.AntTypeEnum.Worker);
+        for (int i = 0; i < 20; i++)
+            InstantiateUnit(ScriptableAntBase.AntTypeEnum.Worker);
     }
 
     public void SetRadius(float newRadius)

@@ -70,16 +70,16 @@ public class AntScannerManager : MonoBehaviour
     private float GetPortionBonus(int portionIndex, bool carryFood)
     {
         var carryPheroValue = _pheromoneScanner.GetPheromonesOfType(portionIndex, ScriptablePheromoneBase.PheromoneTypeEnum.CarryFood);
-        var carryPheroValueExp = StaticHelper.ComputeExponentialProbability(carryPheroValue, 0, 0.5f);
+        var carryPheroValueExp = StaticHelper.ComputeExponentialProbability(carryPheroValue, 0, 2f);
+        var wanderPheroValue = _pheromoneScanner.GetPheromonesOfType(portionIndex, ScriptablePheromoneBase.PheromoneTypeEnum.Wander);
+        var wanderPheroValueExp = StaticHelper.ComputeExponentialProbability(wanderPheroValue, 0, 2f);
 
         switch (carryFood)
-        {
+        { 
             case true:
-                return carryPheroValueExp;
+                return wanderPheroValueExp; 
             case false:
-                var wanderPheroValue = _pheromoneScanner.GetPheromonesOfType(portionIndex, ScriptablePheromoneBase.PheromoneTypeEnum.Wander);
-                var wanderPheroValueExp = StaticHelper.ComputeExponentialProbability(wanderPheroValue, 0, 0.5f);
-                return (carryPheroValueExp + wanderPheroValueExp) / 2;
+                return 0.7f * carryPheroValueExp + 0.3f * wanderPheroValueExp;
         }
     }
 
@@ -158,12 +158,7 @@ public class AntScannerManager : MonoBehaviour
 
     public (bool answer, Transform tranform) IsNestInSight(string nestName)
     {
-        var nestTransform = _collectableScanner.ObjectsFlattenList.FirstOrDefault(t => t.name == nestName);
-
-        if (nestTransform != null)
-            return (true, nestTransform.transform);
-
-        return (false, null);
+        return _collectableScanner.IsNestInSight(nestName);
     }
 
     public List<GameObject> CollectablesListByTag(string type)
