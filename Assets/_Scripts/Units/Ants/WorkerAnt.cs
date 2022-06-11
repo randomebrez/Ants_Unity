@@ -94,6 +94,18 @@ namespace mew
 
         private void OnDrawGizmos()
         {
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(_position, _position + BodyHeadAxis);
+            if (Probabilities.Length == 0)
+                return;
+
+            Gizmos.color = Color.red;
+            var stratingAngle = -180f;
+            var deltaAngle = 360f / 20;
+            for (int i = 0; i < Probabilities.Length; i++)
+            {
+                Gizmos.DrawLine(_position, _position + 100 * Probabilities[i] * (Quaternion.Euler(0, stratingAngle + i * deltaAngle, 0) * BodyHeadAxis));
+            }
         }
     }
 }

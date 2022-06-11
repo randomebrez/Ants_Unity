@@ -52,10 +52,11 @@ public abstract class AntScannerBase : MonoBehaviour
 
     public abstract float GetPortionValue(int index);
 
-    public void Initialyze(BaseAnt ant, int scannerSubdivision)
+    public void Initialyze(BaseAnt ant, int scannerSubdivision, int scanFrequency)
     {
         _ant = ant;
         _scannerSubdivision = scannerSubdivision;
+        ScanFrequency = scanFrequency;
 
         float deltaTheta = 360 / _scannerSubdivision;
         var current = -180f;
@@ -73,22 +74,9 @@ public abstract class AntScannerBase : MonoBehaviour
         _scanInterval = 1.0f / ScanFrequency;
     }
 
-    private void Update()
-    {
-        if (_initialyzed == false)
-            return;
-
-        _scanTimer -= Time.deltaTime;
-        if (_scanTimer < 0)
-        {
-            _scanTimer += _scanInterval;
-            Scan();
-        }
-    }
 
 
-
-    protected virtual void Scan()
+    public virtual void Scan()
     {
         var count = Physics.OverlapSphereNonAlloc(transform.position, ScannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);
 

@@ -71,6 +71,7 @@
     <Compile Include="Assets\_Scripts\Units\Ants\BaseAnt.cs" />
     <Compile Include="Assets\Dtos\Target.cs" />
     <Compile Include="Assets\Dtos\PheromoneType.cs" />
+    <Compile Include="Assets\_Scripts\Utilities\StaticCompute.cs" />
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
     <Compile Include="Assets\_Scripts\Managers\EnvironmentManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\SpawnerAnt.cs" />

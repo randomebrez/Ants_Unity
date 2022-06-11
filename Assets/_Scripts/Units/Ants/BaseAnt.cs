@@ -1,6 +1,4 @@
-using Assets._Scripts.Utilities;
 using Assets.Dtos;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace mew
@@ -30,12 +28,8 @@ namespace mew
         protected Target _target = new Target();
         protected float _targetTreshold = 0.3f;
 
-        public float _currentSteerStrength = 0f;
-        public float _currentMaxSpeed = 0f;
+        public float[] Probabilities = new float[ScannerSubdivision];
 
-        public List<float> Probabilities = new List<float>();
-
-        public float expoMultiplicator = 100;
         public float steeringForceConstant = 10;
 
         private void Awake()
@@ -55,8 +49,6 @@ namespace mew
         {
             _nest = transform.parent;
             _desiredDirection = BodyHeadAxis.normalized;
-            _currentSteerStrength = Stats.SteerStrength;
-            _currentMaxSpeed = Stats.MaxSpeed;
 
             PheromoneContainer = transform.parent.parent.parent.GetChild(1);
         }
@@ -97,18 +89,7 @@ namespace mew
          Once _desiredDirection is set ant movement always end like that*/
         public virtual void Move()
         {
-            _currentMaxSpeed = Stats.MaxSpeed;
-            if (HasTarget)
-            {
-                var targetDistance = Vector3.Distance(_head.position, _target.Transform.position) / Stats.VisionRadius;
-                if (targetDistance > 1)
-                    targetDistance = 1;
-                var currentMaxSpeed = GetCurrentStatValue(Stats.MaxSpeed, 1 - StaticHelper.ComputeExponentialProbability(targetDistance, 0, 1f));
-                _currentMaxSpeed = currentMaxSpeed;
-            }
-
-
-            var desiredVelocity = _desiredDirection * _currentMaxSpeed;
+            var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
             var desiredSteeringForce = (desiredVelocity - _velocity) * Stats.SteerStrength;
 
             // get acceleration
@@ -117,13 +98,13 @@ namespace mew
             var isHeadingForCollision = _scannerManager.IsHeadingForCollision();
             if (isHeadingForCollision.isIt)
             {
-                var avoidForce = (isHeadingForCollision.avoidDir.normalized * _currentMaxSpeed - _velocity) * Stats.SteerStrength;
+                var avoidForce = (isHeadingForCollision.avoidDir.normalized * Stats.MaxSpeed - _velocity) * Stats.SteerStrength;
                 avoidForce.y = 0;
                 acceleration += Vector3.ClampMagnitude(avoidForce, Stats.SteerStrength) * Stats.AvoidCollisionForce;
             }
 
             // calculate new velocity
-            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, _currentMaxSpeed);
+            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
 
             // calculate new position
             var newPos = _position + newVelocity * Time.deltaTime;
@@ -148,14 +129,16 @@ namespace mew
 
         protected Vector3 GetRandomDirection(bool carryFood)
         {
-            Probabilities = _scannerManager.GetProbabilities(carryFood);
-            var inhibitedProbabilties = Probabilities;
+            _scannerManager.CarryingFood = carryFood;
+            var inhibitedProbabilties = _scannerManager.ProbabilitiesGet;
+            Probabilities = inhibitedProbabilties;
 
             var randomNumber = Random.value;
             var foundZone = false;
             var sum = 0f;
             var count = 0;
-            while(foundZone == false && count < inhibitedProbabilties.Count)
+
+            while(foundZone == false && count < inhibitedProbabilties.Length)
             {
                 sum += inhibitedProbabilties[count];
                 if (randomNumber < sum)
@@ -164,10 +147,10 @@ namespace mew
                 count++;
             }
 
-            var deltaAngle = 360 / ScannerSubdivision;
-            var startingAngle = -180 + (count - 1) * deltaAngle;
+            var deltaAngle = 360f / ScannerSubdivision;
+            var startingAngle = -180f + (count - 1) * deltaAngle;
 
-            var randomAngle = (startingAngle + Random.value * deltaAngle);
+            var randomAngle = startingAngle + Random.value * deltaAngle;
             var randomNorm = Random.value;
             return Quaternion.Euler(0, transform.rotation.eulerAngles.y + randomAngle, 0) * BodyHeadAxis * randomNorm;
         }
@@ -181,19 +164,6 @@ namespace mew
 
             var distance = _target.Transform.position - _position;
             return Mathf.Sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
-        }
-
-        private float GetCurrentStatValue(float caracteristicConstant, float expoValue)
-        {
-            var multiplicator = (1 - caracteristicConstant) * expoValue + caracteristicConstant;
-            return multiplicator;
-        }
-
-        private float InRangeObstaclesScoreGet()
-        {
-            var obstacleDistance = _scannerManager.GetObstacleInRangeNormalizedDistance(_head.position, Stats.VisionRadius);
-            obstacleDistance = obstacleDistance > 1 ? 1 : obstacleDistance;
-            return StaticHelper.ComputeExponentialProbability(obstacleDistance, PhysicalLength / Stats.VisionRadius, 1f);
         }
 
         internal virtual void DropPheromone()

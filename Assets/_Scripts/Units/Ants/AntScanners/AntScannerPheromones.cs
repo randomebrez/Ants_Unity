@@ -8,7 +8,7 @@ public class AntScannerPheromones : AntScannerBase
     protected override float ScannerAngle => 175;
     protected override bool CheckObtruction => false;
 
-    protected override float ScannerRadius => _ant.Stats.VisionRadius;
+    protected override float ScannerRadius => 3 * _ant.Stats.VisionRadius;
 
     public override float GetPortionValue(int index)
     {
@@ -21,7 +21,7 @@ public class AntScannerPheromones : AntScannerBase
         return Objects[index].Count == 0 ? sum : sum / Objects[index].Count;
     }
 
-    public float GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
+    public (int number, float averageDensity) GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
     {
         var sum = 0f;
         var pheroDensities = Objects[index]
@@ -30,8 +30,11 @@ public class AntScannerPheromones : AntScannerBase
 
         foreach (var density in pheroDensities)
             sum += density;
+        var number = pheroDensities.Count();
+        if (number == 0)
+            return (0, 0);
 
-        return pheroDensities.Count() == 0 ? sum : sum / (pheroDensities.Count() * PortionSurface);
+        return  (number, sum / number);
     }
 
     /*private void OnDrawGizmos()

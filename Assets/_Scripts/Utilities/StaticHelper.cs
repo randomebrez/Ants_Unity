@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets._Scripts.Utilities
 {
     public static class StaticHelper
     {
-        private const float Delta = 0.00001f;
         public static void SetRecursiveLayer(List<GameObject> objects, int layerId)
         {
             if (objects.Count == 0)
@@ -28,24 +23,6 @@ namespace Assets._Scripts.Utilities
             }
 
             SetRecursiveLayer(newList, layerId);
-        }
-
-        public static float ComputeExponentialProbability(float x, float offset, float argumentMultiplicator)
-        {
-            var expoArg = (x - offset) / (x - (1 + Delta));
-            if (x < offset)
-                expoArg = 0;
-            var tempResult = Mathf.Exp(argumentMultiplicator * expoArg);
-            if (tempResult > 1)
-                tempResult = 1;
-            return 1 - tempResult;
-        }
-
-        public static float ComputeNormalLaw(float x, float mu, float sigma)
-        {
-            var expoArg = ((x - mu) / sigma) * ((x - mu) / sigma);
-            var constant = 1f / Mathf.Sqrt(2 * sigma * Mathf.PI);
-            return constant * Mathf.Exp(-0.5f * expoArg);
         }
     }
 }

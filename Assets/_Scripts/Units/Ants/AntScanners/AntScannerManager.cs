@@ -1,11 +1,9 @@
 ﻿using Assets._Scripts.Utilities;
 using mew;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using static mew.ScriptablePheromoneBase;
 
 public class AntScannerManager : MonoBehaviour
 {
@@ -15,17 +13,25 @@ public class AntScannerManager : MonoBehaviour
         Food,
         Pheromones
     }
-    
-    private const float NormalMu = 0f;
-    private const float NormalSigma = 270f;
 
+    float[] _bonuses;
+    float[] _maluses;
+    private float[] _probabilities;
+
+    protected int ScanFrequency = 10;
+    protected float _scanInterval;
+    protected float _scanTimer;
+    protected bool _scanMode = true;
+
+    private BaseAnt _ant;
+    // Todo : move subdivision to the ant caracteristics
+    private int _subdivisions;
     private AntScannerObstacles _obstacleScanner;
     private AntScannerPheromones _pheromoneScanner;
     private AntScannerCollectables _collectableScanner;
 
-    private BaseAnt _ant;
-
-    private int _subdivisons;
+    public float[] ProbabilitiesGet => _probabilities;
+    public bool CarryingFood;
     
     private void Awake()
     {
@@ -36,6 +42,20 @@ public class AntScannerManager : MonoBehaviour
         _collectableScanner = GetComponentInChildren<AntScannerCollectables>();
     }
 
+    private void Update()
+    {
+        _scanTimer -= Time.deltaTime;
+        if (_scanTimer < 0)
+        {
+            _scanTimer += _scanInterval;
+            if (_scanMode)
+                Scan();
+            else
+                ProbabilitiesUpdate();
+            _scanMode = !_scanMode;
+        }
+    }
+
     public void CreateMesh()
     {
         _obstacleScanner.CreateWedgeMesh(0.1f);
@@ -43,86 +63,85 @@ public class AntScannerManager : MonoBehaviour
 
     public void InitialyzeScanners(int subdivisions)
     {
-        _subdivisons = subdivisions;
-        _obstacleScanner.Initialyze(_ant, subdivisions);
-        _pheromoneScanner.Initialyze(_ant, subdivisions);
-        _collectableScanner.Initialyze(_ant, subdivisions);
+        _subdivisions = subdivisions;
+        _obstacleScanner.Initialyze(_ant, subdivisions, ScanFrequency);
+        _pheromoneScanner.Initialyze(_ant, subdivisions, ScanFrequency);
+        _collectableScanner.Initialyze(_ant, subdivisions, ScanFrequency);
+
+        _probabilities = new float[subdivisions];
+        _bonuses = new float[subdivisions];
+        _maluses = new float[subdivisions];
     }
 
-    public List<float> GetProbabilities(bool carryFood)
+    public void Scan()
     {
-        var scores = new List<float>();
-        for (int i = 0; i < _subdivisons; i++)
+        _obstacleScanner.Scan();
+        _pheromoneScanner.Scan();
+        _collectableScanner.Scan();
+    }
+
+    private void ProbabilitiesUpdate()
+    {
+        for (int i = 0; i < _subdivisions; i++)
         {
-            scores.Add(GetPortionScore(i, carryFood));
+            var (bonus, malus) = GetPortionScore(i);
+            _bonuses[i] = bonus;
+            _maluses[i] = malus;
         }
 
-        return GetInhibitedDirections(scores);
+        var temp = StaticCompute.GetPortionProbabilities(_bonuses, _maluses);
+        if (Mathf.Abs(temp.Item1 - 1) > 0.1)
+            Debug.Log("Proba above 1");
+        _probabilities = temp.Item2;
     }
 
-    private float GetPortionScore(int portionIndex, bool carryFood)
+
+    #region Portions
+
+    private (float bonus, float malus) GetPortionScore(int portionIndex)
     {
         var malus = GetPortionMalus(portionIndex);
-        var bonus = GetPortionBonus(portionIndex, carryFood);
-        return bonus - malus;
+        var bonus = GetPortionBonus(portionIndex, CarryingFood);
+        return (bonus, malus);
     }
 
     private float GetPortionBonus(int portionIndex, bool carryFood)
     {
-        var carryPheroValue = _pheromoneScanner.GetPheromonesOfType(portionIndex, ScriptablePheromoneBase.PheromoneTypeEnum.CarryFood);
-        var carryPheroValueExp = StaticHelper.ComputeExponentialProbability(carryPheroValue, 0, 2f);
-        var wanderPheroValue = _pheromoneScanner.GetPheromonesOfType(portionIndex, ScriptablePheromoneBase.PheromoneTypeEnum.Wander);
-        var wanderPheroValueExp = StaticHelper.ComputeExponentialProbability(wanderPheroValue, 0, 2f);
+        var wanderPheromonesBonus = ComputeBonus(portionIndex, PheromoneTypeEnum.Wander);
+        var carryPheromonesBonus = ComputeBonus(portionIndex, PheromoneTypeEnum.CarryFood);
+
 
         switch (carryFood)
         { 
             case true:
-                return wanderPheroValueExp; 
+                return (0.9f * wanderPheromonesBonus + 0.1f * carryPheromonesBonus); 
             case false:
-                return 0.7f * carryPheroValueExp + 0.3f * wanderPheroValueExp;
+                return 0.9f * carryPheromonesBonus + 0.1f * wanderPheromonesBonus;
         }
+    }
+
+    private float ComputeBonus(int portionIndex, PheromoneTypeEnum pheroType)
+    {
+        var pheromones = _pheromoneScanner.GetPheromonesOfType(portionIndex, pheroType);
+
+        var numberTanh = StaticCompute.ComputeTanh(pheromones.number);
+        var densityTanh = StaticCompute.ComputeTanh(pheromones.averageDensity);
+
+        // maximum number of collider of a scanner is 150
+        var modificator = Mathf.Pow(pheromones.number / 100f, 0.1f);
+
+        return modificator * numberTanh * densityTanh;
     }
 
     private float GetPortionMalus(int portionIndex)
     {
         var obstacleValue = _obstacleScanner.GetPortionValue(portionIndex);
-        var obstacleValueExp = StaticHelper.ComputeExponentialProbability(obstacleValue, _ant.PhysicalLength / _ant.Stats.VisionRadius, 1f);
+        var obstacleValueExp = StaticCompute.ComputeExponentialProbability(obstacleValue, _ant.PhysicalLength / _ant.Stats.VisionRadius, 1f);
 
         return 1 - obstacleValueExp;
     }
 
-    private List<float> GetInhibitedDirections(List<float> portionScores)
-    {
-        var scoreSum = 0f;
-        var probaSum = 0f;
-        foreach (var score in portionScores)
-        {
-            scoreSum += score;
-        }
-
-        var unnormedProbabilities = new List<float>();
-
-        var portionNumber = portionScores.Count;
-        var deltaAngle = 360f / _subdivisons;
-        var startingPoint = -180f + deltaAngle / 2;
-
-        for (int i = 0; i < portionScores.Count; i++)
-        {
-            var basePortionProbability = StaticHelper.ComputeNormalLaw(startingPoint + i * deltaAngle, NormalMu, NormalSigma);
-            var scoreResult = portionScores[i] * (portionNumber + 1) - scoreSum;
-            var probability = basePortionProbability * (1 + scoreResult / portionNumber);
-            probaSum += probability;
-            unnormedProbabilities.Add(probability);
-        }
-
-        var normedProbabilities = new List<float>();
-        foreach (var probability in unnormedProbabilities)
-        {
-            normedProbabilities.Add(probability / probaSum);
-        }
-
-        return normedProbabilities;
-    }
+    #endregion
 
     #region Obstacles
     public float GetObstacleInRangeNormalizedDistance(Vector3 position, float visionRadius)
