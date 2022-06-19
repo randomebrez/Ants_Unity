@@ -1,12 +1,15 @@
 using Assets.Dtos;
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace mew
 {
     public abstract class BaseAnt : UnitBase
     {
-        private const int ScannerSubdivision = 20;
+        public Action<BaseAnt> Clicked;
 
+        private const int ScannerSubdivision = 20;
         private bool _initialyzed = false;
 
         protected Vector3 _position;
@@ -73,7 +76,6 @@ namespace mew
             base.Initialyze(stats);
 
             _scannerManager.InitialyzeScanners(ScannerSubdivision);
-            _scannerManager.CreateMesh();
 
             _initialyzed = true;
         }
@@ -157,6 +159,22 @@ namespace mew
 
         public abstract void OnTargetReach();
 
+
+        internal virtual void DropPheromone()
+        {
+            _dropPheroTimer -= Time.deltaTime;
+            if (_dropPheroTimer > 0)
+                return;
+
+            _dropPheroTimer += _dropPheroInterval;
+
+            // Spawn pheromone
+            var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(GetPheroType());
+            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _body.position, Quaternion.identity, PheromoneContainer);
+            pheromone.SetCaracteristics(scriptablePheromone.BaseCaracteristics);
+        }
+
+
         public float TargetDistance()
         {
             if (!HasTarget)
@@ -166,18 +184,10 @@ namespace mew
             return Mathf.Sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
         }
 
-        internal virtual void DropPheromone()
+        private void OnMouseDown()
         {
-            _dropPheroTimer -= Time.deltaTime;
-            if (_dropPheroTimer > 0)
-                return;
-            
-            _dropPheroTimer += _dropPheroInterval;
-
-            // Spawn pheromone
-            var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(GetPheroType());
-            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _body.position, Quaternion.identity, PheromoneContainer);
-            pheromone.SetCaracteristics(scriptablePheromone.BaseCaracteristics);
+            Clicked?.Invoke(this);
+            Debug.Log($"Mouse was clicked on {name}");
         }
 
         protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();

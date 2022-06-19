@@ -107,5 +107,14 @@ namespace mew
                 Gizmos.DrawLine(_position, _position + 100 * Probabilities[i] * (Quaternion.Euler(0, stratingAngle + i * deltaAngle, 0) * BodyHeadAxis));
             }
         }
+
+        [SerializeField]
+        public void DoSmthg()
+        {
+            //Charge l'écran avec cette fourmie
+
+            // Affiche dans un coin
+            Debug.Log("Something has been done");
+        }
     }
 }

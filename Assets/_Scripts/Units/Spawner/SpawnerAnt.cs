@@ -53,5 +53,6 @@ public class SpawnerAnt : MonoBehaviour
 
         //Set statistics according to scriptable object
         spawnedAnt.Initialyze(scriptableObject.BaseStats);
+        spawnedAnt.Clicked += UnitManager.Instance.AntClick;
     }
 }

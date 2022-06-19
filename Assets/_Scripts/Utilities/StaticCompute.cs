@@ -33,6 +33,12 @@ namespace Assets._Scripts.Utilities
             return (pos - neg) / (pos + neg);
         }
 
+        public static float ComputeSigmoid(float x, float param)
+        {
+            var denominator = 1 + Mathf.Exp(-param * x);
+            return 1 / denominator;
+        }
+
         public static float[] ComputeSigmas(float[] bonuses, float minBonusSigma, float maxBonusSigma)
         {
             var portionNumber = bonuses.Count();

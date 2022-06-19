@@ -56,11 +56,6 @@ public class AntScannerManager : MonoBehaviour
         }
     }
 
-    public void CreateMesh()
-    {
-        _obstacleScanner.CreateWedgeMesh(0.1f);
-    }
-
     public void InitialyzeScanners(int subdivisions)
     {
         _subdivisions = subdivisions;
@@ -89,9 +84,7 @@ public class AntScannerManager : MonoBehaviour
             _maluses[i] = malus;
         }
 
-        var temp = StaticCompute.GetPortionProbabilities(_bonuses, _maluses);
-        if (Mathf.Abs(temp.Item1 - 1) > 0.1)
-            Debug.Log("Proba above 1");
+        var temp = StaticCompute.GetPortionProbabilities(_bonuses, _maluses, baseSigma: 90);
         _probabilities = temp.Item2;
     }
 
