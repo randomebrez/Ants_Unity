@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: BodyGuardAnt
   m_EditorClassIdentifier: 
   _statistics:
-    MaxSpeed: 0
-    VisionRadius: 0
-    VisionAngle: 0
-    TargetDestroyTreshold: 0
-  AntType: 0
-  AntPrefab: {fileID: 0}
+    MaxSpeed: 3
+    VisionRadius: 3
+    VisionAngle: 85
+    TargetDestroyTreshold: 0.5
+    Color: {r: 1, g: 0, b: 0, a: 0}
+  AntType: 1
+  AntPrefab: {fileID: -5730626997778548948, guid: fa1be99714fd34446977b8e1d9eb7be8, type: 3}
