@@ -35,9 +35,9 @@ public class BasePheromone : MonoBehaviour
             Destroy(gameObject);
 
         var percentDone = (DateTime.UtcNow - Pheromone.CreationDate).TotalSeconds / Caracteristics.Duration;
-        Pheromone.Density *= (1 - (float)percentDone);
+        Pheromone.Density = 1 - (float)percentDone;
         var color = _renderer.material.color;
-        color.a = Mathf.Max(0, 1 - (float)percentDone);
+        color.a = Mathf.Max(0, Pheromone.Density);
         _renderer.material.color = color;
     }
 

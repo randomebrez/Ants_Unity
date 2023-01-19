@@ -2,6 +2,7 @@
 using mew;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 
@@ -17,6 +18,8 @@ public class AntScannerManager : MonoBehaviour
     float[] _bonuses;
     float[] _maluses;
     private float[] _probabilities;
+    private string[] _portionInfos;
+    private float _pheromoneDensityConstant;
 
     protected int ScanFrequency = 10;
     protected float _scanInterval;
@@ -24,13 +27,13 @@ public class AntScannerManager : MonoBehaviour
     protected bool _scanMode = true;
 
     private BaseAnt _ant;
-    // Todo : move subdivision to the ant caracteristics
-    private int _subdivisions;
+
     private AntScannerObstacles _obstacleScanner;
     private AntScannerPheromones _pheromoneScanner;
     private AntScannerCollectables _collectableScanner;
 
     public float[] ProbabilitiesGet => _probabilities;
+    public string[] PortionInfos => _portionInfos;
     public bool CarryingFood;
     
     private void Awake()
@@ -56,16 +59,18 @@ public class AntScannerManager : MonoBehaviour
         }
     }
 
-    public void InitialyzeScanners(int subdivisions)
+    public void InitialyzeScanners()
     {
-        _subdivisions = subdivisions;
-        _obstacleScanner.Initialyze(_ant, subdivisions, ScanFrequency);
-        _pheromoneScanner.Initialyze(_ant, subdivisions, ScanFrequency);
-        _collectableScanner.Initialyze(_ant, subdivisions, ScanFrequency);
+        var subdiv = _ant.Stats.ScannerSubdivisions;
+        _obstacleScanner.Initialyze(_ant, subdiv, ScanFrequency);
+        _pheromoneScanner.Initialyze(_ant, subdiv, ScanFrequency);
+        _collectableScanner.Initialyze(_ant, subdiv, ScanFrequency);
 
-        _probabilities = new float[subdivisions];
-        _bonuses = new float[subdivisions];
-        _maluses = new float[subdivisions];
+        _probabilities = new float[subdiv];
+        _portionInfos = new string[subdiv];
+        _bonuses = new float[subdiv];
+        _maluses = new float[subdiv];
+        _pheromoneDensityConstant = (float)Math.Pow((_ant.Stats.VisionRadius/0.5f), 2) / subdiv;
     }
 
     public void Scan()
@@ -77,14 +82,15 @@ public class AntScannerManager : MonoBehaviour
 
     private void ProbabilitiesUpdate()
     {
-        for (int i = 0; i < _subdivisions; i++)
+        for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
         {
             var (bonus, malus) = GetPortionScore(i);
             _bonuses[i] = bonus;
             _maluses[i] = malus;
         }
 
-        var temp = StaticCompute.GetPortionProbabilities(_bonuses, _maluses, baseSigma: 90);
+        var temp = StaticCompute.GetPortionProbabilities(_bonuses, _maluses);
+        UpdateportionInfos();
         _probabilities = temp.Item2;
     }
 
@@ -94,22 +100,21 @@ public class AntScannerManager : MonoBehaviour
     private (float bonus, float malus) GetPortionScore(int portionIndex)
     {
         var malus = GetPortionMalus(portionIndex);
-        var bonus = GetPortionBonus(portionIndex, CarryingFood);
+        var bonus = GetPortionBonus(portionIndex);
         return (bonus, malus);
     }
 
-    private float GetPortionBonus(int portionIndex, bool carryFood)
+    private float GetPortionBonus(int portionIndex)
     {
         var wanderPheromonesBonus = ComputeBonus(portionIndex, PheromoneTypeEnum.Wander);
         var carryPheromonesBonus = ComputeBonus(portionIndex, PheromoneTypeEnum.CarryFood);
 
-
-        switch (carryFood)
+        switch (CarryingFood)
         { 
             case true:
-                return (0.9f * wanderPheromonesBonus + 0.1f * carryPheromonesBonus); 
+                return (0.8f * wanderPheromonesBonus + 0.2f * carryPheromonesBonus);
             case false:
-                return 0.9f * carryPheromonesBonus + 0.1f * wanderPheromonesBonus;
+                return (0.1f * carryPheromonesBonus + 0.9f * wanderPheromonesBonus);
         }
     }
 
@@ -117,13 +122,15 @@ public class AntScannerManager : MonoBehaviour
     {
         var pheromones = _pheromoneScanner.GetPheromonesOfType(portionIndex, pheroType);
 
-        var numberTanh = StaticCompute.ComputeTanh(pheromones.number);
-        var densityTanh = StaticCompute.ComputeTanh(pheromones.averageDensity);
+        //var numberTanh = StaticCompute.ComputeTanh(pheromones.number);
+        //var densityTanh = StaticCompute.ComputeTanh(pheromones.averageDensity);
+        var newDensity = StaticCompute.ComputeSigmoid(-0.5f + pheromones.averageDensity * pheromones.number / _pheromoneDensityConstant, 5);
 
         // maximum number of collider of a scanner is 150
-        var modificator = Mathf.Pow(pheromones.number / 100f, 0.1f);
+        //var modificator = Mathf.Pow(pheromones.number / 100f, 0.1f);
 
-        return modificator * numberTanh * densityTanh;
+        //return modificator * numberTanh * densityTanh;
+        return newDensity;
     }
 
     private float GetPortionMalus(int portionIndex)
@@ -132,6 +139,23 @@ public class AntScannerManager : MonoBehaviour
         var obstacleValueExp = StaticCompute.ComputeExponentialProbability(obstacleValue, _ant.PhysicalLength / _ant.Stats.VisionRadius, 1f);
 
         return 1 - obstacleValueExp;
+    }
+
+    private void UpdateportionInfos()
+    {
+        for(int i = 0; i < _portionInfos.Length; i++)
+            _portionInfos[i] = GetPortionInfos(i);
+    }
+
+    private string GetPortionInfos(int portionIndex)
+    {
+        var pheromonesW = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
+        var pheromonesC = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
+        var obstacleValue = _obstacleScanner.GetPortionValue(portionIndex);
+        var (bonus, malus) = GetPortionScore(portionIndex);
+        var probaModif = 1 + bonus - malus;
+        
+        return $"P{portionIndex} | B:{Math.Round(bonus,3)} | M:{Math.Round(malus, 3)} | pm:{Math.Round(probaModif, 3)} | oV:{obstacleValue} | pW:{pheromonesW.number}-{Math.Round(pheromonesW.averageDensity, 3)} | pC:{pheromonesC.number}-{Math.Round(pheromonesC.averageDensity, 3)}";
     }
 
     #endregion

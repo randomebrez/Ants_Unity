@@ -11,6 +11,7 @@ internal class UnitManager : BaseManager<UnitManager>
     private Vector3 GetGroundSize => EnvironmentManager.Instance.GroundSize;
 
     private Dictionary<int, SpawnerAnt> _spawners = new Dictionary<int, SpawnerAnt>();
+    private BaseAnt _lastClicked;
 
     public void SpawnAntNest()
     {
@@ -35,5 +36,16 @@ internal class UnitManager : BaseManager<UnitManager>
 
         if (Input.GetKeyDown(KeyCode.A))
             SpawnAntNest();
+    }
+
+    public void AntClick(BaseAnt ant)
+    {
+        if (_lastClicked != null)
+            _lastClicked.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.black;
+
+        var probaScreen = CanvasContainer.GetComponentInChildren<ProbaScreenManager>();
+        ant.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.yellow;
+        probaScreen.SetAnt(ant);
+        _lastClicked = ant;
     }
 }

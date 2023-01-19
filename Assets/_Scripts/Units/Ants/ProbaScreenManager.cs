@@ -26,12 +26,13 @@ public class ProbaScreenManager : MonoBehaviour
 
     private bool Initialyzed => _ant != null;
 
+    private string InfoHeader => _ant != null ? $"Ant name {_ant.name}\n" : string.Empty;
+
 
     private void Start()
     {
         _rectTransform = GetComponent<RectTransform>();
         _scannerText = GetComponentInChildren<TextMeshProUGUI>();
-        Debug.Log($"Anchored position : {_rectTransform.anchoredPosition} - anchorMax : {_rectTransform.anchorMax}");
     }
 
     private void Update()
@@ -39,14 +40,8 @@ public class ProbaScreenManager : MonoBehaviour
         if (Initialyzed == false)
             return;
 
-        
-        var probabilities = _ant.Probabilities;
-        var text = new StringBuilder($"Ant name {_ant.name}\n\n");
-        for (int i = 0; i < probabilities.Length; i++)
-            text.AppendLine($"Portion {i} : {probabilities[i]}");
 
-        _scannerText.text = text.ToString();
-
+        UpdatePortionInfos();
         UpdateProbabilityDiagram();
     }
 
@@ -58,8 +53,12 @@ public class ProbaScreenManager : MonoBehaviour
             if (ant != null)
             {
                 _ant = ant;
-                // Once Scanner subdivision is in ant.Stats use : ant.Stats.ScannerSubdivision
-                _probabilityDiagramPortions = new GameObject[20];
+                if (_probabilityDiagramPortions != null)
+                {
+                    foreach (var go in _probabilityDiagramPortions)
+                        Destroy(go);
+                }
+                _probabilityDiagramPortions = new GameObject[_ant.Stats.ScannerSubdivisions];
                 DrawMesh();
             }
         }
@@ -84,7 +83,7 @@ public class ProbaScreenManager : MonoBehaviour
         }        
     }
 
-    public void UpdateProbabilityDiagram()
+    private void UpdateProbabilityDiagram()
     {
         var probabilities = _ant.Probabilities;
         var maxProba = 0f;
@@ -96,8 +95,18 @@ public class ProbaScreenManager : MonoBehaviour
         for(int i = 0; i < probabilities.Length; i++)
         {
             float gValue = probabilities[i]/ maxProba;
-            var newColor = new Color(0, gValue, 0, 1);
+            
+            var newColor = new Color(0, probabilities[i], 0, 1);
             _probabilityDiagramPortions[i].GetComponent<ChangeColor>().SetMaterialColor(newColor);    
         }
+    }
+
+    private void UpdatePortionInfos()
+    {
+        var text = new StringBuilder(InfoHeader);
+        for (int i = 0; i < _probabilityDiagramPortions.Length; i++)
+            text.AppendLine(_ant.PortionInfos[i]);
+
+        _scannerText.text = text.ToString();
     }
 }

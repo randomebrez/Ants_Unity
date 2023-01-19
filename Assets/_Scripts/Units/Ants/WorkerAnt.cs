@@ -27,6 +27,7 @@ namespace mew
             {
                 case TargetTypeEnum.Food:
                     _carryingFood = true;
+                    transform.Rotate(0, 180, 0);
                     Destroy(_target.Transform.gameObject);
                     break;
                 case TargetTypeEnum.Nest:
@@ -94,7 +95,7 @@ namespace mew
 
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.black;
+            /*Gizmos.color = Color.black;
             Gizmos.DrawLine(_position, _position + BodyHeadAxis);
             if (Probabilities.Length == 0)
                 return;
@@ -105,16 +106,7 @@ namespace mew
             for (int i = 0; i < Probabilities.Length; i++)
             {
                 Gizmos.DrawLine(_position, _position + 100 * Probabilities[i] * (Quaternion.Euler(0, stratingAngle + i * deltaAngle, 0) * BodyHeadAxis));
-            }
-        }
-
-        [SerializeField]
-        public void DoSmthg()
-        {
-            //Charge l'écran avec cette fourmie
-
-            // Affiche dans un coin
-            Debug.Log("Something has been done");
+            }*/
         }
     }
 }

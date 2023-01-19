@@ -9,7 +9,6 @@ namespace mew
     {
         public Action<BaseAnt> Clicked;
 
-        private const int ScannerSubdivision = 20;
         private bool _initialyzed = false;
 
         protected Vector3 _position;
@@ -31,7 +30,8 @@ namespace mew
         protected Target _target = new Target();
         protected float _targetTreshold = 0.3f;
 
-        public float[] Probabilities = new float[ScannerSubdivision];
+        public float[] Probabilities => _scannerManager.ProbabilitiesGet;
+        public string[] PortionInfos => _scannerManager.PortionInfos;
 
         public float steeringForceConstant = 10;
 
@@ -75,7 +75,7 @@ namespace mew
         {
             base.Initialyze(stats);
 
-            _scannerManager.InitialyzeScanners(ScannerSubdivision);
+            _scannerManager.InitialyzeScanners();
 
             _initialyzed = true;
         }
@@ -132,24 +132,22 @@ namespace mew
         protected Vector3 GetRandomDirection(bool carryFood)
         {
             _scannerManager.CarryingFood = carryFood;
-            var inhibitedProbabilties = _scannerManager.ProbabilitiesGet;
-            Probabilities = inhibitedProbabilties;
 
             var randomNumber = Random.value;
             var foundZone = false;
             var sum = 0f;
             var count = 0;
 
-            while(foundZone == false && count < inhibitedProbabilties.Length)
+            while(foundZone == false && count < Probabilities.Length)
             {
-                sum += inhibitedProbabilties[count];
+                sum += Probabilities[count];
                 if (randomNumber < sum)
                     foundZone = true;
 
                 count++;
             }
 
-            var deltaAngle = 360f / ScannerSubdivision;
+            var deltaAngle = 360f / Stats.ScannerSubdivisions;
             var startingAngle = -180f + (count - 1) * deltaAngle;
 
             var randomAngle = startingAngle + Random.value * deltaAngle;

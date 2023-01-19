@@ -5,21 +5,10 @@ using mew;
 
 public class AntScannerPheromones : AntScannerBase
 {
-    protected override float ScannerAngle => 175;
+    protected override float ScannerAngle => 360;
     protected override bool CheckObtruction => false;
 
-    protected override float ScannerRadius => 3 * _ant.Stats.VisionRadius;
-
-    public override float GetPortionValue(int index)
-    {
-        var sum = 0f;
-        foreach (var obj in Objects[index])
-        {
-            var pheromone = obj.GetComponent<BasePheromone>().Pheromone;
-            sum += pheromone.Density;
-        }
-        return Objects[index].Count == 0 ? sum : sum / Objects[index].Count;
-    }
+    protected override float ScannerRadius => _ant.Stats.VisionRadius;
 
     public (int number, float averageDensity) GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
     {
@@ -35,6 +24,11 @@ public class AntScannerPheromones : AntScannerBase
             return (0, 0);
 
         return  (number, sum / number);
+    }
+
+    public override float GetPortionValue(int index)
+    {
+        throw new System.NotImplementedException();
     }
 
     /*private void OnDrawGizmos()

@@ -39,25 +39,12 @@ namespace Assets._Scripts.Utilities
             return 1 / denominator;
         }
 
-        public static float[] ComputeSigmas(float[] bonuses, float minBonusSigma, float maxBonusSigma)
-        {
-            var portionNumber = bonuses.Count();
-            var result = new float[portionNumber];
-
-            for (int i = 0; i < portionNumber; i++)
-            {
-                var fonction = (minBonusSigma - maxBonusSigma) * bonuses[i] + maxBonusSigma;
-                result[i] = fonction;
-            }
-            return result;
-        }
-
         public static (float, float[]) GetPortionProbabilities(float[] bonuses, float[] maluses, float baseMu = 0, float baseSigma = 270, float totalAngle = 360)
         {
             var portionNumber = bonuses.Count();
             var probabilities = new float[portionNumber];
             var deltaTheta = totalAngle / portionNumber;
-            //var sigmas = ComputeSigmas(bonuses, 2 * deltaTheta, totalAngle);
+
             for (int i = 0; i < portionNumber; i++)
             {
                 var currentAngle = (-totalAngle / 2f) + (i + 0.5f) * deltaTheta;
@@ -69,15 +56,6 @@ namespace Assets._Scripts.Utilities
             return NormalizeSum(probabilities);
         }
 
-        public static float ComputeBonus(int index, float[] sigmas, float deltaTheta)
-        {
-            var portionNumber = sigmas.Count();
-            var previousIndex = index == 0 ? portionNumber - 1 : index - 1;
-            var nextIndex = index == portionNumber - 1 ? 0 : index + 1;
-
-            return ComputeNormalLaw(deltaTheta, 0, sigmas[previousIndex]) * ComputeNormalLaw(0, 0, sigmas[index]) * ComputeNormalLaw(deltaTheta, 0, sigmas[nextIndex]);
-        }
-
         public static (float, float[]) NormalizeSum(float[] numbers)
         {
             var sum = 0f;
@@ -86,10 +64,7 @@ namespace Assets._Scripts.Utilities
 
             var sumRes = 0f;
             for (int i = 0; i < numbers.Count(); i++)
-            {
                 numbers[i] = numbers[i] / sum;
-                sumRes += numbers[i];
-            }
 
             return (sumRes, numbers);
         }

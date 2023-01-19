@@ -21,6 +21,7 @@ namespace mew
             // Vision
             public float VisionRadius;
             public float VisionAngle;
+            public int ScannerSubdivisions;
 
             // Collision
             public float TargetDestroyTreshold;

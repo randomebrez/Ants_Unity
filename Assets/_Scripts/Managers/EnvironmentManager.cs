@@ -2,7 +2,7 @@ using UnityEngine;
 
 internal class EnvironmentManager : BaseManager<EnvironmentManager>
 {
-    public Vector3 GroundSize = new Vector3(75, 0, 50);
+    public Vector3 GroundSize = new Vector3(10, 0, 10);
     public float NodeRadius = 1f;
 
     public GameObject GroundPrefab;
