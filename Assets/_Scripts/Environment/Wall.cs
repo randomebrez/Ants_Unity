@@ -1,5 +1,6 @@
 using Assets._Scripts.Utilities;
 using System.Collections.Generic;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 public class Wall : MonoBehaviour
@@ -40,6 +41,44 @@ public class Wall : MonoBehaviour
             }
             bottomLeft += Vector3.forward;
         }
+
+        StaticHelper.SetRecursiveLayer(new List<GameObject> { transform.gameObject }, gameObject.layer);
+    }
+
+    public void BuildHexaWalls(float angleX = 0f, float angleY = 0f, float angleZ = 0f)
+    {
+        var apothem = 0.5f * Mathf.Sqrt(3);
+        var horizontalSize = Mathf.RoundToInt(WallWidth / apothem);
+        var verticalSize = Mathf.RoundToInt(WallHeight);
+        BrickWidth = WallWidth / horizontalSize;
+        BrickHeight = WallHeight / verticalSize;
+
+        var rotation = Quaternion.Euler(new Vector3(angleX, angleY, angleZ));
+        var bottomLeft = transform.position - new Vector3((horizontalSize * BrickWidth - 1) / 2, 0, 0);
+
+        for (int k = 0; k < WallThickness; k++)
+        {
+            var delta = 0f;
+            if (k%2 == 1)
+                    delta = 1f;
+
+            for (int i = 0; i < horizontalSize; i++)
+            {
+                for (int j = 0; j < verticalSize; j++)
+                {
+                    if ((i+j)%2 == 0)
+                    {
+                        var brick = Instantiate(BrickPrefab, bottomLeft + i * apothem * Vector3.right + j * Vector3.up, Quaternion.identity, transform);
+                        brick.SetUnwalkable();
+                        _bricks.Add($"({i},{j},{k})", brick.transform);
+                    }
+                }
+            }
+            bottomLeft += (1.5f + delta) * Vector3.forward + Vector3.right;
+        }
+
+        transform.position = rotation * transform.position;
+        transform.rotation = rotation;
 
         StaticHelper.SetRecursiveLayer(new List<GameObject> { transform.gameObject }, gameObject.layer);
     }

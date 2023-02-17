@@ -17,7 +17,7 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
             return;
 
         _ground = Instantiate(GroundPrefab, EnvironmentContainer.transform).GetComponent<Ground>();
-        _ground.SetupGrid(GroundSize, NodeRadius);
+        _ground.SetupHexaGrid(GroundSize, NodeRadius);
     }
 
     public void SpawnFood(float angle)

@@ -1,7 +1,8 @@
 
 using UnityEngine;
 
-public class ChangeColor : MonoBehaviour
+public class 
+    ChangeColor : MonoBehaviour
 {
     public GameObject go;
     public Material _material;
