@@ -95,6 +95,8 @@ namespace mew
 
         private void OnDrawGizmos()
         {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position + Vector3.up, transform.position + 100 * Vector3.down);
             /*Gizmos.color = Color.black;
             Gizmos.DrawLine(_position, _position + BodyHeadAxis);
             if (Probabilities.Length == 0)

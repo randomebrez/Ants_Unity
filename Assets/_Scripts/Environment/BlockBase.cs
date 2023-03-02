@@ -2,19 +2,23 @@ using UnityEngine;
 
 public class BlockBase : MonoBehaviour
 {
-    public Mesh _mesh;
+    private Mesh _mesh;
     private MeshFilter _meshFilter;
+    private MeshCollider _meshCollider;
+
     public Vector3[] Vertices;
 
     public void Awake()
     {
         _meshFilter = gameObject.GetComponent<MeshFilter>();
+        _meshCollider = GetComponent<MeshCollider>();
     }
 
     public void Start()
     {
         _mesh = CreateMesh();
         _meshFilter.mesh = _mesh;
+        _meshCollider.sharedMesh = _mesh;
         Vertices = _mesh.vertices;
     }
 
@@ -30,10 +34,10 @@ public class BlockBase : MonoBehaviour
 
         var deltaAngle = 360 / sideNumber;
 
-        Vector3 topCenter = Vector3.zero + Vector3.up; 
+        Vector3 topCenter = Vector3.zero; 
         Vector3 top = Quaternion.Euler(0, - deltaAngle / 2, 0) * (topCenter + Vector3.right);
 
-        Vector3 botCenter = Vector3.zero;
+        Vector3 botCenter = Vector3.zero - Vector3.up;
         Vector3 bot = Quaternion.Euler(0, - deltaAngle / 2, 0) * (botCenter + Vector3.right);
 
         int verticeIndex = 0;

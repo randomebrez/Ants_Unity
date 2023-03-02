@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Dtos;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Ground : MonoBehaviour
@@ -10,7 +12,7 @@ public class Ground : MonoBehaviour
     public LayerMask UnwalkableMask;
     public GameObject BlockContainer;
     public Transform WallContainer;
-    public float NodeRadius { get; set; }
+    public float NodeRadius => EnvironmentManager.Instance.NodeRadius;
     public Dictionary<int, Block> Path = null;
 
     private Vector3 _gridWorldSize;
@@ -21,8 +23,6 @@ public class Ground : MonoBehaviour
 
     public void SetupGrid(Vector3 gridWorldSize, float nodeRadius)
     {
-        NodeRadius = nodeRadius;
-
         _gridWorldSize = gridWorldSize;
 
         _gridSizeX = Mathf.RoundToInt(_gridWorldSize.x / _nodeDiameter);
@@ -58,8 +58,6 @@ public class Ground : MonoBehaviour
 
     public void SetupHexaGrid(Vector3 gridWorldSize, float nodeRadius)
     {
-        NodeRadius = nodeRadius;
-
         _gridWorldSize = gridWorldSize;
 
         var apothem = Mathf.Sqrt(3) * 0.5f * nodeRadius;
@@ -78,7 +76,7 @@ public class Ground : MonoBehaviour
             {
                 if ((i + j) % 2 == 0)
                 {
-                    var worldPosition = wolrdBottomLeft + (i * apothem) * Vector3.right + (1.5f * nodeRadius * j) * Vector3.forward + 0.5f * Vector3.up;
+                    var worldPosition = wolrdBottomLeft + (i * apothem) * Vector3.right + (1.5f * nodeRadius * j) * Vector3.forward;
                     var walkable = !Physics.CheckSphere(worldPosition, nodeRadius, UnwalkableMask);
                     var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, BlockContainer.transform);
                     var component = blockGo.GetComponent<GroundBlock>();
@@ -93,7 +91,7 @@ public class Ground : MonoBehaviour
             }
         }
 
-        //SetNeighbours();
+        SetHexaNeighbours();
         SetupHexaWalls();
     }
 
@@ -189,6 +187,27 @@ public class Ground : MonoBehaviour
         }
     }
 
+    private void SetHexaNeighbours()
+    {
+        for (int i = 0; i < _gridSizeX; i++)
+        {
+            for (int j = 0; j < _gridSizeZ; j++)
+            {
+                try
+                {
+                    var blockGo = _grid[i, j];
+                    if (blockGo != null)
+                        blockGo.Block.Neighbours = GetHexaNeighbours(blockGo.Block);
+                }
+                catch(System.IndexOutOfRangeException e)
+                {
+                    continue;
+                }
+            }
+        }
+    }
+
+
     private List<Block> GetNeighbours(Block block)
     {
         var neighbours = new List<Block>();
@@ -209,6 +228,29 @@ public class Ground : MonoBehaviour
         return neighbours;
     }
 
+    private List<Block> GetHexaNeighbours(Block block)
+    {
+        var neighbours = new List<Block>();
+        var xPos = block.XCoordinate;
+        var zPos = block.ZCoordinate;
+        var xCoordinates = new int[] { xPos - 2, xPos - 1, xPos + 1, xPos + 2, xPos + 1, xPos - 1 };
+        var zCoordinates = new int[] { zPos, zPos + 1, zPos + 1, zPos, zPos - 1, zPos - 1 };
+
+        for (int i = 0; i < 6; i++)
+        {
+            try
+            {
+                var neighbour = _grid[xCoordinates[i], zCoordinates[i]];
+                neighbours.Add(neighbour.Block);
+            }
+            catch(System.IndexOutOfRangeException e)
+            {
+                continue;
+            }
+        }
+        return neighbours;
+    }
+
     public Block BlockFromWorldPoint(Vector3 worldPosition)
     {
         float percentX = (worldPosition.x + _gridWorldSize.x / 2) / _gridWorldSize.x;
@@ -221,6 +263,15 @@ public class Ground : MonoBehaviour
         var j = Mathf.RoundToInt((_gridSizeZ - 1) * percentY);
 
         return _grid[i, j].Block;
+    }
+
+    public Block GetBlockFromWorldPosition(Vector3 worldPosition)
+    {
+        var layer = LayerMask.GetMask(Layer.Walkable.ToString());
+        if (Physics.Raycast(worldPosition + Vector3.up, Vector3.down, out RaycastHit hit, 10f, layer))
+            return hit.collider.GetComponentInParent<GroundBlock>().Block;
+
+        return null;
     }
 
     public List<Block> GetAllBlocksInCircle(Vector3 center, float radius)

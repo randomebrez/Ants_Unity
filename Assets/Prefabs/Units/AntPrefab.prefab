@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4550399282846610984}
   - component: {fileID: 7891250452749102789}
   - component: {fileID: 2939478885278687679}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 221645836420623646}
   - component: {fileID: -5730626997778548948}
   - component: {fileID: 8715979901215348697}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: AntPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,31 +145,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 882d25b344b49d542bcc63dbb9d0d8b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probaScreenContainer: {fileID: 1811247424441487147, guid: 2a8c0b6b639de2d4483047171c1a7d17, type: 3}
-  _clicked:
-    m_PersistentCalls:
-      m_Calls: []
-  Probabilities:
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
   steeringForceConstant: 10
   _carryingFood: 0
 --- !u!136 &8715979901215348697
@@ -198,7 +173,7 @@ GameObject:
   - component: {fileID: 5057668756696362638}
   - component: {fileID: 7853071763613156392}
   - component: {fileID: 2644278256490862870}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -291,9 +266,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1396895363282541181}
     m_Modifications:
+    - target: {fileID: 8308056339593959426, guid: 1f410521184585441a9dfb4df608900f, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8308056340105208102, guid: 1f410521184585441a9dfb4df608900f, type: 3}
       propertyPath: m_Name
       value: ScannerManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 8308056340105208102, guid: 1f410521184585441a9dfb4df608900f, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8308056340105208104, guid: 1f410521184585441a9dfb4df608900f, type: 3}
       propertyPath: m_RootOrder
@@ -338,6 +321,14 @@ PrefabInstance:
     - target: {fileID: 8308056340105208104, guid: 1f410521184585441a9dfb4df608900f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8308056340260256886, guid: 1f410521184585441a9dfb4df608900f, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8308056340264601477, guid: 1f410521184585441a9dfb4df608900f, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f410521184585441a9dfb4df608900f, type: 3}

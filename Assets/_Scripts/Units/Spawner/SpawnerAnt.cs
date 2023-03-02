@@ -3,15 +3,16 @@ using UnityEngine;
 
 public class SpawnerAnt : MonoBehaviour
 {
-    private float _radius => transform.localScale.x;
+    private float _radius => EnvironmentManager.Instance.NodeRadius;
     private int antCounter = 0;
+    public BlockBase BlockPosition;
 
     // boolean value to know if it is able to spawnAnt
     private bool _activated = true;
 
     private void Start()
     {
-        transform.position = new Vector3(transform.position.x, 1.1f, transform.position.z);
+        transform.position = new Vector3(transform.position.x, 0, transform.position.z);
     }
 
     private void Update()
@@ -43,7 +44,7 @@ public class SpawnerAnt : MonoBehaviour
         // Calculate random position and rotation to get out of the nest
         var randomPoint = Random.value * 2 * Mathf.PI;
         var randomVector = new Vector3(Mathf.Cos(randomPoint), 0, Mathf.Sin(randomPoint));
-        var startPosition = transform.position + _radius * randomVector;
+        var startPosition = transform.position + 0.5f * Vector3.up + _radius * randomVector;
         var startAngle = Vector3.SignedAngle(Vector3.right, randomVector, Vector3.up);
 
         // Ant game object

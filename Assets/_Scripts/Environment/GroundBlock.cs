@@ -19,10 +19,12 @@ public class GroundBlock : MonoBehaviour
     public void SetWalkable()
     {
         _renderer.material = WalkableMaterial;
+        transform.GetChild(0).gameObject.layer = (int) Layer.Walkable;
     }
 
     public void SetUnwalkable()
     {
         _renderer.material = UnwalkableMaterial;
+        gameObject.layer = (int) Layer.Unwalkable;
     }
 }

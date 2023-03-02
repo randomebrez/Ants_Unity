@@ -1,5 +1,6 @@
 using Assets.Dtos;
 using System;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,6 +11,8 @@ namespace mew
         public Action<BaseAnt> Clicked;
 
         private bool _initialyzed = false;
+
+        protected Block _blockPos;
 
         protected Vector3 _position;
         protected Vector3 _velocity;
@@ -51,6 +54,8 @@ namespace mew
         void Start()
         {
             _nest = transform.parent;
+
+            _blockPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
             _desiredDirection = BodyHeadAxis.normalized;
 
             PheromoneContainer = transform.parent.parent.parent.GetChild(1);
@@ -91,42 +96,47 @@ namespace mew
          Once _desiredDirection is set ant movement always end like that*/
         public virtual void Move()
         {
-            var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
-            var desiredSteeringForce = (desiredVelocity - _velocity) * Stats.SteerStrength;
+            var randomValue = new System.Random().Next(0, _blockPos.Neighbours.Count);
+            var nextPos = _blockPos.Neighbours[randomValue];
+            _position = nextPos.WorldPosition + 0.5f * Vector3.up;
+            _blockPos = nextPos;
+            //var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
+            //var desiredSteeringForce = (desiredVelocity - _velocity) * Stats.SteerStrength;
 
-            // get acceleration
-            var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, Stats.SteerStrength);
+            //// get acceleration
+            //var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, Stats.SteerStrength);
 
-            var isHeadingForCollision = _scannerManager.IsHeadingForCollision();
-            if (isHeadingForCollision.isIt)
-            {
-                var avoidForce = (isHeadingForCollision.avoidDir.normalized * Stats.MaxSpeed - _velocity) * Stats.SteerStrength;
-                avoidForce.y = 0;
-                acceleration += Vector3.ClampMagnitude(avoidForce, Stats.SteerStrength) * Stats.AvoidCollisionForce;
-            }
+            //var isHeadingForCollision = _scannerManager.IsHeadingForCollision();
+            //if (isHeadingForCollision.isIt)
+            //{
+            //    var avoidForce = (isHeadingForCollision.avoidDir.normalized * Stats.MaxSpeed - _velocity) * Stats.SteerStrength;
+            //    avoidForce.y = 0;
+            //    acceleration += Vector3.ClampMagnitude(avoidForce, Stats.SteerStrength) * Stats.AvoidCollisionForce;
+            //}
 
-            // calculate new velocity
-            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
+            //// calculate new velocity
+            //var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
 
-            // calculate new position
-            var newPos = _position + newVelocity * Time.deltaTime;
+            //// calculate new position
+            //var newPos = _position + newVelocity * Time.deltaTime;
 
-            // if ant ends in a obstacle, just rotate ant
-            switch (_scannerManager.IsMoveValid(_position, newPos))
-            {
-                case true:
-                    _position = newPos;
-                    _velocity = newVelocity;
-                    break;
-                case false:
-                    _velocity = Vector3.zero;
-                    break;
-            }
+            //// if ant ends in a obstacle, just rotate ant
+            //switch (_scannerManager.IsMoveValid(_position, newPos))
+            //{
+            //    case true:
+            //        _position = newPos;
+            //        _velocity = newVelocity;
+            //        break;
+            //    case false:
+            //        _velocity = Vector3.zero;
+            //        break;
+            //}
 
-            var rotation = Vector3.SignedAngle(BodyHeadAxis, newVelocity, Vector3.up);
+            //var rotation = Vector3.SignedAngle(BodyHeadAxis, newVelocity, Vector3.up);
 
-            // Apply it to the ant game object
-            transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
+            //// Apply it to the ant game object
+            //transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
+            transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0));
         }
 
         protected Vector3 GetRandomDirection(bool carryFood)

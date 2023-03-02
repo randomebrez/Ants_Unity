@@ -1,3 +1,4 @@
+using Assets.Dtos;
 using UnityEngine;
 
 internal class EnvironmentManager : BaseManager<EnvironmentManager>
@@ -22,12 +23,14 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
 
     public void SpawnFood(float angle)
     {
-        //var randomX = (Random.value - 0.5f) * GroundSize.x;
-        //var randomZ = (Random.value - 0.5f) * GroundSize.z;
-
         var radius = GroundSize.z / 3f;
-        var spawnPosition = Quaternion.Euler(0, angle, 0) * (radius * Vector3.forward) + new Vector3(0,1.1f,0);
+        var spawnPosition = Quaternion.Euler(0, angle, 0) * (radius * Vector3.forward);
         InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * NodeRadius);
+    }
+
+    public Block BlockFromWorldPoint(Vector3 worldPosition)
+    {
+        return _ground.GetBlockFromWorldPosition(worldPosition);
     }
 
     private void Update()
