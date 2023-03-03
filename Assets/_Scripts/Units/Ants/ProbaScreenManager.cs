@@ -1,5 +1,6 @@
 using Assets._Scripts.Utilities;
 using mew;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using TMPro;
@@ -85,14 +86,14 @@ public class ProbaScreenManager : MonoBehaviour
 
     private void UpdateProbabilityDiagram()
     {
-        var probabilities = _ant.Probabilities;
+        var probabilities = new List<float>();
         var maxProba = 0f;
         foreach(var proba in probabilities)
         {
             if (proba > maxProba)
                 maxProba = proba;
         }
-        for(int i = 0; i < probabilities.Length; i++)
+        for(int i = 0; i < probabilities.Count; i++)
         {
             float gValue = probabilities[i]/ maxProba;
             

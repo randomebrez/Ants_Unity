@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 4737001555414674246}
   - component: {fileID: 4103836817802856764}
   - component: {fileID: 1582083954768201178}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: Food
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -154,8 +154,12 @@ PrefabInstance:
       value: Sphere
       objectReference: {fileID: 0}
     - target: {fileID: 2995981860878911888, guid: c9e90e0b57e34d048968abadb70a3771, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2995981860878911888, guid: c9e90e0b57e34d048968abadb70a3771, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: Food
       objectReference: {fileID: 0}
     - target: {fileID: 5331212438257768468, guid: c9e90e0b57e34d048968abadb70a3771, type: 3}
       propertyPath: m_RootOrder

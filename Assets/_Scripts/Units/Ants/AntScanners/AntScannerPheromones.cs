@@ -1,7 +1,7 @@
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using UnityEngine;
 using mew;
+using UnityEngine;
 
 public class AntScannerPheromones : AntScannerBase
 {
@@ -12,18 +12,27 @@ public class AntScannerPheromones : AntScannerBase
 
     public (int number, float averageDensity) GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
     {
-        var sum = 0f;
-        var pheroDensities = Objects[index]
-            .Where(t => t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == type)
-            .Select(t => t.GetComponent<BasePheromone>().Pheromone.Density);
+        try
+        {
+            var sum = 0f;
+            var pheroDensities = Objects[index]
+                .Where(t => t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == type)
+                .Select(t => t.GetComponent<BasePheromone>().Pheromone.Density);
 
-        foreach (var density in pheroDensities)
-            sum += density;
-        var number = pheroDensities.Count();
-        if (number == 0)
+            foreach (var density in pheroDensities)
+                sum += density;
+            var number = pheroDensities.Count();
+            if (number == 0)
+                return (0, 0);
+
+            return (number, sum / number);
+        }
+        catch (System.Exception e)
+        {
+            UnityEngine.Debug.LogException(e);
             return (0, 0);
-
-        return  (number, sum / number);
+        }
+        
     }
 
     public override float GetPortionValue(int index)

@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using UnityEngine;
 using static mew.ScriptablePheromoneBase;
+using Assets.Dtos;
 
 public class AntScannerManager : MonoBehaviour
 {
@@ -15,11 +16,8 @@ public class AntScannerManager : MonoBehaviour
         Pheromones
     }
 
-    float[] _bonuses;
-    float[] _maluses;
-    private float[] _probabilities;
+    private NeuralNetworkInputs _inputs;
     private string[] _portionInfos;
-    private float _pheromoneDensityConstant;
 
     protected int ScanFrequency = 10;
     protected float _scanInterval;
@@ -31,10 +29,7 @@ public class AntScannerManager : MonoBehaviour
     private AntScannerObstacles _obstacleScanner;
     private AntScannerPheromones _pheromoneScanner;
     private AntScannerCollectables _collectableScanner;
-
-    public float[] ProbabilitiesGet => _probabilities;
     public string[] PortionInfos => _portionInfos;
-    public bool CarryingFood;
     
     private void Awake()
     {
@@ -54,7 +49,7 @@ public class AntScannerManager : MonoBehaviour
             if (_scanMode)
                 Scan();
             else
-                ProbabilitiesUpdate();
+                InputsUpdate();// ProbabilitiesUpdate();
             _scanMode = !_scanMode;
         }
     }
@@ -65,12 +60,9 @@ public class AntScannerManager : MonoBehaviour
         _obstacleScanner.Initialyze(_ant, subdiv, ScanFrequency);
         _pheromoneScanner.Initialyze(_ant, subdiv, ScanFrequency);
         _collectableScanner.Initialyze(_ant, subdiv, ScanFrequency);
+        _inputs = new NeuralNetworkInputs(subdiv);
 
-        _probabilities = new float[subdiv];
         _portionInfos = new string[subdiv];
-        _bonuses = new float[subdiv];
-        _maluses = new float[subdiv];
-        _pheromoneDensityConstant = (float)Math.Pow((_ant.Stats.VisionRadius/0.5f), 2) / subdiv;
     }
 
     public void Scan()
@@ -80,68 +72,37 @@ public class AntScannerManager : MonoBehaviour
         _collectableScanner.Scan();
     }
 
-    private void ProbabilitiesUpdate()
+    public void InputsUpdate()
     {
-        for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
-        {
-            var (bonus, malus) = GetPortionScore(i);
-            _bonuses[i] = bonus;
-            _maluses[i] = malus;
-        }
+        for(int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
+            _inputs.UpdatePortion(i, GetPortionInputs(i));
+    }
 
-        var temp = StaticCompute.GetPortionProbabilities(_bonuses, _maluses);
-        UpdateportionInfos();
-        _probabilities = temp.Item2;
+    public void UpdateAntInputs(bool carryFood, string nestName)
+    {
+        _inputs.CarryFood = carryFood;
+        _inputs.IsNestInSight = IsNestInSight(nestName).answer;
     }
 
 
     #region Portions
 
-    private (float bonus, float malus) GetPortionScore(int portionIndex)
+    private PortionInputs GetPortionInputs(int portionIndex)
     {
-        var malus = GetPortionMalus(portionIndex);
-        var bonus = GetPortionBonus(portionIndex);
-        return (bonus, malus);
-    }
+        var pheroW = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
+        var pheroC = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
 
-    private float GetPortionBonus(int portionIndex)
-    {
-        var wanderPheromonesBonus = ComputeBonus(portionIndex, PheromoneTypeEnum.Wander);
-        var carryPheromonesBonus = ComputeBonus(portionIndex, PheromoneTypeEnum.CarryFood);
-
-        switch (CarryingFood)
-        { 
-            case true:
-                return (0.8f * wanderPheromonesBonus + 0.2f * carryPheromonesBonus);
-            case false:
-                return (0.1f * carryPheromonesBonus + 0.9f * wanderPheromonesBonus);
-        }
-    }
-
-    private float ComputeBonus(int portionIndex, PheromoneTypeEnum pheroType)
-    {
-        var pheromones = _pheromoneScanner.GetPheromonesOfType(portionIndex, pheroType);
-
-        //var numberTanh = StaticCompute.ComputeTanh(pheromones.number);
-        //var densityTanh = StaticCompute.ComputeTanh(pheromones.averageDensity);
-        var newDensity = StaticCompute.ComputeSigmoid(-0.5f + pheromones.averageDensity * pheromones.number / _pheromoneDensityConstant, 5);
-
-        // maximum number of collider of a scanner is 150
-        //var modificator = Mathf.Pow(pheromones.number / 100f, 0.1f);
-
-        //return modificator * numberTanh * densityTanh;
-        return newDensity;
-    }
-
-    private float GetPortionMalus(int portionIndex)
-    {
-        var obstacleValue = _obstacleScanner.GetPortionValue(portionIndex);
-        var obstacleValueExp = StaticCompute.ComputeExponentialProbability(obstacleValue, _ant.PhysicalLength / _ant.Stats.VisionRadius, 1f);
-
-        return 1 - obstacleValueExp;
+        return new PortionInputs
+        {
+            PheroW = pheroW.averageDensity,
+            PheroC = pheroC.averageDensity,
+            WallDist = _obstacleScanner.GetPortionValue(portionIndex),
+            FoodToken = CollectablesListByTag("Food").Count()
+        };
     }
 
     private void UpdateportionInfos()
+
     {
         for(int i = 0; i < _portionInfos.Length; i++)
             _portionInfos[i] = GetPortionInfos(i);
@@ -149,14 +110,13 @@ public class AntScannerManager : MonoBehaviour
 
     private string GetPortionInfos(int portionIndex)
     {
-        var pheromonesW = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
-        var pheromonesC = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
-        var obstacleValue = _obstacleScanner.GetPortionValue(portionIndex);
-        var (bonus, malus) = GetPortionScore(portionIndex);
-        var probaModif = 1 + bonus - malus;
-        
-        return $"P{portionIndex} | B:{Math.Round(bonus,3)} | M:{Math.Round(malus, 3)} | pm:{Math.Round(probaModif, 3)} | oV:{obstacleValue} | pW:{pheromonesW.number}-{Math.Round(pheromonesW.averageDensity, 3)} | pC:{pheromonesC.number}-{Math.Round(pheromonesC.averageDensity, 3)}";
-    }
+        //var pheromonesW = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
+        //var pheromonesC = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
+        //var obstacleValue = _obstacleScanner.GetPortionValue(portionIndex);
+        //
+        //return $"P{portionIndex} | B:{Math.Round(bonus,3)} | M:{Math.Round(malus, 3)} | pm:{Math.Round(probaModif, 3)} | oV:{obstacleValue} | pW:{pheromonesW.number}-{Math.Round(pheromonesW.averageDensity, 3)} | pC:{pheromonesC.number}-{Math.Round(pheromonesC.averageDensity, 3)}";
+        return string.Empty;
+    }   
 
     #endregion
 

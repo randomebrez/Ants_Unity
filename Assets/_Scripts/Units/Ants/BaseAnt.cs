@@ -12,11 +12,8 @@ namespace mew
 
         private bool _initialyzed = false;
 
-        protected Block _blockPos;
-
-        protected Vector3 _position;
-        protected Vector3 _velocity;
-        protected Vector3 _desiredDirection;
+        protected Block _currentPos;
+        protected Block _nextPos;
 
         private Transform _body;
         private Transform _head;
@@ -33,30 +30,24 @@ namespace mew
         protected Target _target = new Target();
         protected float _targetTreshold = 0.3f;
 
-        public float[] Probabilities => _scannerManager.ProbabilitiesGet;
         public string[] PortionInfos => _scannerManager.PortionInfos;
 
         public float steeringForceConstant = 10;
 
         private void Awake()
         {
-            _position = transform.position;
-            _position.y = 1.25f;
             _body = transform.GetChild(0);
             _head = transform.GetChild(1);
 
             _scannerManager = _head.GetComponentInChildren<AntScannerManager>();
             
-
             _dropPheroInterval = 1.0f / _dropPheroFrequency;
         }
 
         void Start()
         {
             _nest = transform.parent;
-
-            _blockPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
-            _desiredDirection = BodyHeadAxis.normalized;
+            _currentPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
 
             PheromoneContainer = transform.parent.parent.parent.GetChild(1);
         }
@@ -68,12 +59,7 @@ namespace mew
 
             Move();
             DropPheromone();
-
-            if (HasTarget == false)
-                return;
-
-            if (TargetDistance() < Stats.TargetDestroyTreshold)
-                OnTargetReach();
+            CheckCollectableCollisions();
         }
 
         public override void Initialyze(ScriptableUnitBase.Stats stats)
@@ -91,82 +77,14 @@ namespace mew
 
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
 
-
-        /* Set _desiredDirection in non abstract classes
-         Once _desiredDirection is set ant movement always end like that*/
+        // Update _nextPos in inherited class
         public virtual void Move()
         {
-            var randomValue = new System.Random().Next(0, _blockPos.Neighbours.Count);
-            var nextPos = _blockPos.Neighbours[randomValue];
-            _position = nextPos.WorldPosition + 0.5f * Vector3.up;
-            _blockPos = nextPos;
-            //var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
-            //var desiredSteeringForce = (desiredVelocity - _velocity) * Stats.SteerStrength;
-
-            //// get acceleration
-            //var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, Stats.SteerStrength);
-
-            //var isHeadingForCollision = _scannerManager.IsHeadingForCollision();
-            //if (isHeadingForCollision.isIt)
-            //{
-            //    var avoidForce = (isHeadingForCollision.avoidDir.normalized * Stats.MaxSpeed - _velocity) * Stats.SteerStrength;
-            //    avoidForce.y = 0;
-            //    acceleration += Vector3.ClampMagnitude(avoidForce, Stats.SteerStrength) * Stats.AvoidCollisionForce;
-            //}
-
-            //// calculate new velocity
-            //var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
-
-            //// calculate new position
-            //var newPos = _position + newVelocity * Time.deltaTime;
-
-            //// if ant ends in a obstacle, just rotate ant
-            //switch (_scannerManager.IsMoveValid(_position, newPos))
-            //{
-            //    case true:
-            //        _position = newPos;
-            //        _velocity = newVelocity;
-            //        break;
-            //    case false:
-            //        _velocity = Vector3.zero;
-            //        break;
-            //}
-
-            //var rotation = Vector3.SignedAngle(BodyHeadAxis, newVelocity, Vector3.up);
-
-            //// Apply it to the ant game object
-            //transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
-            transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0));
+            _currentPos = _nextPos;
+            transform.SetPositionAndRotation(_currentPos.WorldPosition + 0.5f * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0));
         }
 
-        protected Vector3 GetRandomDirection(bool carryFood)
-        {
-            _scannerManager.CarryingFood = carryFood;
-
-            var randomNumber = Random.value;
-            var foundZone = false;
-            var sum = 0f;
-            var count = 0;
-
-            while(foundZone == false && count < Probabilities.Length)
-            {
-                sum += Probabilities[count];
-                if (randomNumber < sum)
-                    foundZone = true;
-
-                count++;
-            }
-
-            var deltaAngle = 360f / Stats.ScannerSubdivisions;
-            var startingAngle = -180f + (count - 1) * deltaAngle;
-
-            var randomAngle = startingAngle + Random.value * deltaAngle;
-            var randomNorm = Random.value;
-            return Quaternion.Euler(0, transform.rotation.eulerAngles.y + randomAngle, 0) * BodyHeadAxis * randomNorm;
-        }
-
-        public abstract void OnTargetReach();
-
+        public abstract void CheckCollectableCollisions();
 
         internal virtual void DropPheromone()
         {
@@ -178,18 +96,8 @@ namespace mew
 
             // Spawn pheromone
             var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(GetPheroType());
-            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _body.position, Quaternion.identity, PheromoneContainer);
+            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _currentPos.WorldPosition, Quaternion.identity, PheromoneContainer);
             pheromone.SetCaracteristics(scriptablePheromone.BaseCaracteristics);
-        }
-
-
-        public float TargetDistance()
-        {
-            if (!HasTarget)
-                return float.MaxValue;
-
-            var distance = _target.Transform.position - _position;
-            return Mathf.Sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
         }
 
         private void OnMouseDown()

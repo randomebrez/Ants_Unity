@@ -74,8 +74,6 @@ public abstract class AntScannerBase : MonoBehaviour
         _scanInterval = 1.0f / ScanFrequency;
     }
 
-
-
     public virtual void Scan()
     {
         var count = Physics.OverlapSphereNonAlloc(transform.position, ScannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);

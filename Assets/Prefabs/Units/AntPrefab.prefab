@@ -147,6 +147,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   steeringForceConstant: 10
   _carryingFood: 0
+  FoodCounter: 0
 --- !u!136 &8715979901215348697
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -326,9 +327,17 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 8308056340260256888, guid: 1f410521184585441a9dfb4df608900f, type: 3}
+      propertyPath: ScanningMainLayer.m_Bits
+      value: 512
+      objectReference: {fileID: 0}
     - target: {fileID: 8308056340264601477, guid: 1f410521184585441a9dfb4df608900f, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8308056340264601479, guid: 1f410521184585441a9dfb4df608900f, type: 3}
+      propertyPath: ScanningMainLayer.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f410521184585441a9dfb4df608900f, type: 3}

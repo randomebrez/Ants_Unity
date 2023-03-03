@@ -6,61 +6,47 @@ namespace mew
 {
     public class WorkerAnt : BaseAnt
     {
-        public bool _carryingFood;
+        public bool _carryingFood = false;
+        public int FoodCounter = 0;
         public override void Move()
         {
-            if (HasTarget || ScanForNest() || ScanForFood())
-                MoveTowardTarget();
-            else
-                RandomWalk();
+            // Update Inputs (CarryFood/NestInSight)
+            UpdateInputs();
+            // Compute output using brain
+            // Select next pos : Interpret output
+            InterpretOutput(6);
 
             base.Move();
         }
 
 
-        public override void OnTargetReach()
+        public override void CheckCollectableCollisions()
         {
-            if (_target == null)
-                return;
-
-            switch (_target.Type)
-            {
-                case TargetTypeEnum.Food:
-                    _carryingFood = true;
-                    transform.Rotate(0, 180, 0);
-                    Destroy(_target.Transform.gameObject);
-                    break;
-                case TargetTypeEnum.Nest:
-                    _carryingFood = false;
-                    break;
-            }
-
-            _target.Active = false;
-        }
-
-        private bool ScanForNest()
-        {
+            Collider[] colliders = new Collider[5];
+            Physics.OverlapSphereNonAlloc(transform.position, EnvironmentManager.Instance.NodeRadius / 2f, colliders, LayerMask.GetMask("Trigger"));
             if (!_carryingFood)
-                return false;
-
-            if (_scannerManager.IsNestInSight(_nest.name).answer == false)
-                return false;
-
-            _target = new Target { Type = TargetTypeEnum.Nest, Transform = _nest, Active = true };
-            return true;
+            {
+                var foodtoken = colliders.Where(t => t != null).FirstOrDefault(t => t.tag == "Food");
+                if (foodtoken != null)
+                {
+                    Destroy(foodtoken.gameObject);
+                    _carryingFood = true;
+                }
+            }
+            else
+            {
+                var nest = colliders.Where(t => t != null).FirstOrDefault(t => t.name == _nest.name);
+                if (nest != null)
+                {
+                    _carryingFood = false;
+                    FoodCounter++;
+                }
+            }
         }
 
-        private bool ScanForFood()
+        private void UpdateInputs()
         {
-            if (_carryingFood)
-                return false;
-
-            var foodObjects = _scannerManager.CollectablesListByTag("Food");
-            if (foodObjects.Count <= 0)
-                return false;
-
-            _target = new Target { Type = TargetTypeEnum.Food, Transform = foodObjects.First().transform, Active = true };
-            return true;
+            _scannerManager.UpdateAntInputs(_carryingFood, _nest.name);
         }
 
         protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
@@ -71,32 +57,40 @@ namespace mew
             return ScriptablePheromoneBase.PheromoneTypeEnum.Wander;
         }
 
-        private void MoveTowardTarget()
+        private void InterpretOutput(int outputValue)
         {
-            if (!HasTarget)
-                return;
-
-            _desiredDirection = _target.Transform.position - _position;
-            _desiredDirection.y = 0;
-
-            // Normalize if above one
-            // Otherwise it will slow down the ant until it reaches the target
-            if (Mathf.Sqrt(_desiredDirection.x * _desiredDirection.x + _desiredDirection.y * _desiredDirection.y + _desiredDirection.z * _desiredDirection.z) > 1)
-                _desiredDirection = _desiredDirection.normalized;
+            switch(outputValue)
+            {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    RandomMove();
+                    break;
+            }
+            // Check if move is valid
         }
 
-        private void RandomWalk()
+        private void RandomMove()
         {
-            var random = GetRandomDirection(_carryingFood);
-
-            _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.z) * Stats.WanderStrength).normalized;
-            _desiredDirection.y = 0;
+            var maxNeighbourIndex = _currentPos.Neighbours.Count();
+            var randomIndex = Random.Range(0, maxNeighbourIndex);
+            _nextPos = _currentPos.Neighbours[randomIndex];
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position + Vector3.up, transform.position + 100 * Vector3.down);
+            Gizmos.DrawSphere(transform.position, EnvironmentManager.Instance.NodeRadius / 2f);
             /*Gizmos.color = Color.black;
             Gizmos.DrawLine(_position, _position + BodyHeadAxis);
             if (Probabilities.Length == 0)
