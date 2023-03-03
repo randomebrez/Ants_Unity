@@ -80,8 +80,10 @@ namespace mew
         // Update _nextPos in inherited class
         public virtual void Move()
         {
+            var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.WorldPosition - _currentPos.WorldPosition, Vector3.up);
             _currentPos = _nextPos;
-            transform.SetPositionAndRotation(_currentPos.WorldPosition + 0.5f * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0));
+
+            transform.SetPositionAndRotation(_currentPos.WorldPosition + 0.5f * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
         }
 
         public abstract void CheckCollectableCollisions();
