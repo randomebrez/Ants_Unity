@@ -14,7 +14,8 @@ namespace mew
             UpdateInputs();
             // Compute output using brain
             // Select next pos : Interpret output
-            InterpretOutput(6);
+            //InterpretOutput(Random.Range(0, 1));
+            InterpretOutput(2);
 
             base.Move();
         }
@@ -59,19 +60,19 @@ namespace mew
 
         private void InterpretOutput(int outputValue)
         {
+            var deltaTheta = 360f / Stats.ScannerSubdivisions;
             switch(outputValue)
             {
                 case 0:
-                    break;
                 case 1:
-                    break;
                 case 2:
-                    break;
                 case 3:
-                    break;
                 case 4:
-                    break;
                 case 5:
+                    var direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
+                    if (Physics.Raycast(_currentPos.WorldPosition, direction, out var hit, 2 * EnvironmentManager.Instance.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
+                        _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
+                    Debug.Log(outputValue);
                     break;
                 case 6:
                     RandomMove();
