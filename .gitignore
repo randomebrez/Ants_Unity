@@ -13,7 +13,12 @@ Doc
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
-Logs/
+
+# Manually added
+/Logs/
+/ProjectSettings/
+/UserSettings/Layouts
+
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
