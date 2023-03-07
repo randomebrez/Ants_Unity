@@ -50,7 +50,7 @@ MonoBehaviour:
   OcclusionLayer:
     serializedVersion: 2
     m_Bits: 64
-  meshColor: {r: 0, g: 0, b: 1, a: 1}
+  color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &8308056340105208102
 GameObject:
   m_ObjectHideFlags: 0
@@ -144,10 +144,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ScanningMainLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 512
   OcclusionLayer:
     serializedVersion: 2
     m_Bits: 64
+  color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &8308056340264601477
 GameObject:
   m_ObjectHideFlags: 0
@@ -194,7 +195,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ScanningMainLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 256
   OcclusionLayer:
     serializedVersion: 2
     m_Bits: 64
+  color: {r: 0, g: 0, b: 0, a: 0}
