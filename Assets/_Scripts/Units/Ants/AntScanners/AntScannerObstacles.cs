@@ -1,9 +1,7 @@
-using mew;
 using UnityEngine;
 
 public class AntScannerObstacles : AntScannerBase
 {
-    private Mesh _mesh;
     private float _avoidDistance => _ant.PhysicalLength;
     protected override float ScannerAngle => _ant.Stats.VisionAngle;
     protected override bool CheckObtruction => true;

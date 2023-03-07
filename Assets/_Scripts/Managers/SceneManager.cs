@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using UnityEngine;
 
 internal class SceneManager : BaseManager<SceneManager>
 {
@@ -38,7 +34,7 @@ internal class SceneManager : BaseManager<SceneManager>
 
     public void HandleStartingState()
     {
-        var deltaTheta = 360f / _foodNumber;
+        var deltaTheta = 360f / (_foodNumber / 10);
         EnvironmentManager.Instance.SpawnGround();
         for (int i = 0; i < _foodNumber; i++)
             EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
@@ -47,7 +43,7 @@ internal class SceneManager : BaseManager<SceneManager>
 
     public void HandleSpawningAnts()
     {
-        UnitManager.Instance.SpawnAntNest();
+        UnitManager.Instance.CreateNewColony();
     }
 
     [Serializable]

@@ -11,6 +11,8 @@ namespace Assets.Dtos
         public float WallDist { get; set; }
 
         public float FoodToken { get; set; }
+
+        public bool IsNestInSight { get; set; }
     }
 
     public class NeuralNetworkInputs
@@ -43,10 +45,11 @@ namespace Assets.Dtos
                 result.Add(portionInputs.PheroW);
                 result.Add(portionInputs.PheroC);
                 result.Add(portionInputs.WallDist);
+                result.Add(portionInputs.FoodToken);
+                result.Add(portionInputs.IsNestInSight ? 1 : 0);
             }
 
             result.Add(CarryFood ? 1 : 0);
-            result.Add(IsNestInSight ? 1 : 0);
 
             return result;
         }

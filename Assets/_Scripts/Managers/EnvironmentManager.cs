@@ -23,14 +23,30 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
 
     public void SpawnFood(float angle)
     {
-        var radius = GroundSize.z / 3f;
+        var radius = (GroundSize.z / 3f);
         var spawnPosition = Quaternion.Euler(0, angle, 0) * (radius * Vector3.forward);
-        InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * NodeRadius);
+        var spawned = InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * NodeRadius);
+        spawned.transform.parent = Instance.GetFoodContainer();
     }
 
     public Block BlockFromWorldPoint(Vector3 worldPosition)
     {
         return _ground.GetBlockFromWorldPosition(worldPosition);
+    }
+
+    public Transform GetPheromoneContainer()
+    {
+        return EnvironmentContainer.transform.GetChild(1);
+    }
+
+    public Transform GetFoodContainer()
+    {
+        return EnvironmentContainer.transform.GetChild(2);
+    }
+
+    public Transform GetUnitContainer()
+    {
+        return EnvironmentContainer.transform.GetChild(0);
     }
 
     private void Update()

@@ -8,18 +8,21 @@ namespace mew
     {
         public bool _carryingFood = false;
         public int FoodCounter = 0;
+
+        // Override Methods
         public override void Move()
         {
             // Update Inputs (CarryFood/NestInSight)
             UpdateInputs();
+
             // Compute output using brain
+            var output = BrainManager.ComputeOutput(_scannerManager.GetInputs());
+
             // Select next pos : Interpret output
-            //InterpretOutput(Random.Range(0, 1));
-            InterpretOutput(2);
+            InterpretOutput(output.ouputId);
 
             base.Move();
         }
-
 
         public override void CheckCollectableCollisions()
         {
@@ -30,13 +33,13 @@ namespace mew
                 var foodtoken = colliders.Where(t => t != null).FirstOrDefault(t => t.tag == "Food");
                 if (foodtoken != null)
                 {
-                    Destroy(foodtoken.gameObject);
+                    Destroy(foodtoken.transform.parent.gameObject);
                     _carryingFood = true;
                 }
             }
             else
             {
-                var nest = colliders.Where(t => t != null).FirstOrDefault(t => t.name == _nest.name);
+                var nest = colliders.Where(t => t != null).FirstOrDefault(t => t.transform.parent.parent.name == _nest.name);
                 if (nest != null)
                 {
                     _carryingFood = false;
@@ -45,23 +48,21 @@ namespace mew
             }
         }
 
-        private void UpdateInputs()
+        public override float GetUnitScore()
         {
-            _scannerManager.UpdateAntInputs(_carryingFood, _nest.name);
+            return FoodCounter;
         }
 
-        protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
-        {
-            if (_carryingFood)
-                return ScriptablePheromoneBase.PheromoneTypeEnum.CarryFood;
 
-            return ScriptablePheromoneBase.PheromoneTypeEnum.Wander;
+        private void UpdateInputs()
+        {
+            _scannerManager.UpdateAntInputs(_carryingFood);
         }
 
         private void InterpretOutput(int outputValue)
         {
             var deltaTheta = 360f / Stats.ScannerSubdivisions;
-            switch(outputValue)
+            switch (outputValue)
             {
                 case 0:
                 case 1:
@@ -72,13 +73,16 @@ namespace mew
                     var direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
                     if (Physics.Raycast(_currentPos.WorldPosition, direction, out var hit, 2 * EnvironmentManager.Instance.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
                         _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
-                    Debug.Log(outputValue);
+                    else
+                    {
+                        //Debug.Log($"Can't reach direction ({direction.x}, {direction.z}) from ({_currentPos.XCoordinate}, {_currentPos.ZCoordinate})");
+                        RandomMove();
+                    }
                     break;
                 case 6:
                     RandomMove();
                     break;
             }
-            // Check if move is valid
         }
 
         private void RandomMove()
@@ -88,10 +92,16 @@ namespace mew
             _nextPos = _currentPos.Neighbours[randomIndex];
         }
 
+        protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
+        {
+            if (_carryingFood)
+                return ScriptablePheromoneBase.PheromoneTypeEnum.CarryFood;
+
+            return ScriptablePheromoneBase.PheromoneTypeEnum.Wander;
+        }
+
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(transform.position, EnvironmentManager.Instance.NodeRadius / 2f);
             /*Gizmos.color = Color.black;
             Gizmos.DrawLine(_position, _position + BodyHeadAxis);
             if (Probabilities.Length == 0)

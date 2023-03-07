@@ -1,8 +1,8 @@
 using Assets.Dtos;
 using System;
-using System.Linq;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Managers;
 
 namespace mew
 {
@@ -15,12 +15,14 @@ namespace mew
         protected Block _currentPos;
         protected Block _nextPos;
 
+        public BrainManager BrainManager { get; private set; }
+
         private Transform _body;
         private Transform _head;
         protected Transform _nest;
         protected AntScannerManager _scannerManager;
 
-        private Transform PheromoneContainer;
+        private Transform _pheromoneContainer;
 
         protected int _dropPheroFrequency = 10;
         protected float _dropPheroInterval;
@@ -31,8 +33,7 @@ namespace mew
         protected float _targetTreshold = 0.3f;
 
         public string[] PortionInfos => _scannerManager.PortionInfos;
-
-        public float steeringForceConstant = 10;
+        public string NestName => _nest.name;
 
         private void Awake()
         {
@@ -46,10 +47,8 @@ namespace mew
 
         void Start()
         {
-            _nest = transform.parent;
+            _nest = transform.parent.parent;
             _currentPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
-
-            PheromoneContainer = transform.parent.parent.parent.GetChild(1);
         }
 
         void Update()
@@ -62,12 +61,12 @@ namespace mew
             CheckCollectableCollisions();
         }
 
-        public override void Initialyze(ScriptableUnitBase.Stats stats)
+        public override void Initialyze(ScriptableUnitBase.Stats stats, Brain brain)
         {
-            base.Initialyze(stats);
-
+            base.Initialyze(stats, brain);
+            BrainManager = new BrainManager(brain);            
             _scannerManager.InitialyzeScanners();
-
+            _pheromoneContainer = EnvironmentManager.Instance.GetPheromoneContainer();
             _initialyzed = true;
         }
 
@@ -77,16 +76,35 @@ namespace mew
 
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
 
-        // Update _nextPos in inherited class
+        private void OnMouseDown()
+        {
+            Clicked?.Invoke(this);
+            Debug.Log($"Mouse was clicked on {name}");
+        }
+
+        // Abstract Methods
+        public abstract void CheckCollectableCollisions();
+
+        public abstract float GetUnitScore();
+
+        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
+
+        // Virtual Methods
+
+        /*Update _nextPos in inherited class*/
         public virtual void Move()
         {
+            //if (_nextPos == null)
+            //    Debug.Log($"{name} : NextPos was null");
+            //
+            //if (_currentPos == null)
+            //    Debug.Log($"{name} : CurrentPos was null");
+
             var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.WorldPosition - _currentPos.WorldPosition, Vector3.up);
             _currentPos = _nextPos;
 
             transform.SetPositionAndRotation(_currentPos.WorldPosition + 0.5f * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
         }
-
-        public abstract void CheckCollectableCollisions();
 
         internal virtual void DropPheromone()
         {
@@ -98,16 +116,8 @@ namespace mew
 
             // Spawn pheromone
             var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(GetPheroType());
-            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _currentPos.WorldPosition, Quaternion.identity, PheromoneContainer);
+            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _currentPos.WorldPosition, Quaternion.identity, _pheromoneContainer);
             pheromone.SetCaracteristics(scriptablePheromone.BaseCaracteristics);
         }
-
-        private void OnMouseDown()
-        {
-            Clicked?.Invoke(this);
-            Debug.Log($"Mouse was clicked on {name}");
-        }
-
-        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
     }
 }

@@ -13,10 +13,9 @@ public class AntScannerCollectables : AntScannerBase
         throw new System.NotImplementedException();
     }
 
-    public (bool isIt, Transform nest) IsNestInSight(string nestName)
+    public (bool isIt, Transform nest) IsNestInSight(int portionindex, string nestName)
     {
-        var colliders = Physics.OverlapSphere(transform.position, _ant.Stats.VisionRadius, ScanningMainLayer);
-        var nest = colliders.FirstOrDefault(t => t.name == nestName);
+        var nest = Objects[portionindex].FirstOrDefault(t => t.name == nestName);
         if (nest == null)
             return (false, null);
 

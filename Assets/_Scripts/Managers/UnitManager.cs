@@ -1,19 +1,28 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using mew;
+using NeuralNetwork.Interfaces.Model;
 
 internal class UnitManager : BaseManager<UnitManager>
 {
-    public SpawnerAnt SpawnerAntPrefab;
+    public AntColony AntColonyPrefab;
     public GameObject UnitsContainer;
 
-    private Vector3 GetGroundSize => EnvironmentManager.Instance.GroundSize;
+    public int MaxPopulationByColony;
+    public NetworkCaracteristics BrainCaracteristics = new NetworkCaracteristics
+        {
+            GeneNumber = 200,
+            InputNumber = 31,
+            OutputNumber = 6,
+            NeutralNumber = 10,
+            WeighBytesNumber = 4
+        };
 
-    private Dictionary<int, SpawnerAnt> _spawners = new Dictionary<int, SpawnerAnt>();
+    private Vector3 GetGroundSize => EnvironmentManager.Instance.GroundSize;
+    private Dictionary<int, AntColony> _colonies = new Dictionary<int, AntColony>();
     private BaseAnt _lastClicked;
 
-    public void SpawnAntNest()
+    public void CreateNewColony()
     {
         GameObject spawned = null;
         while (spawned == null)
@@ -21,21 +30,24 @@ internal class UnitManager : BaseManager<UnitManager>
             var randomX = (Random.value - 0.5f) * GetGroundSize.x - 1;
             var randomZ = (Random.value - 0.5f) * GetGroundSize.z - 1;
 
-            var spawnerMaxRange = Mathf.Max(SpawnerAntPrefab.transform.lossyScale.x, SpawnerAntPrefab.transform.lossyScale.y, SpawnerAntPrefab.transform.lossyScale.z);
-            spawned = InstantiateObject(SpawnerAntPrefab.gameObject, new Vector3(0, 1, 0), Quaternion.identity, UnitsContainer.transform, spawnerMaxRange * 1.5f);
+            var spawnerMaxRange = Mathf.Max(AntColonyPrefab.transform.lossyScale.x, AntColonyPrefab.transform.lossyScale.y, AntColonyPrefab.transform.lossyScale.z);
+            spawned = InstantiateObject(AntColonyPrefab.gameObject, new Vector3(0, 1, 0), Quaternion.identity, UnitsContainer.transform, spawnerMaxRange * 1.5f);
         }
 
-        var id = _spawners.Count + 1;
-        _spawners.Add(id, spawned.GetComponent<SpawnerAnt>());
+        var id = _colonies.Count + 1;
+        spawned.transform.parent = EnvironmentManager.Instance.GetUnitContainer();
+        var colony = spawned.GetComponent<AntColony>();
+        colony.Initialyze($"Colony_{id}",BrainCaracteristics, MaxPopulationByColony);
+        _colonies.Add(id, colony);
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return))
-            SpawnAntNest();
+            CreateNewColony();
 
         if (Input.GetKeyDown(KeyCode.A))
-            SpawnAntNest();
+            CreateNewColony();
     }
 
     public void AntClick(BaseAnt ant)

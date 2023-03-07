@@ -49,7 +49,7 @@ public class AntScannerManager : MonoBehaviour
             if (_scanMode)
                 Scan();
             else
-                InputsUpdate();// ProbabilitiesUpdate();
+                InputsUpdate();
             _scanMode = !_scanMode;
         }
     }
@@ -72,16 +72,21 @@ public class AntScannerManager : MonoBehaviour
         _collectableScanner.Scan();
     }
 
-    public void InputsUpdate()
-    {
-        for(int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
-            _inputs.UpdatePortion(i, GetPortionInputs(i));
-    }
-
-    public void UpdateAntInputs(bool carryFood, string nestName)
+    public void UpdateAntInputs(bool carryFood)
     {
         _inputs.CarryFood = carryFood;
-        _inputs.IsNestInSight = IsNestInSight(nestName).answer;
+    }
+
+    public List<float> GetInputs()
+    {
+        return _inputs.GetInputs();
+    }
+
+
+    private void InputsUpdate()
+    {
+        for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
+            _inputs.UpdatePortion(i, GetPortionInputs(i));
     }
 
 
@@ -97,7 +102,8 @@ public class AntScannerManager : MonoBehaviour
             PheroW = pheroW.averageDensity,
             PheroC = pheroC.averageDensity,
             WallDist = _obstacleScanner.GetPortionValue(portionIndex),
-            FoodToken = CollectablesListByTag("Food").Count()
+            FoodToken = CollectablesListByTag("Food").Count(),
+            IsNestInSight = _collectableScanner.IsNestInSight(portionIndex, _ant.NestName).isIt
         };
     }
 
@@ -151,11 +157,6 @@ public class AntScannerManager : MonoBehaviour
     #endregion
 
     #region Collectables
-
-    public (bool answer, Transform tranform) IsNestInSight(string nestName)
-    {
-        return _collectableScanner.IsNestInSight(nestName);
-    }
 
     public List<GameObject> CollectablesListByTag(string type)
     {
