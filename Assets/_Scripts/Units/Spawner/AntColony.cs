@@ -1,3 +1,4 @@
+using Assets._Scripts.Utilities;
 using Assets.Gateways;
 using mew;
 using NeuralNetwork.Interfaces.Model;
@@ -9,72 +10,75 @@ using UnityEngine;
 public class AntColony : MonoBehaviour
 {
     private NeuralNetworkGateway _neuralNetworkGateway;
-    private NetworkCaracteristics _unitBrainCaracteristics;
-
-    private List<(Brain brain, float score)> _bestBrains = new List<(Brain brain, float score)>();
-
-    private int _maxPopulation;
-    private List<BaseAnt> _population;
-    private int _generationId = 0;
 
     private SpawnerAnt _spawner;
+    private BlockBase _block;
+    private List<BaseAnt> _population;
+    private List<(BaseAnt ant, Brain brain, float score)> _currentSelection = new List<(BaseAnt ant, Brain brain, float score)>();
+    private List<(BaseAnt ant, Brain brain, float score)> _bestBrains = new List<(BaseAnt ant, Brain brain, float score)>();
 
+    private int _generationId = 0;
+    private bool _startCooldown = false;
+    private float _currentGenerationLifeTime;
     private bool _initialyzed = false;
 
-    private bool StartCooldown = false;
-    protected float _scanInterval = 60;
-    protected float _scanTimer;
+    private int _childMaxByBrain = 3;
 
-    public void Initialyze(string name, NetworkCaracteristics networkCaracteristics, int maxPopulation)
-    {
-        transform.name = name;
-
-        _maxPopulation = maxPopulation;
-        _unitBrainCaracteristics = networkCaracteristics;
-
-        _neuralNetworkGateway = new NeuralNetworkGateway(new PopulationManager(networkCaracteristics));
-        _population = new List<BaseAnt>();
-
-        _scanTimer = _scanInterval;
-
-        _initialyzed = true;
-    }
-
-    // Start is called before the first frame update
+    // Unity methods
     void Start()
     {
         _spawner = GetComponentInChildren<SpawnerAnt>();
+        _block = GetComponentInChildren<BlockBase>();
+
+        _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (_initialyzed == false)
             return;
-        if (!StartCooldown)
+        if (!_startCooldown)
         {
             GenerateNewGeneration();
-            StartCooldown = true;
+            _startCooldown = true;
         }
         else
         {
-            _scanTimer -= Time.deltaTime;
-            if (_scanTimer < 0)
+            _currentGenerationLifeTime -= Time.deltaTime;
+            if (_currentGenerationLifeTime < 0)
             {
-                _scanTimer += _scanInterval;
+                _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
                 GenerateNewGeneration();
             }
         }
     }
 
+
+    // Public methods
+    public void Initialyze(string name)
+    {
+        transform.name = name;
+
+        _neuralNetworkGateway = new NeuralNetworkGateway(new PopulationManager(GlobalParameters.NetworkCaracteristics));
+
+        _population = new List<BaseAnt>();
+
+        _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
+
+        _initialyzed = true;
+    }
+
+
+    // Private methods
     private void GenerateNewGeneration()
     {
         SelectBestUnits();
         DestroyPreviousGeneration();
         RepopFood();
+        CleanPheromoneContainer();
 
         // Get as many brain as ants we want to pop
-        var brains = _neuralNetworkGateway.GenerateNextGeneration(_maxPopulation, _bestBrains.Select(t => t.brain).ToList());
+        var brains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, _bestBrains.Select(t => t.brain).ToList());
         _population = _spawner.InstantiateUnits(brains.ToList(), ScriptableAntBase.AntTypeEnum.Worker);
         _generationId++;
     }
@@ -84,20 +88,24 @@ public class AntColony : MonoBehaviour
         if (_population.Count == 0)
             return;
 
-        foreach(var ant in _population)
-            _bestBrains.Add((ant.BrainManager.GetBrain(), ant.GetUnitScore()));
+        _currentSelection.Clear();
+        foreach (var ant in _population)
+            _currentSelection.Add((ant, ant.BrainManager.GetBrain(), ant.GetUnitScore()));
 
-        _bestBrains = _bestBrains.OrderByDescending(t => t.score).Take(_maxPopulation / 2).ToList();
-        var sum = 0f;
+        _bestBrains = _currentSelection.OrderByDescending(t => t.score).Take((int)(2 * GlobalParameters.ColonyMaxPopulation / 3f)).ToList();
+        var sumFoodGathered = 0f;
+        var sumFoodGrabbed = 0f;
         if (_bestBrains.Where(t => t.score > 0).Count() > 1)
         {
-            _bestBrains = _bestBrains.Where(t => t.score > 0).ToList();
-            foreach (var pair in _bestBrains)
-                sum += pair.score;
+            foreach (var pair in _bestBrains.Where(t => t.score > 0))
+            {
+                sumFoodGathered += (pair.ant as WorkerAnt).FoodCounter;
+                sumFoodGrabbed += (pair.ant as WorkerAnt).FoodGrabbed;
+            }
         }
-        var highScore = _bestBrains.First().score;
-        sum = sum == 0 ? highScore : sum;
-        Debug.Log($"Generation : {_generationId}\nHighest score : {highScore} - Total food grabbed : {sum}");
+        var highScore = _bestBrains.First();
+        sumFoodGathered = sumFoodGathered == 0 ? (highScore.ant as WorkerAnt).FoodCounter : sumFoodGathered;
+        Debug.Log($"Generation : {_generationId}\nHighest score : {highScore.score} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodGathered}");
     }
 
     private void DestroyPreviousGeneration()
@@ -119,8 +127,12 @@ public class AntColony : MonoBehaviour
             Destroy(foodContainer.GetChild(i - 1).gameObject);
         }
         var foodNumber = 100;
-        var deltaTheta = 360f / (foodNumber / 15);
+        var deltaTheta = 360f / (foodNumber / 10);
         for (int i = 0; i < foodNumber; i++)
             EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
+    }
+    private void CleanPheromoneContainer()
+    {
+        _spawner.CleanPheromones();
     }
 }

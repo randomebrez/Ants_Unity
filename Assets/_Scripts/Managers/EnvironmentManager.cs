@@ -1,11 +1,9 @@
+using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using UnityEngine;
 
 internal class EnvironmentManager : BaseManager<EnvironmentManager>
 {
-    public Vector3 GroundSize = new Vector3(10, 0, 10);
-    public float NodeRadius = 1f;
-
     public GameObject GroundPrefab;
     public GameObject EnvironmentContainer;
     public GameObject FoodPrefab;
@@ -18,14 +16,16 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
             return;
 
         _ground = Instantiate(GroundPrefab, EnvironmentContainer.transform).GetComponent<Ground>();
-        _ground.SetupHexaGrid(GroundSize, NodeRadius);
+        _ground.SetupHexaGrid();
     }
 
     public void SpawnFood(float angle)
     {
-        var radius = (GroundSize.z / 3f);
-        var spawnPosition = Quaternion.Euler(0, angle, 0) * (radius * Vector3.forward);
-        var spawned = InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * NodeRadius);
+        var radius = (GlobalParameters.GroundSize.z / 3f);
+        var randomXShift = Random.Range(-2, 3);
+        var randomZShift = Random.Range(-2, 3);
+        var spawnPosition = Quaternion.Euler(0, angle, 0) * ((radius + randomZShift) * Vector3.forward + randomXShift * Vector3.right) + (GlobalParameters.NodeRadius / 2) * Vector3.up;
+        var spawned = InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * GlobalParameters.NodeRadius);
         spawned.transform.parent = Instance.GetFoodContainer();
     }
 
@@ -41,7 +41,7 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
 
     public Transform GetFoodContainer()
     {
-        return EnvironmentContainer.transform.GetChild(2);
+        return EnvironmentContainer.transform.GetChild(1);
     }
 
     public Transform GetUnitContainer()
@@ -51,6 +51,6 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
 
     private void Update()
     {
-        // Get mouse position to spawn food on click        
+        // Get mouse position to spawn food on click
     }
 }

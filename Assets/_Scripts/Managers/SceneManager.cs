@@ -1,11 +1,10 @@
+using Assets._Scripts.Utilities;
 using System;
 
 internal class SceneManager : BaseManager<SceneManager>
 {
     public static event Action<SceneState> OnBeforeStateChanged;
     public static event Action<SceneState> OnAfterStateChanged;
-
-    private int _foodNumber = 100;
 
     public SceneState State { get; private set; }
 
@@ -34,9 +33,9 @@ internal class SceneManager : BaseManager<SceneManager>
 
     public void HandleStartingState()
     {
-        var deltaTheta = 360f / (_foodNumber / 10);
+        var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
         EnvironmentManager.Instance.SpawnGround();
-        for (int i = 0; i < _foodNumber; i++)
+        for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
             EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
         ChangeState(SceneState.SpawningAntNest);
     }

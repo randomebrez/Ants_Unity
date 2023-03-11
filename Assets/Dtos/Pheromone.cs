@@ -8,6 +8,7 @@ namespace Assets.Dtos
 
         public float Density { get; set; }
 
+        public float LifeTimeSeconds { get; set; }
         public TimeSpan Lifetime { get; set; }
 
         public DateTime CreationDate { get; set; }

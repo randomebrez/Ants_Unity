@@ -2,7 +2,6 @@
 using mew;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
@@ -19,10 +18,9 @@ public class AntScannerManager : MonoBehaviour
     private NeuralNetworkInputs _inputs;
     private string[] _portionInfos;
 
-    protected int ScanFrequency = 10;
     protected float _scanInterval;
     protected float _scanTimer;
-    protected bool _scanMode = true;
+    protected bool _updateinputs = true;
 
     private BaseAnt _ant;
 
@@ -30,6 +28,8 @@ public class AntScannerManager : MonoBehaviour
     private AntScannerPheromones _pheromoneScanner;
     private AntScannerCollectables _collectableScanner;
     public string[] PortionInfos => _portionInfos;
+
+    bool initialyzed = false;
     
     private void Awake()
     {
@@ -42,27 +42,29 @@ public class AntScannerManager : MonoBehaviour
 
     private void Update()
     {
+        if (!initialyzed)
+            return;
+
         _scanTimer -= Time.deltaTime;
         if (_scanTimer < 0)
         {
             _scanTimer += _scanInterval;
-            if (_scanMode)
-                Scan();
-            else
-                InputsUpdate();
-            _scanMode = !_scanMode;
+            Scan();
         }
+        if (_updateinputs)
+            InputsUpdate();
     }
 
     public void InitialyzeScanners()
     {
         var subdiv = _ant.Stats.ScannerSubdivisions;
-        _obstacleScanner.Initialyze(_ant, subdiv, ScanFrequency);
-        _pheromoneScanner.Initialyze(_ant, subdiv, ScanFrequency);
-        _collectableScanner.Initialyze(_ant, subdiv, ScanFrequency);
+        _obstacleScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
+        _pheromoneScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
+        _collectableScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
         _inputs = new NeuralNetworkInputs(subdiv);
 
         _portionInfos = new string[subdiv];
+        initialyzed = true;
     }
 
     public void Scan()
@@ -70,6 +72,7 @@ public class AntScannerManager : MonoBehaviour
         _obstacleScanner.Scan();
         _pheromoneScanner.Scan();
         _collectableScanner.Scan();
+        _updateinputs = true;
     }
 
     public void UpdateAntInputs(bool carryFood)
@@ -87,6 +90,7 @@ public class AntScannerManager : MonoBehaviour
     {
         for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
             _inputs.UpdatePortion(i, GetPortionInputs(i));
+        _updateinputs = false;
     }
 
 
@@ -102,7 +106,7 @@ public class AntScannerManager : MonoBehaviour
             PheroW = pheroW.averageDensity,
             PheroC = pheroC.averageDensity,
             WallDist = _obstacleScanner.GetPortionValue(portionIndex),
-            FoodToken = CollectablesListByTag("Food").Count(),
+            FoodToken = CollectablesListByTag("Food").Any(),
             IsNestInSight = _collectableScanner.IsNestInSight(portionIndex, _ant.NestName).isIt
         };
     }
@@ -158,9 +162,9 @@ public class AntScannerManager : MonoBehaviour
 
     #region Collectables
 
-    public List<GameObject> CollectablesListByTag(string type)
+    public List<GameObject> CollectablesListByTag(string tag)
     {
-        var typedCollectables = _collectableScanner.ObjectsFlattenList.Where(t => t.tag == type);
+        var typedCollectables = _collectableScanner.ObjectsFlattenList.Where(t => t.tag == tag);
 
         return typedCollectables.ToList();
     }

@@ -10,7 +10,7 @@ namespace Assets.Dtos
 
         public float WallDist { get; set; }
 
-        public float FoodToken { get; set; }
+        public bool FoodToken { get; set; }
 
         public bool IsNestInSight { get; set; }
     }
@@ -44,8 +44,8 @@ namespace Assets.Dtos
                 var portionInputs = _portionInputs[i];
                 result.Add(portionInputs.PheroW);
                 result.Add(portionInputs.PheroC);
-                result.Add(portionInputs.WallDist);
-                result.Add(portionInputs.FoodToken);
+                //result.Add(portionInputs.WallDist);
+                result.Add(portionInputs.FoodToken ? 1 : 0);
                 result.Add(portionInputs.IsNestInSight ? 1 : 0);
             }
 

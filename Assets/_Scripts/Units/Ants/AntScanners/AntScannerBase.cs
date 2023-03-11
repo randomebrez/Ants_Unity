@@ -2,21 +2,37 @@
 using System.Collections.Generic;
 using mew;
 using UnityEngine;
+using System;
+using Assets._Scripts.Utilities;
 
 public abstract class AntScannerBase : MonoBehaviour
 {
-    private bool _initialyzed = false;
-
     [SerializeField]
     protected LayerMask ScanningMainLayer;
     [SerializeField]
     protected LayerMask OcclusionLayer;
-    public Color color;
 
-    protected int _scannerSubdivision;
+    // Ant reference
+    protected BaseAnt _ant;
+
+    // Base scanner parameters
+    private float _scanInterval;
     private List<float> _subdivisions = new List<float>();
-    protected float PortionSurface => (360f / _scannerSubdivision) * _ant.Stats.VisionRadius* _ant.Stats.VisionRadius / 2f;
 
+    protected bool _initialyzed = false;
+    protected int _scannerSubdivision;
+    protected abstract float _scannerAngle { get; }
+    protected abstract float _scannerRadius { get; }
+    protected abstract bool _checkObtruction { get; }
+
+    protected float _apothem => (float)Math.Sqrt(3) * GlobalParameters.NodeRadius / 2;
+
+    // Colliders container
+    private List<GameObject> _objects = new List<GameObject>();
+    private Collider[] _colliders = new Collider[150];
+
+
+    // Public methods to get colliders
     public Dictionary<int, List<GameObject>> Objects
     {
         get
@@ -33,22 +49,6 @@ public abstract class AntScannerBase : MonoBehaviour
             return _objects;
         }
     }
-    private List<GameObject> _objects = new List<GameObject>();
-    private Collider[] _colliders = new Collider[150];
-
-    private int _count;
-
-    protected BaseAnt _ant;
-    protected abstract float ScannerAngle { get; }
-
-    protected int ScanFrequency = 100;
-    protected float _scanInterval;
-    protected float _scanTimer;
-    protected abstract bool CheckObtruction { get; }
-    protected float _height = 0.1f;
-    protected abstract float ScannerRadius { get; }
-
-    public int GetCount => _count;
 
     public abstract float GetPortionValue(int index);
 
@@ -56,38 +56,29 @@ public abstract class AntScannerBase : MonoBehaviour
     {
         _ant = ant;
         _scannerSubdivision = scannerSubdivision;
-        ScanFrequency = scanFrequency;
+        _scanInterval = 1.0f / scanFrequency;
 
         float deltaTheta = 360 / _scannerSubdivision;
-        var current = -180f;
+        // start at the back of the ant for the 'ToDictionary' method that uses the fact that indexes are increasing
+        var current = -180 - deltaTheta / 2f;
         for (int i = 0; i < _scannerSubdivision; i++)
         {
             _subdivisions.Add(current);
             current += deltaTheta;
         }
-
         _initialyzed = true;
-    }
-
-    private void Start()
-    {
-        _scanInterval = 1.0f / ScanFrequency;
     }
 
     public virtual void Scan()
     {
-        var count = Physics.OverlapSphereNonAlloc(transform.position, ScannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);
+        var count = Physics.OverlapSphereNonAlloc(transform.position, _scannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);
 
-        _count = 0;
         _objects.Clear();
         for (int i = 0; i < count; i++)
         {
             var obj = _colliders[i].gameObject;
             if (IsInSight(obj))
-            {
-                _count++;
                 _objects.Add(obj);
-            }
         }
     }
 
@@ -98,17 +89,18 @@ public abstract class AntScannerBase : MonoBehaviour
         for(int i = 0; i < _scannerSubdivision; i ++)
             result.Add(i, new List<GameObject>());
 
-
         var delta = 360f / _scannerSubdivision;
-        var position = transform.position;
         foreach (var obj in objects)
         {
-            var objPosition = obj.transform.position;
-            var direction = objPosition - position;
-            var angle = Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up);
+            var objDirection = obj.transform.position - transform.position;
+            var angle = Vector3.SignedAngle(_ant.BodyHeadAxis, objDirection, Vector3.up);
 
-            var portionIndex = _subdivisions.Any(t => t > angle) ? _subdivisions.FindIndex(t => t > angle): _subdivisions.Count;
-            result[portionIndex - 1].Add(obj);
+            if (_subdivisions.Any(t => t > angle))
+                result[_subdivisions.FindIndex(t => t > angle) - 1].Add(obj);
+            else if (360 + _subdivisions[0] > angle)
+                result[_scannerSubdivision - 1].Add(obj);
+            else
+                result[0].Add(obj);
         }
 
         return result;
@@ -121,15 +113,15 @@ public abstract class AntScannerBase : MonoBehaviour
         var direction = objPosition - position;
 
         // Check on angle
-        if (Mathf.Abs(Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up)) > ScannerAngle)
+        if (Mathf.Abs(Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up)) > _scannerAngle)
             return false;
 
-        if (CheckObtruction == false)
+        if (_checkObtruction == false)
             return true;
 
         // Check if no obstruction
-        position.y += _height / 2;
-        direction.y = position.y;
+        position.y += objPosition.y;
+        direction.y = 0;
         if (Physics.Linecast(position, direction, OcclusionLayer))
             return false;
 

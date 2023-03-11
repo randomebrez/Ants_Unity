@@ -1,3 +1,4 @@
+using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using UnityEngine;
 
@@ -8,6 +9,6 @@ public class Food : MonoBehaviour
     public void Start()
     {
         _blockPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
-        transform.SetPositionAndRotation(_blockPos.WorldPosition + (EnvironmentManager.Instance.NodeRadius / 2f) * Vector3.up, Quaternion.identity);
+        transform.SetPositionAndRotation(_blockPos.WorldPosition + (GlobalParameters.NodeRadius / 2f) * Vector3.up, Quaternion.identity);
     }
 }

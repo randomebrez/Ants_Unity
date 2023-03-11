@@ -5,10 +5,9 @@ using UnityEngine;
 
 public class AntScannerPheromones : AntScannerBase
 {
-    protected override float ScannerAngle => 360;
-    protected override bool CheckObtruction => false;
-
-    protected override float ScannerRadius => _ant.Stats.VisionRadius;
+    protected override float _scannerAngle => 360;
+    protected override bool _checkObtruction => false;
+    protected override float _scannerRadius => _ant.Stats.VisionRadius * 3 * _apothem;
 
     public (int number, float averageDensity) GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
     {
@@ -16,7 +15,7 @@ public class AntScannerPheromones : AntScannerBase
         {
             var sum = 0f;
             var pheroDensities = Objects[index]
-                .Where(t => t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == type)
+                .Where(t => t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == type && t.GetComponent<BasePheromone>().Pheromone != null)
                 .Select(t => t.GetComponent<BasePheromone>().Pheromone.Density);
 
             foreach (var density in pheroDensities)
@@ -40,12 +39,17 @@ public class AntScannerPheromones : AntScannerBase
         throw new System.NotImplementedException();
     }
 
-    /*private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        foreach (var obstacle in ObjectsFlattenList)
-        {
-            Gizmos.DrawWireCube(obstacle.transform.position, Vector3.one);
-        }
-    }*/
+    //public void OnDrawGizmos()
+    //{
+    //    // Print scanned obj
+    //    var portionColors = new Color[] { Color.yellow, Color.red, Color.blue, Color.green, Color.cyan, Color.white };
+    //    for (int i = 0; i < _scannerSubdivision; i++)
+    //    {
+    //        Gizmos.color = portionColors[i];
+    //        foreach (var obstacle in Objects[i])
+    //        {
+    //            Gizmos.DrawWireCube(obstacle.transform.position, Vector3.one);
+    //        }
+    //    }
+    //}
 }

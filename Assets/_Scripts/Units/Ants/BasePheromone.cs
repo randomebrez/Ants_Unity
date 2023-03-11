@@ -1,61 +1,94 @@
 using System;
 using Assets.Dtos;
 using UnityEngine;
-using System.Timers;
 using mew;
+using Assets._Scripts.Utilities;
+using System.Linq;
 
 public class BasePheromone : MonoBehaviour
 {
-    private MeshRenderer _renderer;
-    public Pheromone Pheromone;
-    private Timer _timer;
-    private bool _expired = false;
-
     public ScriptablePheromoneBase.Caracteristics Caracteristics { get; private set; }
-    public virtual void SetCaracteristics(ScriptablePheromoneBase.Caracteristics caracteristics) => Caracteristics = caracteristics;
+    public Pheromone Pheromone;
+    public Block BlockPos;
 
-    // Start is called before the first frame update
+    private MeshRenderer _renderer;
+    private float _livingTime = 0;
+    private bool _expired = false;
+    private float _cleaningTime = 0f;
+    private bool _hasAlreadyClean = false;
+    private bool _initialyzed = false;
+
+    public float Remainingtime => Pheromone.LifeTimeSeconds - _livingTime;
+
+    // Unity methods
     void Start()
     {
         _renderer = GetComponent<MeshRenderer>();
         _renderer.material.color = Caracteristics.Color;
-        Pheromone = new Pheromone
-        {
-            CreationDate = DateTime.UtcNow,
-            Lifetime = new TimeSpan(0, 0, Caracteristics.Duration),
-            Density = 1
-        };
-        TimerInitialize();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        if (_initialyzed == false)
+            return;
+
+        _livingTime += Time.deltaTime;
+        _expired = _livingTime > Pheromone.LifeTimeSeconds;
+
         if (_expired)
             Destroy(gameObject);
 
-        var percentDone = (DateTime.UtcNow - Pheromone.CreationDate).TotalSeconds / Caracteristics.Duration;
+        var percentDone = _livingTime / Pheromone.LifeTimeSeconds;
         Pheromone.Density = 1 - (float)percentDone;
         var color = _renderer.material.color;
         color.a = Mathf.Max(0, Pheromone.Density);
         _renderer.material.color = color;
     }
 
-    private void TimerInitialize()
+    void FixedUpdate()
     {
-        if (_timer != null)
+        if (_initialyzed == false)
             return;
-
-        _timer = new Timer(Caracteristics.Duration * 1000);
-        _timer.Enabled = true;
-        _timer.AutoReset = false;
-        _timer.Elapsed += OnTick;
-        _timer.Start();
+    
+        if (_hasAlreadyClean == false && _livingTime > _cleaningTime)
+            CleanOtherPheromones();
     }
 
-    private void OnTick(object sender, ElapsedEventArgs e)
+
+
+    public virtual void Initialyze(ScriptablePheromoneBase.Caracteristics caracteristics, Block position)
     {
-        _timer.Stop();
-        _expired = true;
+        BlockPos = position;
+        Caracteristics = caracteristics;
+        Pheromone = new Pheromone
+        {
+            CreationDate = DateTime.UtcNow,
+            LifeTimeSeconds = Caracteristics.Duration,
+            Density = 1
+        };
+        _cleaningTime = Remainingtime / 10f;
+        _initialyzed = true;
+    }
+
+    private void CleanOtherPheromones()
+    {
+        Collider[] colliders = new Collider[10];
+        Physics.OverlapSphereNonAlloc(transform.position, GlobalParameters.NodeRadius / 2f, colliders, LayerMask.GetMask(Layer.Pheromone.ToString()));
+        var temp = colliders.Where(t => t != null && t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == Caracteristics.PheromoneType).ToList();
+        foreach (var t in temp)
+        {
+            if (t.transform == transform)
+                continue;
+            try
+            {
+                Pheromone.LifeTimeSeconds += t.GetComponent<BasePheromone>().Remainingtime;
+                Destroy(t.gameObject);
+            }
+            catch
+            {
+                continue;
+            }
+        }
+        _hasAlreadyClean = true;
     }
 }
