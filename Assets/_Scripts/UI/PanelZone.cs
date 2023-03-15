@@ -6,26 +6,23 @@ public class PanelZone : MonoBehaviour
 
     private GraphicManager _graphicInstance;
     private RectTransform _canvasTransform;
-    private RectTransform _panelTransform;
 
     // Unity methods
     void Awake()
     {
         _canvasTransform = GetComponent<RectTransform>();
-        _panelTransform = _canvasTransform.GetChild(0).GetComponent<RectTransform>();
         _graphicInstance = _canvasTransform.GetChild(0).GetComponent<GraphicManager>();
     }
 
     public void Start()
     {
-        _graphicInstance = Instantiate(GraphicPrefab, _canvasTransform);//.position, Quaternion.identity, _panelTransform);
-        _graphicInstance.Initialyze(6);
+        _graphicInstance = Instantiate(GraphicPrefab, _canvasTransform);
     }
 
 
-    public void AddCurveValue(float xValue, float yValue)
+    public void AddCurveValue(Vector2 point)
     {
-        _graphicInstance.AddCurveValue(xValue, yValue);
+        _graphicInstance.AddCurveValue(point);
     }
 
     public void SetAnchors(float yMin, float yMax)

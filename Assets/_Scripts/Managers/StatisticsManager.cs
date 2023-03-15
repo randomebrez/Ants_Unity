@@ -1,5 +1,4 @@
 using Assets._Scripts.Units.Ants;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,17 +6,6 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 {
     private GameViewsManager _gameViewManager;
     private Dictionary<StatisticEnum, int> _statisticsDisplayZoneIndexes = new Dictionary<StatisticEnum, int>();
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
 
     public void SetGameViewManager(GameViewsManager gameViewManager)
     {
@@ -31,9 +19,9 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
             _statisticsDisplayZoneIndexes.Add(statisticsToDisplay[i], i);
     }
 
-    public void AddValues(Dictionary<StatisticEnum, (float x, float y)> values)
+    public void AddValues(Dictionary<StatisticEnum, Vector2> values)
     {
         foreach(var value in values)
-            _gameViewManager.AddCurveValue(_statisticsDisplayZoneIndexes[value.Key], value.Value.x, value.Value.y);
+            _gameViewManager.AddCurveValue(_statisticsDisplayZoneIndexes[value.Key], value.Value);
     }
 }

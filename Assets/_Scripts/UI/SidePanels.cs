@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class SidePanels : MonoBehaviour
@@ -13,10 +11,10 @@ public class SidePanels : MonoBehaviour
     private RectTransform _leftPanel;
     private Dictionary<int, PanelZone> _canvasZones = new Dictionary<int, PanelZone>();
 
-    public float _highScoreZoneHeight;
+    private float _highScoreZoneHeight;
 
 
-    // Start is called before the first frame update
+    // Unity methods
     void Start()
     {
         _leftPanel = transform.GetChild(0).GetComponent<RectTransform>();
@@ -25,7 +23,7 @@ public class SidePanels : MonoBehaviour
 
     public void SplitZone(int zoneNumber)
     {
-        _highScoreZoneHeight = (int)_rightPanel.rect.height / 2f;
+        _highScoreZoneHeight = (int)_rightPanel.rect.height / 1.5f;
         var zoneHeight = (int)((2 * _rightPanel.rect.height - _highScoreZoneHeight)/ zoneNumber);
 
         var numberOfZoneInRightPanel = (_rightPanel.rect.height - _highScoreZoneHeight) / zoneHeight;
@@ -55,7 +53,7 @@ public class SidePanels : MonoBehaviour
                 offSet = 0;
             }
 
-            var newPanel = Instantiate(PanelZonePrefab, parent.transform);//.position, Quaternion.identity, parent);
+            var newPanel = Instantiate(PanelZonePrefab, parent.transform);
             newPanel.SetAnchors(offSet / parent.rect.height, (zoneHeight + offSet) / parent.rect.height);
 
             _canvasZones.Add(i, newPanel);
@@ -64,8 +62,8 @@ public class SidePanels : MonoBehaviour
         }
     }
 
-    public void AddCurveValue(int graphicIndex, float xValue, float yValue)
+    public void AddCurveValue(int graphicIndex, Vector2  point)
     {
-        _canvasZones[graphicIndex].AddCurveValue(xValue, yValue);
+        _canvasZones[graphicIndex].AddCurveValue(point);
     }
 }

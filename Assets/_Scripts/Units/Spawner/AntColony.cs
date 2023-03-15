@@ -128,13 +128,17 @@ public class AntColony : MonoBehaviour
             sumFoodCollected += antStatistics[StatisticEnum.FoodCollected];
             sumFoodGrabbed += antStatistics[StatisticEnum.FoodGrabbed];
         }
-        var dico = new Dictionary<StatisticEnum, (float x, float y)> 
+
+        var xPoint = (_generationId - 1 ) * Vector2.right;
+        bestFoodReach = bestFoodReach < Mathf.Infinity ? bestFoodReach : 0;
+        bestComeBack = bestComeBack < Mathf.Infinity ? bestComeBack : 0;
+        var dico = new Dictionary<StatisticEnum, Vector2> 
         { 
-            { StatisticEnum.Score, (_generationId, highScore.score) },
-            { StatisticEnum.BestFoodReach, (_generationId, bestFoodReach < Mathf.Infinity ? bestFoodReach : 0) },
-            { StatisticEnum.BestComeBack, (_generationId, bestComeBack < Mathf.Infinity ? bestComeBack : 0) },
-            { StatisticEnum.FoodCollected, (_generationId, sumFoodCollected) },
-            { StatisticEnum.FoodGrabbed, (_generationId, sumFoodGrabbed) }
+            { StatisticEnum.Score, xPoint + highScore.score * Vector2.up },
+            { StatisticEnum.BestFoodReach, xPoint + bestFoodReach * Vector2.up },
+            { StatisticEnum.BestComeBack, xPoint + bestComeBack * Vector2.up },
+            { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
+            { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
         };
 
         StatisticsManager.Instance.AddValues(dico);

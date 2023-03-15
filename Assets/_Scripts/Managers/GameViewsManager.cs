@@ -16,7 +16,6 @@ public class GameViewsManager : MonoBehaviour
     {
         var cameraGo = GetComponent<Canvas>();
         cameraGo.worldCamera = camera;
-        cameraGo.planeDistance = 160;
     }
 
     public void Initialyze(int sideZoneNumber)
@@ -24,8 +23,8 @@ public class GameViewsManager : MonoBehaviour
         _sidePanels.SplitZone(sideZoneNumber);
     }
 
-    public void AddCurveValue(int zoneIndex, float xValue, float yValue)
+    public void AddCurveValue(int zoneIndex, Vector2 point)
     {
-        _sidePanels.AddCurveValue(zoneIndex, xValue, yValue);
+        _sidePanels.AddCurveValue(zoneIndex, point);
     }
 }
