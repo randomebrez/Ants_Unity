@@ -1,54 +1,84 @@
 using Assets._Scripts.Utilities;
 using System;
+using UnityEngine;
 
 internal class SceneManager : BaseManager<SceneManager>
 {
-    public static event Action<SceneState> OnBeforeStateChanged;
-    public static event Action<SceneState> OnAfterStateChanged;
-
-    public SceneState State { get; private set; }
-
-    public void Start() => ChangeState(SceneState.Starting);
-
-
-    public void ChangeState(SceneState newState)
+    public enum SceneState
     {
-        State = newState;
+        Initialyze,
+        SpawnContext,
+        SpawnContextObjects,
+        Running
+    }
 
-        OnBeforeStateChanged?.Invoke(State);
+    private SceneState _sceneState = SceneState.Initialyze;
 
-        switch (State)
+    public Action<SceneState> BeforeStateChanged;
+    public Action<SceneState> AfterStateChanged;
+
+    private bool _stateChanged = false;
+
+    public void Start()
+    {
+        ChangeState();
+    }
+
+    private void Update()
+    {
+        if (!_stateChanged)
+            return;
+
+        _stateChanged = false;
+        switch (_sceneState)
         {
-            case SceneState.Starting:
-                HandleStartingState();
+            case SceneState.SpawnContext:
+                InstantiateContext();
+                ChangeState();
                 break;
-            case SceneState.SpawningAntNest:
-                HandleSpawningAnts();
+            case SceneState.SpawnContextObjects:
+                InstantiateContextObjects();
+                ChangeState();
+                break;
+            case SceneState.Running:
+                break;
+        }
+    }
+
+    private void ChangeState()
+    {
+        BeforeStateChanged?.Invoke(_sceneState);
+
+        switch (_sceneState)
+        {
+            case SceneState.Initialyze:
+                _sceneState = SceneState.SpawnContext;
+                break;
+            case SceneState.SpawnContext:
+                _sceneState = SceneState.SpawnContextObjects;
+                break;
+            case SceneState.SpawnContextObjects:
+                _sceneState = SceneState.Running;
                 break;
         }
 
-        OnAfterStateChanged?.Invoke(State);
+        AfterStateChanged?.Invoke(_sceneState);
+        _stateChanged = true;
     }
-    
 
-    public void HandleStartingState()
+    private void InstantiateContext()
     {
-        var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
         EnvironmentManager.Instance.SpawnGround();
+    }
+
+    private void InstantiateContextObjects()
+    {
+        // Spawn food
+        var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
         for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
             EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
-        ChangeState(SceneState.SpawningAntNest);
-    }
 
-    public void HandleSpawningAnts()
-    {
+        // Spawn ants
         UnitManager.Instance.CreateNewColony();
-    }
-
-    [Serializable]
-    public enum SceneState
-    {
-        Starting,
-        SpawningAntNest
     }
 }

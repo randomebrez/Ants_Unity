@@ -1,5 +1,7 @@
+using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -9,7 +11,7 @@ namespace mew
     public class WorkerAnt : BaseAnt
     {
         public bool _carryingFood = false;
-        public int FoodCounter = 0;
+        public int FoodCollected = 0;
         public int FoodGrabbed = 0;
         private float _comeBackTimer = 0f;
         private float _bestComeBackTime = Mathf.Infinity;
@@ -31,6 +33,46 @@ namespace mew
             InterpretOutput(output.ouputId);
 
             base.Move();
+        }
+
+
+        // Abstract method implementations
+
+        protected override HashSet<StatisticEnum> RequiredStatistics() => new HashSet<StatisticEnum>
+        { 
+            StatisticEnum.Score,
+            StatisticEnum.BestFoodReach,
+            StatisticEnum.BestComeBack,
+            StatisticEnum.FoodCollected,
+            StatisticEnum.FoodGrabbed
+        };
+
+        public override Dictionary<StatisticEnum, float> GetStatistics()
+        {
+            var stats = new Dictionary<StatisticEnum, float>();
+            foreach (var statType in RequiredStatistics())
+            {
+                switch(statType)
+                {
+                    case StatisticEnum.Score:
+                        stats.Add(statType, GetUnitScore());
+                        break;
+                    case StatisticEnum.BestFoodReach:
+                        stats.Add(statType, _bestFindFoodTime);
+                        break;
+                    case StatisticEnum.BestComeBack:
+                        stats.Add(statType, _bestComeBackTime);
+                        break;
+                    case StatisticEnum.FoodCollected:
+                        stats.Add(statType, FoodCollected);
+                        break;
+                    case StatisticEnum.FoodGrabbed:
+                        stats.Add(statType, FoodGrabbed);
+                        break;
+                }
+            }
+
+            return stats;
         }
 
         public override void CheckCollectableCollisions()
@@ -64,7 +106,7 @@ namespace mew
                     score += 1 / _comeBackTimer;
 
                     _comeBackTimer = 0f;
-                    FoodCounter++;
+                    FoodCollected++;
                     _carryingFood = false;
                 }
             }
@@ -76,6 +118,7 @@ namespace mew
             var bestFindFoodTime = _bestFindFoodTime == 0 ? Mathf.Infinity : _bestFindFoodTime;
             return score + (1f / bestComeBackTime) + (1f / bestFindFoodTime);
         }
+
         protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
         {
             if (_carryingFood)
@@ -83,6 +126,7 @@ namespace mew
 
             return ScriptablePheromoneBase.PheromoneTypeEnum.Wander;
         }
+
 
         // Private methods
         private void UpdateInputs()

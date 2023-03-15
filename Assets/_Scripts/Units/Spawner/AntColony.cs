@@ -1,3 +1,4 @@
+using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
 using Assets.Gateways;
 using mew;
@@ -66,16 +67,29 @@ public class AntColony : MonoBehaviour
         _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
 
         _initialyzed = true;
+
+        StatisticsManager.Instance.InitializeView(new List<StatisticEnum>
+        {
+            StatisticEnum.Score,
+            StatisticEnum.BestFoodReach,
+            StatisticEnum.BestComeBack,
+            StatisticEnum.FoodCollected,
+            StatisticEnum.FoodGrabbed
+        });
     }
 
 
     // Private methods
     private void GenerateNewGeneration()
     {
-        SelectBestUnits();
-        DestroyPreviousGeneration();
-        RepopFood();
-        CleanPheromoneContainer();
+        if (_population.Count != 0)
+        {
+            SelectBestUnits();
+            GetStatistics();
+            DestroyPreviousGeneration();
+            RepopFood();
+            CleanPheromoneContainer();
+        }
 
         // Get as many brain as ants we want to pop
         var brains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, _bestBrains.Select(t => t.brain).ToList());
@@ -92,20 +106,40 @@ public class AntColony : MonoBehaviour
         foreach (var ant in _population)
             _currentSelection.Add((ant, ant.BrainManager.GetBrain(), ant.GetUnitScore()));
 
-        _bestBrains = _currentSelection.OrderByDescending(t => t.score).Take((int)(2 * GlobalParameters.ColonyMaxPopulation / 3f)).ToList();
-        var sumFoodGathered = 0f;
+        _bestBrains = _currentSelection.OrderByDescending(t => t.score).Take((int)(2 * GlobalParameters.ColonyMaxPopulation / 3f)).ToList();        
+    }
+
+    private void GetStatistics()
+    {
+        var sumFoodCollected = 0f;
         var sumFoodGrabbed = 0f;
-        if (_bestBrains.Where(t => t.score > 0).Count() > 1)
-        {
-            foreach (var pair in _bestBrains.Where(t => t.score > 0))
-            {
-                sumFoodGathered += (pair.ant as WorkerAnt).FoodCounter;
-                sumFoodGrabbed += (pair.ant as WorkerAnt).FoodGrabbed;
-            }
-        }
+        var bestFoodReach = Mathf.Infinity;
+        var bestComeBack = Mathf.Infinity;
         var highScore = _bestBrains.First();
-        sumFoodGathered = sumFoodGathered == 0 ? (highScore.ant as WorkerAnt).FoodCounter : sumFoodGathered;
-        Debug.Log($"Generation : {_generationId}\nHighest score : {highScore.score} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodGathered}");
+        foreach (var pair in _bestBrains.Where(t => t.score > 0))
+        {
+            var antStatistics = pair.ant.GetStatistics();
+
+            if (antStatistics[StatisticEnum.BestComeBack] < bestComeBack)
+                bestComeBack = antStatistics[StatisticEnum.BestComeBack];
+            if (antStatistics[StatisticEnum.BestFoodReach] < bestFoodReach)
+                bestFoodReach = antStatistics[StatisticEnum.BestFoodReach];
+
+            sumFoodCollected += antStatistics[StatisticEnum.FoodCollected];
+            sumFoodGrabbed += antStatistics[StatisticEnum.FoodGrabbed];
+        }
+        var dico = new Dictionary<StatisticEnum, (float x, float y)> 
+        { 
+            { StatisticEnum.Score, (_generationId, highScore.score) },
+            { StatisticEnum.BestFoodReach, (_generationId, bestFoodReach < Mathf.Infinity ? bestFoodReach : 0) },
+            { StatisticEnum.BestComeBack, (_generationId, bestComeBack < Mathf.Infinity ? bestComeBack : 0) },
+            { StatisticEnum.FoodCollected, (_generationId, sumFoodCollected) },
+            { StatisticEnum.FoodGrabbed, (_generationId, sumFoodGrabbed) }
+        };
+
+        StatisticsManager.Instance.AddValues(dico);
+
+        Debug.Log($"Generation : {_generationId}\nHighest score : {highScore.score} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodCollected}");
     }
 
     private void DestroyPreviousGeneration()
@@ -131,6 +165,7 @@ public class AntColony : MonoBehaviour
         for (int i = 0; i < foodNumber; i++)
             EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
     }
+
     private void CleanPheromoneContainer()
     {
         _spawner.CleanPheromones();

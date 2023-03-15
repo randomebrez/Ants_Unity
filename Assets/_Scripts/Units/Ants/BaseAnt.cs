@@ -4,6 +4,8 @@ using UnityEngine;
 using NeuralNetwork.Interfaces.Model;
 using NeuralNetwork.Managers;
 using Assets._Scripts.Utilities;
+using System.Collections.Generic;
+using Assets._Scripts.Units.Ants;
 
 namespace mew
 {
@@ -39,26 +41,6 @@ namespace mew
         public string[] PortionInfos => _scannerManager.PortionInfos;
         public string NestName => _nest.name;
 
-
-        // Abstract Methods
-        public abstract void CheckCollectableCollisions();
-
-        public abstract float GetUnitScore();
-
-        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
-
-
-        // Override methods
-        public void Initialyze(ScriptableUnitBase.Stats stats, Brain brain, Transform pheromoneContainer)
-        {
-            Stats = stats;
-            BrainManager = new BrainManager(brain);
-            _scannerManager.InitialyzeScanners();
-            _pheromoneContainer = pheromoneContainer;
-            _initialyzed = true;
-        }
-
-
         // Unity methods
         private void Awake()
         {
@@ -85,6 +67,28 @@ namespace mew
             CheckCollectableCollisions();
         }
 
+        // Abstract Methods
+        public abstract void CheckCollectableCollisions();
+
+        public abstract float GetUnitScore();
+
+        public abstract Dictionary<StatisticEnum, float> GetStatistics();
+
+        protected abstract HashSet<StatisticEnum> RequiredStatistics();
+
+        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();        
+
+
+        // Override methods
+        public void Initialyze(ScriptableUnitBase.Stats stats, Brain brain, Transform pheromoneContainer)
+        {
+            Stats = stats;
+            BrainManager = new BrainManager(brain);
+            _scannerManager.InitialyzeScanners();
+            _pheromoneContainer = pheromoneContainer;
+            _initialyzed = true;
+        }
+
 
         // Virtual Methods
         public virtual void Move()
@@ -99,7 +103,7 @@ namespace mew
             var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.WorldPosition - _currentPos.WorldPosition, Vector3.up);
             _currentPos = _nextPos;
 
-            transform.SetPositionAndRotation(_currentPos.WorldPosition + 0.5f * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
+            transform.SetPositionAndRotation(_currentPos.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
         }
 
         internal virtual void DropPheromone()
@@ -111,9 +115,9 @@ namespace mew
             _dropPheroTimer += _dropPheroInterval;
             // Spawn pheromone
             var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(GetPheroType());
-            var newPheromone = Instantiate(scriptablePheromone.PheromonePrefab, _currentPos.WorldPosition + Vector3.up * scriptablePheromone.PheromonePrefab.transform.localScale.y, Quaternion.identity, _pheromoneContainer);
+            var newPheromone = Instantiate(scriptablePheromone.PheromonePrefab, _currentPos.WorldPosition + GlobalParameters.NodeRadius * Vector3.up, Quaternion.identity, _pheromoneContainer);
             var scalingFactor = GlobalParameters.NodeRadius / 10f;
-            newPheromone.transform.localScale = new Vector3(scalingFactor, newPheromone.transform.localScale.y, scalingFactor);
+            //newPheromone.transform.localScale = new Vector3(scalingFactor, newPheromone.transform.localScale.y, scalingFactor);
             newPheromone.Initialyze(scriptablePheromone.BaseCaracteristics, _currentPos);
         }
 

@@ -6,12 +6,20 @@ using Assets._Scripts.Utilities;
 internal class UnitManager : BaseManager<UnitManager>
 {
     public AntColony AntColonyPrefab;
-    public GameObject UnitsContainer;
     //public GameObject NeuronManager;
 
     private Vector3 GetGroundSize => GlobalParameters.GroundSize;
     private Dictionary<int, AntColony> _colonies = new Dictionary<int, AntColony>();
     private BaseAnt _lastClicked;
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+            CreateNewColony();
+
+        if (Input.GetKeyDown(KeyCode.A))
+            CreateNewColony();
+    }
 
     public void CreateNewColony()
     {
@@ -22,27 +30,17 @@ internal class UnitManager : BaseManager<UnitManager>
             var randomZ = (Random.value - 0.5f) * GetGroundSize.z - 1;
 
             var spawnerMaxRange = Mathf.Max(AntColonyPrefab.transform.lossyScale.x, AntColonyPrefab.transform.lossyScale.y, AntColonyPrefab.transform.lossyScale.z);
-            var spawnposition = GlobalParameters.NodeRadius * Vector3.up;
+            var spawnposition = 2 * GlobalParameters.NodeRadius * Vector3.up;
             var spawnBlock = EnvironmentManager.Instance.BlockFromWorldPoint(spawnposition);
             if (spawnBlock == null)
                 Debug.Log("spawn null");
-            spawned = InstantiateObject(AntColonyPrefab.gameObject, spawnposition, Quaternion.identity, UnitsContainer.transform, spawnerMaxRange * 1.5f);
+            spawned = InstantiateObject(AntColonyPrefab.gameObject, spawnBlock.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.identity, EnvironmentManager.Instance.GetUnitContainer(), spawnerMaxRange * 1.5f);
         }
 
         var id = _colonies.Count + 1;
-        spawned.transform.parent = EnvironmentManager.Instance.GetUnitContainer();
         var colony = spawned.GetComponent<AntColony>();
         colony.Initialyze($"Colony_{id}");
         _colonies.Add(id, colony);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Return))
-            CreateNewColony();
-
-        if (Input.GetKeyDown(KeyCode.A))
-            CreateNewColony();
     }
 
     public void AntClick(BaseAnt ant)

@@ -4,18 +4,23 @@ using UnityEngine;
 
 internal class EnvironmentManager : BaseManager<EnvironmentManager>
 {
-    public GameObject GroundPrefab;
-    public GameObject EnvironmentContainer;
+    public Ground GroundPrefab;
     public GameObject FoodPrefab;
+    public Transform EnvironmentContainer;
 
     private Ground _ground;
+
+    private void Update()
+    {
+        // Get mouse position to spawn food on click
+    }
 
     public void SpawnGround()
     {
         if (_ground != null)
             return;
 
-        _ground = Instantiate(GroundPrefab, EnvironmentContainer.transform).GetComponent<Ground>();
+        _ground = Instantiate(GroundPrefab, EnvironmentContainer.position, Quaternion.identity, EnvironmentContainer);
         _ground.SetupHexaGrid();
     }
 
@@ -24,9 +29,9 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
         var radius = (GlobalParameters.GroundSize.z / 3f);
         var randomXShift = Random.Range(-2, 3);
         var randomZShift = Random.Range(-2, 3);
-        var spawnPosition = Quaternion.Euler(0, angle, 0) * ((radius + randomZShift) * Vector3.forward + randomXShift * Vector3.right) + (GlobalParameters.NodeRadius / 2) * Vector3.up;
-        var spawned = InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, EnvironmentContainer.transform, 3 * GlobalParameters.NodeRadius);
-        spawned.transform.parent = Instance.GetFoodContainer();
+        var spawnPosition = Quaternion.Euler(0, angle, 0) * ((radius + randomZShift) * Vector3.forward + randomXShift * Vector3.right) + GlobalParameters.NodeRadius * Vector3.up;
+        var foodContainer = Instance.GetFoodContainer();
+        var spawned = InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, foodContainer, 3 * GlobalParameters.NodeRadius);
     }
 
     public Block BlockFromWorldPoint(Vector3 worldPosition)
@@ -36,21 +41,16 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
 
     public Transform GetPheromoneContainer()
     {
-        return EnvironmentContainer.transform.GetChild(1);
+        return EnvironmentContainer.GetChild(1);
     }
 
     public Transform GetFoodContainer()
     {
-        return EnvironmentContainer.transform.GetChild(1);
+        return EnvironmentContainer.GetChild(1);
     }
 
     public Transform GetUnitContainer()
     {
-        return EnvironmentContainer.transform.GetChild(0);
-    }
-
-    private void Update()
-    {
-        // Get mouse position to spawn food on click
+        return EnvironmentContainer.GetChild(0);
     }
 }

@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Ground : MonoBehaviour
 {
-    public GameObject BlockPrefab;
-    public GameObject WallPrefab;
+    private Transform _blockContainer;
+    private Transform _wallContainer;
+
+    public GroundBlock BlockPrefab;
+    public Wall WallPrefab;
     public LayerMask Everything;
     public LayerMask UnwalkableMask;
-    public GameObject BlockContainer;
-    public Transform WallContainer;
+    
     public float NodeRadius => GlobalParameters.NodeRadius;
     public Dictionary<int, Block> Path = null;
 
@@ -22,6 +23,13 @@ public class Ground : MonoBehaviour
     private float _xShift => Mathf.Sqrt(3) * 0.5f * NodeRadius;
     private float _zShift => 1.5f * NodeRadius;
     private float _nodeDiameter => 2 * NodeRadius;
+    private List<Vector3> _positions = new List<Vector3>();
+
+    public void Awake()
+    {
+        _blockContainer = transform.GetChild(0);
+        _wallContainer = transform.GetChild(1);
+    }
 
     public void SetupGrid()
     {
@@ -41,7 +49,7 @@ public class Ground : MonoBehaviour
             {
                 var worldPosition = wolrdBottomLeft + Vector3.right * (i * _nodeDiameter + NodeRadius) + Vector3.forward * (j * _nodeDiameter + NodeRadius) + 0.5f * Vector3.up;
                 var walkable = !Physics.CheckSphere(worldPosition, NodeRadius, UnwalkableMask);
-                var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, BlockContainer.transform);
+                var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, _blockContainer.transform);
                 var component = blockGo.GetComponent<GroundBlock>();
                 blockGo.transform.localScale = new Vector3(_nodeDiameter, 1f, _nodeDiameter);
                 component.SetWalkable();
@@ -77,23 +85,26 @@ public class Ground : MonoBehaviour
                 if ((i + j) % 2 == 0)
                 {
                     var worldPosition = _worldBottomleft + (i * _xShift) * Vector3.right + (1.5f * NodeRadius * j) * Vector3.forward;
+                    _positions.Add(worldPosition);
                     var walkable = !Physics.CheckSphere(worldPosition, NodeRadius, UnwalkableMask);
-                    var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, BlockContainer.transform);
-                    blockGo.transform.localScale *= GlobalParameters.NodeRadius;
-                    var component = blockGo.GetComponent<GroundBlock>();
-                    component.SetWalkable();
-                    component.Block = new Block(worldPosition, walkable, id);
+                    var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, _blockContainer.transform);
+                    //blockGo.transform.SetPositionAndRotation(worldPosition, Quaternion.identity);
+                    //blockGo.transform.localScale *= GlobalParameters.NodeRadius;
+                    blockGo.SetWalkable();
+                    blockGo.Block = new Block(worldPosition, walkable, id);
                     blockGo.name = $"({i},{j})";
-                    component.Block.XCoordinate = i;
-                    component.Block.ZCoordinate = j;
+                    blockGo.Block.XCoordinate = i;
+                    blockGo.Block.ZCoordinate = j;
+                    _grid[i, j] = blockGo;
+
                     id++;
-                    _grid[i, j] = component;
                 }
             }
         }
 
         SetHexaNeighbours();
         SetupHexaWalls();
+        transform.position += Vector3.up * NodeRadius;
     }
 
     public void SetupHexaWalls()
@@ -101,20 +112,20 @@ public class Ground : MonoBehaviour
         var xPos =  _worldBottomleft + Vector3.forward * _gridWorldSize.z / 2f ;
         var zPos = _worldBottomleft + Vector3.right * _gridWorldSize.x / 2f;
         var leftWallPos = xPos;
-        var righttWallPos = - xPos;
+        var righttWallPos = - xPos + 2 * xPos.y * Vector3.up;
         var botWallPos = zPos;
-        var topWallPos = - zPos;
+        var topWallPos = - zPos + 2 * zPos.y * Vector3.up;
 
-        var leftWall = Instantiate(WallPrefab, leftWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var leftWall = Instantiate(WallPrefab, leftWallPos, Quaternion.identity, _wallContainer);
         leftWall.name = "LeftWall";
         leftWall.BuildHexaWalls(_gridWorldSize.z + _nodeDiameter, 5, 3, -90);
-        var rightWall = Instantiate(WallPrefab, righttWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var rightWall = Instantiate(WallPrefab, righttWallPos, Quaternion.identity, _wallContainer);
         rightWall.name = "RightWall";
         rightWall.BuildHexaWalls(_gridWorldSize.z + _nodeDiameter, 5, 3, 90);
-        var topWall = Instantiate(WallPrefab, topWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var topWall = Instantiate(WallPrefab, topWallPos, Quaternion.identity, _wallContainer);
         topWall.name = "TopWall";
         topWall.BuildHexaWalls(_gridWorldSize.x + _nodeDiameter, 5, 3);
-        var botWall = Instantiate(WallPrefab, botWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var botWall = Instantiate(WallPrefab, botWallPos, Quaternion.identity, _wallContainer);
         botWall.name = "BotWall";
         botWall.BuildHexaWalls(_gridWorldSize.x + _nodeDiameter, 5, 3, 180);
 
@@ -130,16 +141,16 @@ public class Ground : MonoBehaviour
         var topWallPos = new Vector3(0, 1f, zPos);
         var botWallPos = new Vector3(0, 1f, - zPos);
 
-        var leftWall = Instantiate(WallPrefab, leftWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var leftWall = Instantiate(WallPrefab, leftWallPos, Quaternion.identity, _wallContainer);
         leftWall.name = "LeftWall";
         leftWall.BuildWall(_gridWorldSize.z + _nodeDiameter, 5, 3, 0, 90,0);
-        var rightWall = Instantiate(WallPrefab, righttWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var rightWall = Instantiate(WallPrefab, righttWallPos, Quaternion.identity, _wallContainer);
         rightWall.name = "RightWall";
         rightWall.BuildWall(_gridWorldSize.z + _nodeDiameter, 5, 3, 0, 90,0);
-        var topWall = Instantiate(WallPrefab, topWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var topWall = Instantiate(WallPrefab, topWallPos, Quaternion.identity, _wallContainer);
         topWall.name = "TopWall";
         topWall.BuildWall(_gridWorldSize.x + _nodeDiameter, 5, 3);
-        var botWall = Instantiate(WallPrefab, botWallPos, Quaternion.identity, WallContainer).GetComponent<Wall>();
+        var botWall = Instantiate(WallPrefab, botWallPos, Quaternion.identity, _wallContainer);
         botWall.name = "BotWall";
         botWall.BuildWall(_gridWorldSize.x + _nodeDiameter, 5, 3);
 
@@ -165,7 +176,7 @@ public class Ground : MonoBehaviour
             var randomHeight = Random.Range(1, 8);
             var randomThickness = Random.Range(1, 4);
 
-            var wall = Instantiate(WallPrefab, randomPosition, Quaternion.identity, WallContainer).GetComponent<Wall>();
+            var wall = Instantiate(WallPrefab, randomPosition, Quaternion.identity, _wallContainer).GetComponent<Wall>();
             wall.name = $"RandomWall_{i}";
             wall.BuildWall(randomWidth, randomHeight, randomThickness, 0, isRotated * 90, 0);
         }
@@ -264,7 +275,7 @@ public class Ground : MonoBehaviour
     public Block GetBlockFromWorldPosition(Vector3 worldPosition)
     {
         var layer = LayerMask.GetMask(Layer.Walkable.ToString());
-        if (Physics.Raycast(worldPosition + Vector3.up, Vector3.down, out RaycastHit hit, 10f, layer))
+        if (Physics.Raycast(transform.position + worldPosition + Vector3.up, Vector3.down, out RaycastHit hit, 10f, layer))
             return hit.collider.GetComponentInParent<GroundBlock>().Block;
 
         return null;
@@ -288,20 +299,8 @@ public class Ground : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(_gridWorldSize.x, 1, _gridWorldSize.z));
-        if (_grid == null)
-            return;
-
-        if (Path != null)
-        {
-            var cubeSize = new Vector3(_nodeDiameter - 0.05f, 0.1f, _nodeDiameter - 0.05f);
-            foreach (var go in _grid)
-            {
-                if (!Path.ContainsKey(go.Block.Id))
-                    continue;
-
-                Gizmos.color = Color.blue;
-                Gizmos.DrawWireCube(go.Block.WorldPosition, cubeSize);
-            }
-        }
+        //Gizmos.color = Color.red;
+        //foreach(var position in _positions)
+        //    Gizmos.DrawWireCube(position, new Vector3(1, 1, 1));
     }
 }

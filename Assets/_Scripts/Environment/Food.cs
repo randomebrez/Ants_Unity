@@ -9,6 +9,6 @@ public class Food : MonoBehaviour
     public void Start()
     {
         _blockPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
-        transform.SetPositionAndRotation(_blockPos.WorldPosition + (GlobalParameters.NodeRadius / 2f) * Vector3.up, Quaternion.identity);
+        transform.position = _blockPos.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up;
     }
 }

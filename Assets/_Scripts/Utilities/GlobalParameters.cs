@@ -1,5 +1,4 @@
 ﻿using NeuralNetwork.Interfaces.Model;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,13 +7,13 @@ namespace Assets._Scripts.Utilities
     public static class GlobalParameters
     {
         // Environment
-        public static Vector3 GroundSize = new(50, 0, 50);
-        public static float NodeRadius = 0.5f;
+        public static Vector3 GroundSize = new(125, 0, 75);
+        public static float NodeRadius = 1f;
         public static int InitialFoodTokenNumber = 100;
 
 
         // AntParameters
-        public static int ColonyMaxPopulation = 50;
+        public static int ColonyMaxPopulation = 10;
         public static int BaseScannerRate = 100;
         //public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
         //{
@@ -35,6 +34,6 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationLifeTime = 40;
+        public static float GenerationLifeTime = 5;
     }
 }
