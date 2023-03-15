@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class PanelZone : MonoBehaviour
@@ -6,19 +7,23 @@ public class PanelZone : MonoBehaviour
 
     private GraphicManager _graphicInstance;
     private RectTransform _canvasTransform;
+    private Transform _panelTransform;
 
     // Unity methods
     void Awake()
     {
         _canvasTransform = GetComponent<RectTransform>();
-        _graphicInstance = _canvasTransform.GetChild(0).GetComponent<GraphicManager>();
+        _panelTransform = transform.GetChild(0);
     }
 
-    public void Start()
+
+    public void InstantiateInMainView(string title)
     {
-        _graphicInstance = Instantiate(GraphicPrefab, _canvasTransform);
+        var mainView = _panelTransform.GetChild(0);
+        var titleText = _panelTransform.GetChild(1).GetChild(0);
+        titleText.GetComponent<TextMeshProUGUI>().text = title;
+        _graphicInstance = Instantiate(GraphicPrefab, mainView);
     }
-
 
     public void AddCurveValue(Vector2 point)
     {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameViewsManager : MonoBehaviour
@@ -18,9 +19,9 @@ public class GameViewsManager : MonoBehaviour
         cameraGo.worldCamera = camera;
     }
 
-    public void Initialyze(int sideZoneNumber)
+    public void Initialyze(List<string> titles)
     {
-        _sidePanels.SplitZone(sideZoneNumber);
+        _sidePanels.SplitZone(titles);
     }
 
     public void AddCurveValue(int zoneIndex, Vector2 point)

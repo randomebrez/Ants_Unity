@@ -21,8 +21,9 @@ public class SidePanels : MonoBehaviour
         _rightPanel = transform.GetChild(1).GetComponent<RectTransform>();
     }
 
-    public void SplitZone(int zoneNumber)
+    public void SplitZone(List<string> titles)
     {
+        var zoneNumber = titles.Count;
         _highScoreZoneHeight = (int)_rightPanel.rect.height / 1.5f;
         var zoneHeight = (int)((2 * _rightPanel.rect.height - _highScoreZoneHeight)/ zoneNumber);
 
@@ -55,6 +56,7 @@ public class SidePanels : MonoBehaviour
 
             var newPanel = Instantiate(PanelZonePrefab, parent.transform);
             newPanel.SetAnchors(offSet / parent.rect.height, (zoneHeight + offSet) / parent.rect.height);
+            newPanel.InstantiateInMainView(titles[i]);
 
             _canvasZones.Add(i, newPanel);
 

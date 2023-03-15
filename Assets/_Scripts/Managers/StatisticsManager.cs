@@ -1,5 +1,6 @@
 using Assets._Scripts.Units.Ants;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 internal class StatisticsManager : BaseManager<StatisticsManager>
@@ -14,7 +15,7 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 
     public void InitializeView(List<StatisticEnum> statisticsToDisplay)
     {
-        _gameViewManager.Initialyze(statisticsToDisplay.Count);
+        _gameViewManager.Initialyze(statisticsToDisplay.Select(t => t.ToString()).ToList());
         for(int i = 0; i < statisticsToDisplay.Count; i++)
             _statisticsDisplayZoneIndexes.Add(statisticsToDisplay[i], i);
     }
