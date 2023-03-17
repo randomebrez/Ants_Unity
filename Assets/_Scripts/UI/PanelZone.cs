@@ -9,20 +9,22 @@ public class PanelZone : MonoBehaviour
     private RectTransform _canvasTransform;
     private Transform _panelTransform;
 
+    public Transform MainView;
+
     // Unity methods
     void Awake()
     {
         _canvasTransform = GetComponent<RectTransform>();
         _panelTransform = transform.GetChild(0);
+        MainView = _panelTransform.GetChild(0);
     }
 
 
     public void InstantiateInMainView(string title)
     {
-        var mainView = _panelTransform.GetChild(0);
         var titleText = _panelTransform.GetChild(1).GetChild(0);
         titleText.GetComponent<TextMeshProUGUI>().text = title;
-        _graphicInstance = Instantiate(GraphicPrefab, mainView);
+        _graphicInstance = Instantiate(GraphicPrefab, MainView);
     }
 
     public void AddCurveValue(Vector2 point)

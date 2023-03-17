@@ -1,6 +1,7 @@
 using Assets._Scripts.Units.Ants;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 internal class StatisticsManager : BaseManager<StatisticsManager>
@@ -24,5 +25,13 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
     {
         foreach(var value in values)
             _gameViewManager.AddCurveValue(_statisticsDisplayZoneIndexes[value.Key], value.Value);
+    }
+
+    public void UpdateHighScores(Dictionary<StatisticEnum, Vector2> scores)
+    {
+        var text = new StringBuilder();
+        foreach (var pair in scores)
+            text.AppendLine($"{pair.Key} : {pair.Value.y} - ({pair.Value.x})");
+        _gameViewManager.UpdateHighScores(text.ToString());
     }
 }

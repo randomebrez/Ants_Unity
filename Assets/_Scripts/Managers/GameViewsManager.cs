@@ -56,4 +56,9 @@ public class GameViewsManager : MonoBehaviour
     {
         _sidePanels.AddCurveValue(zoneIndex, point);
     }
+
+    public void UpdateHighScores(string text)
+    {
+        _sidePanels.UpdateHighScore(text);
+    }
 }

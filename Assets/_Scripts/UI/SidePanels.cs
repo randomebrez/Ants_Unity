@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class SidePanels : MonoBehaviour
@@ -7,10 +8,10 @@ public class SidePanels : MonoBehaviour
     public PanelZone PanelZonePrefab;
 
 
+    private Transform _highScoreZone;
     private RectTransform _rightPanel;
     private RectTransform _leftPanel;
     private Dictionary<int, PanelZone> _canvasZones = new Dictionary<int, PanelZone>();
-
     private float _highScoreZoneHeight;
 
 
@@ -19,6 +20,7 @@ public class SidePanels : MonoBehaviour
     {
         _leftPanel = transform.GetChild(0).GetComponent<RectTransform>();
         _rightPanel = transform.GetChild(1).GetComponent<RectTransform>();
+        _highScoreZone = _rightPanel.GetChild(0).GetComponent<PanelZone>().MainView;
     }
 
     public void SplitZone(List<string> titles)
@@ -67,5 +69,11 @@ public class SidePanels : MonoBehaviour
     public void AddCurveValue(int graphicIndex, Vector2  point)
     {
         _canvasZones[graphicIndex].AddCurveValue(point);
+    }
+
+    public void UpdateHighScore(string text)
+    {
+        var highScoreText =_highScoreZone.GetChild(0).GetComponent<TextMeshProUGUI>();
+        highScoreText.text = text;
     }
 }

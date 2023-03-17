@@ -4,6 +4,7 @@ using Assets.Gateways;
 using mew;
 using NeuralNetwork.Interfaces.Model;
 using NeuralNetwork.Managers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -23,7 +24,8 @@ public class AntColony : MonoBehaviour
     private float _currentGenerationLifeTime;
     private bool _initialyzed = false;
 
-    private int _childMaxByBrain = 3;
+    private Dictionary<StatisticEnum, Vector2> _currentHighScore = new Dictionary<StatisticEnum, Vector2>();
+    private Dictionary<StatisticEnum, Vector2> _globalHighScore = new Dictionary<StatisticEnum, Vector2>();
 
     // Unity methods
     void Start()
@@ -132,18 +134,47 @@ public class AntColony : MonoBehaviour
         }
 
         var xPoint = (_generationId - 1 ) * Vector2.right;
-        bestFoodReach = bestFoodReach < Mathf.Infinity ? bestFoodReach : 0;
-        bestComeBack = bestComeBack < Mathf.Infinity ? bestComeBack : 0;
-        var dico = new Dictionary<StatisticEnum, Vector2> 
-        { 
-            { StatisticEnum.Score, xPoint + highScore.score * Vector2.up },
-            { StatisticEnum.BestFoodReach, xPoint + bestFoodReach * Vector2.up },
-            { StatisticEnum.BestComeBack, xPoint + bestComeBack * Vector2.up },
+
+        _currentHighScore = new Dictionary<StatisticEnum, Vector2>
+        {
+            { StatisticEnum.Score, xPoint + (float)Math.Round(highScore.score, 2) * Vector2.up },
+            { StatisticEnum.BestFoodReach, xPoint + (float)Math.Round(bestFoodReach, 2) * Vector2.up },
+            { StatisticEnum.BestComeBack, xPoint + (float)Math.Round(bestComeBack, 2) * Vector2.up },
             { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
             { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
         };
+        if (_globalHighScore.Count == 0)
+        {
+            _globalHighScore = new Dictionary<StatisticEnum, Vector2>
+            {
+                { StatisticEnum.Score, xPoint + (float)Math.Round(highScore.score, 2) * Vector2.up },
+                { StatisticEnum.BestFoodReach, xPoint + (float)Math.Round(bestFoodReach, 2) * Vector2.up },
+                { StatisticEnum.BestComeBack, xPoint + (float)Math.Round(bestComeBack, 2) * Vector2.up },
+                { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
+                { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
+            };
+        }
 
-        StatisticsManager.Instance.AddValues(dico);
+        if (_currentHighScore[StatisticEnum.Score].y > _globalHighScore[StatisticEnum.Score].y)
+            _globalHighScore[StatisticEnum.Score] = _currentHighScore[StatisticEnum.Score];
+
+        if (_currentHighScore[StatisticEnum.BestFoodReach].y < _globalHighScore[StatisticEnum.BestFoodReach].y)
+            _globalHighScore[StatisticEnum.BestFoodReach] = _currentHighScore[StatisticEnum.BestFoodReach];
+
+        if (_currentHighScore[StatisticEnum.BestComeBack].y < _globalHighScore[StatisticEnum.BestComeBack].y)
+            _globalHighScore[StatisticEnum.BestComeBack] = _currentHighScore[StatisticEnum.BestComeBack];
+
+        if (_currentHighScore[StatisticEnum.FoodCollected].y > _globalHighScore[StatisticEnum.FoodCollected].y)
+            _globalHighScore[StatisticEnum.FoodCollected] = _currentHighScore[StatisticEnum.FoodCollected];
+
+        if (_currentHighScore[StatisticEnum.FoodGrabbed].y > _globalHighScore[StatisticEnum.FoodGrabbed].y)
+            _globalHighScore[StatisticEnum.FoodGrabbed] = _currentHighScore[StatisticEnum.FoodGrabbed];
+
+        bestFoodReach = bestFoodReach < Mathf.Infinity ? bestFoodReach : 0;
+        bestComeBack = bestComeBack < Mathf.Infinity ? bestComeBack : 0;
+
+        StatisticsManager.Instance.AddValues(_currentHighScore);
+        StatisticsManager.Instance.UpdateHighScores(_globalHighScore);
 
         Debug.Log($"Generation : {_generationId}\nHighest score : {highScore.score} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodCollected}");
     }
