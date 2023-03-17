@@ -141,19 +141,34 @@ namespace mew
         private void InterpretOutput(int outputValue)
         {
             var deltaTheta = 360f / Stats.ScannerSubdivisions;
+            Vector3 direction;
+            RaycastHit hit;
             switch (outputValue)
             {
                 case -1:
                     RandomMove();
                     break;
                 case 0:
-                case 1:
                 case 2:
+                    //direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
+                    //if (Physics.Raycast(_currentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
+                    //    _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
+                    //else
+                    //    RandomMove();
+                    //break;
+                case 1:
                 case 3:
+                    //var angle = (2 - outputValue) * deltaTheta / 2;
+                    //direction = Quaternion.Euler(0, outputValue * deltaTheta / 2f, 0) * BodyHeadAxis;
+                    //if (Physics.Raycast(_currentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
+                    //    _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
+                    //else
+                    //    RandomMove();
+                    //break;
                 case 4:
                 case 5:
-                    var direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
-                    if (Physics.Raycast(_currentPos.WorldPosition, direction, out var hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
+                    direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
+                    if (Physics.Raycast(_currentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
                         _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
                     else
                         RandomMove();

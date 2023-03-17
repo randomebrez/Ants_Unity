@@ -15,25 +15,25 @@ namespace Assets._Scripts.Utilities
         // AntParameters
         public static int ColonyMaxPopulation = 30;
         public static int BaseScannerRate = 100;
-        //public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
-        //{
-        //    GeneNumber = 300,
-        //    InputNumber = 31,
-        //    OutputNumber = 6,
-        //    NeutralNumbers = new List<int> { 6, 3 },
-        //    WeighBytesNumber = 4
-        //};
         public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
         {
-            GeneNumber = 200,
-            InputNumber = 17,
+            GeneNumber = 300,
+            InputNumber = 25,
             OutputNumber = 6,
-            NeutralNumbers = new List<int> { 4, 3 },
+            NeutralNumbers = new List<int> { 6, 3 },
             WeighBytesNumber = 4
         };
+        //public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
+        //{
+        //    GeneNumber = 202,
+        //    InputNumber = 17,
+        //    OutputNumber = 4,
+        //    NeutralNumbers = new List<int> { 4, 2 },
+        //    WeighBytesNumber = 4
+        //};
 
 
         //AntColony
-        public static float GenerationLifeTime = 45;
+        public static float GenerationLifeTime = 40;
     }
 }

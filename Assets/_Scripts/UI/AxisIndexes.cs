@@ -6,6 +6,7 @@ public class AxisIndexes : MonoBehaviour
 {
 
     public Transform IndexPrefab;
+    private int _digitNumber;
 
 
     public void Initialyze(AxisEnum axisType, int indexNumber = 5)
@@ -16,9 +17,11 @@ public class AxisIndexes : MonoBehaviour
         {
             case AxisEnum.Horizontal:
                 yShift = 0;
+                _digitNumber = 2;
                 break;
             case AxisEnum.Vertical:
                 xShift = 0;
+                _digitNumber = 1;
                 break;
         }
         for (int i = 0; i < indexNumber; i++)
@@ -35,6 +38,6 @@ public class AxisIndexes : MonoBehaviour
     {
         var indexTransform = transform.GetChild(index + 1).GetChild(0);
         var textComponent = indexTransform.GetComponent<TextMeshPro>();
-        textComponent.text = Math.Round(value, 2).ToString();
+        textComponent.text = Math.Round(value, _digitNumber).ToString();
     }
 }

@@ -34,4 +34,9 @@ internal class AntSceneManager : BaseManager<AntSceneManager>
         var scene = Instantiate(SceneMainPrefab);
         StatisticsManager.Instance.SetGameViewManager(_gameViewsManager);
     }
+
+    public void SetNewGenerationId(int generationId)
+    {
+        _gameViewsManager.SetNewGenerationId(generationId);
+    }
 }

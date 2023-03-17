@@ -7,8 +7,8 @@ public class GraphicManager : MonoBehaviour
 {
     private Vector2 _maxAxisValue = 5 * Vector2.one;
 
-    private float _xScale = 2.5f;
-    private float _yScale = 1.5f;
+    private float _xScale = 2f;
+    private float _yScale = 1.1f;
 
     private Axis _xAxis;
     private Axis _yAxis;
@@ -31,17 +31,13 @@ public class GraphicManager : MonoBehaviour
     public void AddCurveValue(Vector2 point)
     {
         if (point.x > 0.8 * _maxAxisValue.x)
-        {
             _maxAxisValue.x = _xScale * point.x;
-            UpdateAxisIndexes(AxisEnum.Horizontal);
-        }
         if (point.y > 0.9 * _maxAxisValue.y)
-        {
             _maxAxisValue.y = _yScale * point.y;
-            UpdateAxisIndexes(AxisEnum.Vertical);
-        }
 
         _curve.SetDataMax(_maxAxisValue);
+        UpdateAxisIndexes(AxisEnum.Horizontal);
+        UpdateAxisIndexes(AxisEnum.Vertical);
 
         _coordinates.Add(point);
         _curve.AddValue(point);

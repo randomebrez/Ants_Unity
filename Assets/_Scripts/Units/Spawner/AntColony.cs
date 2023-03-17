@@ -82,6 +82,8 @@ public class AntColony : MonoBehaviour
     // Private methods
     private void GenerateNewGeneration()
     {
+        AntSceneManager.Instance.SetNewGenerationId(_generationId);
+
         if (_population.Count != 0)
         {
             SelectBestUnits();

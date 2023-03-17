@@ -24,12 +24,12 @@ public class SidePanels : MonoBehaviour
     public void SplitZone(List<string> titles)
     {
         var zoneNumber = titles.Count;
-        _highScoreZoneHeight = (int)_rightPanel.rect.height / 1.5f;
+        _highScoreZoneHeight = (int)_rightPanel.rect.height * 0.33f;
         var zoneHeight = (int)((2 * _rightPanel.rect.height - _highScoreZoneHeight)/ zoneNumber);
 
         var numberOfZoneInRightPanel = (_rightPanel.rect.height - _highScoreZoneHeight) / zoneHeight;
         // If we're close to put 2 zones (for instance) in right panel. Reduce a bit the zone height to fill correctly the right panel
-        if (numberOfZoneInRightPanel - Mathf.Floor(numberOfZoneInRightPanel) > 0.8f)
+        if (numberOfZoneInRightPanel - Mathf.Floor(numberOfZoneInRightPanel) > 0.75f)
             numberOfZoneInRightPanel = Mathf.Ceil(numberOfZoneInRightPanel);
         else
             numberOfZoneInRightPanel = Mathf.Floor(numberOfZoneInRightPanel);
