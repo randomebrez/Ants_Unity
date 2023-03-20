@@ -35,10 +35,10 @@ public class BlockBase : MonoBehaviour
 
         var deltaAngle = 360 / sideNumber;
 
-        Vector3 topCenter = Vector3.zero; // transform.position; 
+        Vector3 topCenter = Vector3.zero;
         Vector3 top = Quaternion.Euler(0, - deltaAngle / 2, 0) * (topCenter + Vector3.right);
 
-        Vector3 botCenter = Vector3.zero - 2 * GlobalParameters.NodeRadius * Vector3.up;// transform.position - GlobalParameters.NodeRadius * Vector3.up;
+        Vector3 botCenter = Vector3.zero - 2 * GlobalParameters.NodeRadius * Vector3.up;
         Vector3 bot = Quaternion.Euler(0, - deltaAngle / 2, 0) * (botCenter + Vector3.right);
 
         int verticeIndex = 0;
@@ -79,6 +79,7 @@ public class BlockBase : MonoBehaviour
         return mesh;
     }
 
+    /*
     private void OnDrawGizmos()
     {
         if (_mesh == null)
@@ -86,5 +87,5 @@ public class BlockBase : MonoBehaviour
 
         //Gizmos.color = Color.green;
         //Gizmos.DrawMesh(_mesh);
-    }
+    }*/
 }

@@ -6,7 +6,6 @@ using Assets._Scripts.Utilities;
 internal class UnitManager : BaseManager<UnitManager>
 {
     public AntColony AntColonyPrefab;
-    //public GameObject NeuronManager;
 
     private Vector3 GetGroundSize => GlobalParameters.GroundSize;
     private Dictionary<int, AntColony> _colonies = new Dictionary<int, AntColony>();
@@ -48,12 +47,7 @@ internal class UnitManager : BaseManager<UnitManager>
         if (_lastClicked != null)
             _lastClicked.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.black;
 
-        //var neuronManager = Instantiate(NeuronManager, transform.position + 2 * Vector3.up, Quaternion.identity, transform);
-        //neuronManager.GetComponent<NeuronManager>().Initialyze(ant);
-
-        //var probaScreen = CanvasContainer.GetComponentInChildren<ProbaScreenManager>();
         ant.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.yellow;
-        //probaScreen.SetAnt(ant);
         _lastClicked = ant;
     }
 }

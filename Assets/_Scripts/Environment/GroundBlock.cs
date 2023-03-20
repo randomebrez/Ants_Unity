@@ -28,9 +28,10 @@ public class GroundBlock : MonoBehaviour
         gameObject.layer = (int) Layer.Unwalkable;
     }
 
+    /*
     public void OnDrawGizmos()
     {
         //Gizmos.color = Color.yellow;
         //Gizmos.DrawWireCube(transform.position, Vector3.one);
-    }
+    }*/
 }

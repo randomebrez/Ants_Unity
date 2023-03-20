@@ -3,9 +3,7 @@ using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using Assets.Gateways;
 using mew;
-using NeuralNetwork.Interfaces.Model;
 using NeuralNetwork.Managers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,7 +11,6 @@ using UnityEngine;
 public class AntColony : MonoBehaviour
 {
     private NeuralNetworkGateway _neuralNetworkGateway;
-    private NeuralNetworkGateway _scannerNetworkGateway;
 
     private SpawnerAnt _spawner;
     private BlockBase _block;
@@ -62,7 +59,6 @@ public class AntColony : MonoBehaviour
         transform.name = name;
 
         _neuralNetworkGateway = new NeuralNetworkGateway(new PopulationManager(GlobalParameters.NetworkCaracteristics));
-        _scannerNetworkGateway = new NeuralNetworkGateway(new PopulationManager(GlobalParameters.PortionNetworkCaracteristics));
 
         _population = new List<BaseAnt>();
 
@@ -73,7 +69,6 @@ public class AntColony : MonoBehaviour
         StatisticsManager.Instance.InitializeView(new List<StatisticEnum>
         {
             StatisticEnum.Score,
-            //StatisticEnum.BestFoodReachStepNumber,
             StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
@@ -106,23 +101,12 @@ public class AntColony : MonoBehaviour
     {
         var antBrains = _bestBrains.Select(t => t.ant.GetBrain());
         var mainBrains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, antBrains.Select(t => t.MainBrain).ToList());
-        var portionBrains = new Dictionary<int, List<Brain>>();
-        for (int i = 0; i < GlobalParameters.ScannerSubdivision; i++)
-        {
-            var bestPortionBrains = antBrains.Select(t => t.ScannerBrains[i]).ToList();
-            portionBrains.Add(i, _scannerNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, bestPortionBrains).ToList());
-        }
         var brainsToGive = new List<AntBrains>();
         for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
         {
-            var scannerBrains = new Dictionary<int, Brain>();
-            for (int j = 0; j < GlobalParameters.ScannerSubdivision; j++)
-                scannerBrains.Add(j, portionBrains[j][i]);
-
             brainsToGive.Add(new AntBrains
             {
-                MainBrain = mainBrains[i],
-                ScannerBrains = scannerBrains
+                MainBrain = mainBrains[i]
             });
         }
         return brainsToGive;

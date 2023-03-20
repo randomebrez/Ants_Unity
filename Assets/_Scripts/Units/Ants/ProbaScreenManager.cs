@@ -98,7 +98,7 @@ public class ProbaScreenManager : MonoBehaviour
             float gValue = probabilities[i]/ maxProba;
             
             var newColor = new Color(0, probabilities[i], 0, 1);
-            _probabilityDiagramPortions[i].GetComponent<ChangeColor>().SetMaterialColor(newColor);    
+            //_probabilityDiagramPortions[i].GetComponent<ChangeColor>().SetMaterialColor(newColor);    
         }
     }
 

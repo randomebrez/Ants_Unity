@@ -1,6 +1,5 @@
 using Assets._Scripts.Utilities;
 using System;
-using UnityEngine;
 
 internal class SceneManager : BaseManager<SceneManager>
 {

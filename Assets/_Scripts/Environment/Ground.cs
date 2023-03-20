@@ -88,8 +88,6 @@ public class Ground : MonoBehaviour
                     _positions.Add(worldPosition);
                     var walkable = !Physics.CheckSphere(worldPosition, NodeRadius, UnwalkableMask);
                     var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, _blockContainer.transform);
-                    //blockGo.transform.SetPositionAndRotation(worldPosition, Quaternion.identity);
-                    //blockGo.transform.localScale *= GlobalParameters.NodeRadius;
                     blockGo.SetWalkable();
                     blockGo.Block = new Block(worldPosition, walkable, id);
                     blockGo.name = $"({i},{j})";
@@ -296,11 +294,12 @@ public class Ground : MonoBehaviour
         return blocks;
     }
 
+    /*
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(_gridWorldSize.x, 1, _gridWorldSize.z));
         //Gizmos.color = Color.red;
         //foreach(var position in _positions)
         //    Gizmos.DrawWireCube(position, new Vector3(1, 1, 1));
-    }
+    }*/
 }

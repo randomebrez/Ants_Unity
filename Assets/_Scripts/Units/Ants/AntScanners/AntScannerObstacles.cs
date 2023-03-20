@@ -5,7 +5,34 @@ public class AntScannerObstacles : AntScannerBase
     private float _avoidDistance => _ant.PhysicalLength;
     protected override float _scannerAngle => _ant.Stats.VisionAngle;
     protected override bool _checkObtruction => true;
-    protected override float _scannerRadius => _ant.Stats.VisionRadius * 2 * _apothem;
+    protected override float _scannerRadius => _ant.Stats.VisionRadius * 4 * _apothem;    
+
+    public override float GetPortionValue(int index)
+    {
+        var currentMin = _scannerRadius;
+        foreach(var obj in Objects[index])
+        {
+            var distance = Vector3.Distance(_ant.transform.position, obj.transform.position);
+
+            if (distance < currentMin)
+                currentMin = distance;
+        }
+        return currentMin / _scannerRadius;
+    }
+
+    protected override bool IsInSight(GameObject obj)
+    {
+        var position = transform.position;
+        var objPosition = obj.transform.position;
+        var direction = objPosition - position;
+
+        if (direction.magnitude < _ant.PhysicalLength * 4)
+            return true;
+
+        return base.IsInSight(obj);
+    }
+
+    #region Unused tools
 
     public bool IsMoveValid(Vector3 from, Vector3 to)
     {
@@ -41,30 +68,7 @@ public class AntScannerObstacles : AntScannerBase
         return antAxe;
     }
 
-    public override float GetPortionValue(int index)
-    {
-        var currentMin = _scannerRadius;
-        foreach(var obj in Objects[index])
-        {
-            var distance = Vector3.Distance(_ant.transform.position, obj.transform.position);
-
-            if (distance < currentMin)
-                currentMin = distance;
-        }
-        return currentMin / _scannerRadius;
-    }
-
-    protected override bool IsInSight(GameObject obj)
-    {
-        var position = transform.position;
-        var objPosition = obj.transform.position;
-        var direction = objPosition - position;
-
-        if (direction.magnitude < _ant.PhysicalLength * 4)
-            return true;
-
-        return base.IsInSight(obj);
-    }
+    #endregion
 
     /*private void OnDrawGizmos()
     {

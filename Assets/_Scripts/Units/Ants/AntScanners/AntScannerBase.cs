@@ -61,17 +61,12 @@ public abstract class AntScannerBase : MonoBehaviour
         _scannerSubdivision = scannerSubdivision;
         _scanInterval = 1.0f / scanFrequency;
 
+
+        // Compute number of tile within scanner range
         var colliders = new Collider[70];
         Physics.OverlapSphereNonAlloc(transform.position, _scannerRadius, colliders, LayerMask.GetMask(Layer.Walkable.ToString()));
         var blockCount = colliders.Where(t => t != null).Count();
-        var temp = (blockCount - 1)/ _scannerSubdivision;
-
-        //var scannerSurface = Mathf.PI * _scannerRadius * _scannerRadius;
-        //var nodeSurface = 2 * Mathf.Sqrt(3) * GlobalParameters.NodeRadius * GlobalParameters.NodeRadius;
-        //var temp = scannerSurface / nodeSurface;
-
-
-        _scannerSurface = (int)temp;
+        _scannerSurface = (blockCount - 1)/ _scannerSubdivision;
 
         float deltaTheta = 360 / _scannerSubdivision;
         // start at the back of the ant for the 'ToDictionary' method that uses the fact that indexes are increasing

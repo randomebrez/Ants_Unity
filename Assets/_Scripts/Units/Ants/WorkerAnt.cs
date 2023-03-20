@@ -3,7 +3,6 @@ using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace mew
@@ -28,14 +27,6 @@ namespace mew
 
             // Compute output using brain
             var scanneroutputs = _scannerManager.GetInputs();
-            //if (name == "Worker_0")
-            //{
-            //    var outputValue = new StringBuilder();
-            //    for (int i = 0; i < scanneroutputs.Count; i++)
-            //        outputValue.Append($"{scanneroutputs[i].ToString()} ; ");
-            //
-            //    Debug.Log(outputValue.ToString());
-            //}
             var output = _brainManager.ComputeOutput(scanneroutputs);
 
             // Select next pos : Interpret output
@@ -50,7 +41,6 @@ namespace mew
         protected override HashSet<StatisticEnum> RequiredStatistics() => new HashSet<StatisticEnum>
         { 
             StatisticEnum.Score,
-            //StatisticEnum.BestFoodReachStepNumber,
             StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
@@ -124,7 +114,7 @@ namespace mew
 
         public override float GetUnitScore()
         {
-            return score;// + (1f / _bestComeBackTime) + (1f / _bestFindFoodTime);
+            return score;
         }
 
         protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
@@ -157,22 +147,9 @@ namespace mew
                     RandomMove();
                     break;
                 case 0:
-                case 2:
-                    //direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
-                    //if (Physics.Raycast(_currentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
-                    //    _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
-                    //else
-                    //    RandomMove();
-                    //break;
                 case 1:
+                case 2:
                 case 3:
-                    //var angle = (2 - outputValue) * deltaTheta / 2;
-                    //direction = Quaternion.Euler(0, outputValue * deltaTheta / 2f, 0) * BodyHeadAxis;
-                    //if (Physics.Raycast(_currentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
-                    //    _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
-                    //else
-                    //    RandomMove();
-                    //break;
                 case 4:
                 case 5:
                     direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
@@ -192,21 +169,21 @@ namespace mew
         }
 
 
-        // Gizmo
-        //private void OnDrawGizmos()
-        //{
-        //    Gizmos.color = Color.black;
-        //    Gizmos.DrawLine(_position, _position + BodyHeadAxis);
-        //    if (Probabilities.Length == 0)
-        //        return;
-        //
-        //    Gizmos.color = Color.red;
-        //    var stratingAngle = -180f;
-        //    var deltaAngle = 360f / 20;
-        //    for (int i = 0; i < Probabilities.Length; i++)
-        //    {
-        //        Gizmos.DrawLine(_position, _position + 100 * Probabilities[i] * (Quaternion.Euler(0, stratingAngle + i * deltaAngle, 0) * BodyHeadAxis));
-        //    }
-        //}
+         /*
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(_position, _position + BodyHeadAxis);
+            if (Probabilities.Length == 0)
+                return;
+        
+            Gizmos.color = Color.red;
+            var stratingAngle = -180f;
+            var deltaAngle = 360f / 20;
+            for (int i = 0; i < Probabilities.Length; i++)
+            {
+                Gizmos.DrawLine(_position, _position + 100 * Probabilities[i] * (Quaternion.Euler(0, stratingAngle + i * deltaAngle, 0) * BodyHeadAxis));
+            }
+        }*/
     }   
 }

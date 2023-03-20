@@ -1,5 +1,4 @@
-﻿using Assets.Dtos;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 public class AntScannerCollectables : AntScannerBase

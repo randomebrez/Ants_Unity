@@ -1,7 +1,6 @@
 using Assets.Dtos;
 using System;
 using UnityEngine;
-using NeuralNetwork.Interfaces.Model;
 using NeuralNetwork.Managers;
 using Assets._Scripts.Utilities;
 using System.Collections.Generic;
@@ -42,6 +41,14 @@ namespace mew
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
         public string[] PortionInfos => _scannerManager.PortionInfos;
         public string NestName => _nest.name;
+
+        public AntBrains GetBrain()
+        {
+            return new AntBrains
+            {
+                MainBrain = _brainManager.GetBrain()
+            };
+        }
 
         // Unity methods
         private void Awake()
@@ -92,15 +99,6 @@ namespace mew
             _scannerManager.InitialyzeScanners(brains.ScannerBrains);
             _pheromoneContainer = pheromoneContainer;
             _initialyzed = true;
-        }
-
-        public AntBrains GetBrain()
-        {
-            return new AntBrains
-            {
-                MainBrain = _brainManager.GetBrain(),
-                ScannerBrains = _scannerManager.GetBrains()
-            };
         }
 
         // Virtual Methods

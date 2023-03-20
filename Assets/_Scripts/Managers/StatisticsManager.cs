@@ -31,29 +31,16 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
     {
         var sumFoodCollected = 0f;
         var sumFoodGrabbed = 0f;
-        //var bestFoodReach = Mathf.Infinity;
-        //var bestComeBack = Mathf.Infinity;
-        //var foodReachMean = 0f;
         var comeBackMean = 0f;
         var bestScore = 0f;
-        //var count1 = 0f;
         var count2 = 0f;
         foreach (var ant in ants)
         {
             var antStatistics = ant.GetStatistics();
 
-            //if (antStatistics[StatisticEnum.ComeBackMean] < bestComeBack)
-            //    bestComeBack = antStatistics[StatisticEnum.ComeBackMean];
-            //if (antStatistics[StatisticEnum.BestFoodReachStepNumber] < bestFoodReach)
-            //    bestFoodReach = antStatistics[StatisticEnum.BestFoodReachStepNumber];
             if (antStatistics[StatisticEnum.Score] > bestScore)
                 bestScore = antStatistics[StatisticEnum.Score];
 
-            //if (antStatistics[StatisticEnum.BestFoodReachStepNumber] < int.MaxValue)
-            //{
-            //    foodReachMean += antStatistics[StatisticEnum.BestFoodReachStepNumber];
-            //    count1++;
-            //}
             if (antStatistics[StatisticEnum.ComeBackMean] < int.MaxValue)
             {
                 comeBackMean += antStatistics[StatisticEnum.ComeBackMean];
@@ -63,28 +50,22 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
             sumFoodGrabbed += antStatistics[StatisticEnum.FoodGrabbed];
         }
 
-        //foodReachMean = foodReachMean / count1;
         comeBackMean = count2 > 0 ? comeBackMean / count2 : 0;
 
         var xPoint = (generationId - 1) * Vector2.right;
-        //bestComeBack = bestComeBack == Mathf.Infinity ? 0 : bestComeBack;
         var currentHighScore = new Dictionary<StatisticEnum, Vector2>
         {
-            { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },
-            //{ StatisticEnum.BestFoodReachStepNumber, xPoint + (float)Math.Round(1f / bestFoodReach, 2) * Vector2.up },
+            { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },            
             { StatisticEnum.ComeBackMean, xPoint + (float)Math.Round(comeBackMean, 2) * Vector2.up },
             { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
             { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
         };
-        //currentHighScore[StatisticEnum.BestFoodReachStepNumber] = xPoint + (float)Math.Round(foodReachMean, 2) * Vector2.up;
 
         if (_globalHighScore.Count == 0)
         {
             _globalHighScore = new Dictionary<StatisticEnum, Vector2>
             {
                 { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },
-                //{ StatisticEnum.BestFoodReachStepNumber, xPoint + (float)Math.Round(bestFoodReach, 2) * Vector2.up },
-                //{ StatisticEnum.ComeBackMean, xPoint + (float)Math.Round(bestComeBack, 2) * Vector2.up },
                 { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
                 { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
             };
@@ -93,12 +74,6 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         {
             if (bestScore > _globalHighScore[StatisticEnum.Score].y)
                 _globalHighScore[StatisticEnum.Score] = new Vector2(generationId, bestScore);
-
-            //if (bestFoodReach < _globalHighScore[StatisticEnum.BestFoodReachStepNumber].y)
-            //    _globalHighScore[StatisticEnum.BestFoodReachStepNumber] = new Vector2(generationId, bestFoodReach);
-
-            //if (bestComeBack < _globalHighScore[StatisticEnum.ComeBackMean].y)
-            //    _globalHighScore[StatisticEnum.ComeBackMean] = new Vector2(generationId, bestComeBack);
 
             if (sumFoodCollected > _globalHighScore[StatisticEnum.FoodCollected].y)
                 _globalHighScore[StatisticEnum.FoodCollected] = new Vector2(generationId, sumFoodCollected);

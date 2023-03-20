@@ -6,8 +6,6 @@ using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
 using NeuralNetwork.Interfaces.Model;
-using NeuralNetwork.Managers;
-using System.Text;
 
 public class AntScannerManager : MonoBehaviour
 {
@@ -77,13 +75,7 @@ public class AntScannerManager : MonoBehaviour
 
     public List<float> GetInputs()
     {
-        //return _inputs.GetPortionOutputs();
         return _inputs.GetAllInputs();
-    }
-
-    public Dictionary<int, Brain> GetBrains()
-    {
-        return _inputs.GetBrains();
     }
 
     private void Scan()
@@ -100,10 +92,6 @@ public class AntScannerManager : MonoBehaviour
             _inputs.UpdatePortion(i, GetPortionInputs(i));
         _updateinputs = false;
     }
-
-
-    #region Portions
-
 
     private PortionInputs GetPortionInputs(int portionIndex)
     {
@@ -131,66 +119,4 @@ public class AntScannerManager : MonoBehaviour
 
         return portioninputs;
     }
-
-    private void UpdateportionInfos()
-
-    {
-        for(int i = 0; i < _portionInfos.Length; i++)
-            _portionInfos[i] = GetPortionInfos(i);
-    }
-
-    private string GetPortionInfos(int portionIndex)
-    {
-        //var pheromonesW = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
-        //var pheromonesC = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
-        //var obstacleValue = _obstacleScanner.GetPortionValue(portionIndex);
-        //
-        //return $"P{portionIndex} | B:{Math.Round(bonus,3)} | M:{Math.Round(malus, 3)} | pm:{Math.Round(probaModif, 3)} | oV:{obstacleValue} | pW:{pheromonesW.number}-{Math.Round(pheromonesW.averageDensity, 3)} | pC:{pheromonesC.number}-{Math.Round(pheromonesC.averageDensity, 3)}";
-        return string.Empty;
-    }   
-
-    #endregion
-
-
-    #region Obstacles
-    public float GetObstacleInRangeNormalizedDistance(Vector3 position, float visionRadius)
-    {
-        var distance = 0f;
-        var count = 0;
-        var obstacles = _obstacleScanner.ObjectsFlattenList;
-        foreach(var obstacle in obstacles)
-        {
-            count++;
-            distance += Vector3.Distance(position, obstacle.transform.position) / visionRadius;
-        }
-        
-        return count == 0 ? 1 : distance / count;
-    }
-
-    public bool IsMoveValid(Vector3 from, Vector3 to)
-    {
-        return _obstacleScanner.IsMoveValid(from, to);
-    }
-
-    public (bool isIt, Vector3 avoidDir) IsHeadingForCollision()
-    {
-        if (_obstacleScanner.IsHeadingForCollision() == false)
-            return (false, Vector3.zero);
-
-        return (true, _obstacleScanner.ObstacleRays());
-    }
-
-    #endregion
-
-
-    #region Collectables
-
-    public List<GameObject> CollectablesListByTag(string tag)
-    {
-        var typedCollectables = _collectableScanner.ObjectsFlattenList.Where(t => t.tag == tag);
-
-        return typedCollectables.ToList();
-    }
-
-    #endregion
 }

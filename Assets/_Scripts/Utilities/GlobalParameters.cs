@@ -23,14 +23,6 @@ namespace Assets._Scripts.Utilities
             NeutralNumbers = new List<int> { 6, 3 },
             WeighBytesNumber = 4
         };
-        //public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
-        //{
-        //    GeneNumber = 100,
-        //    InputNumber = 13,
-        //    OutputNumber = 6,
-        //    NeutralNumbers = new List<int> { 2, 2 },
-        //    WeighBytesNumber = 4
-        //};
         public static NetworkCaracteristics PortionNetworkCaracteristics = new NetworkCaracteristics
         {
             GeneNumber = 10,
@@ -43,7 +35,6 @@ namespace Assets._Scripts.Utilities
 
         //AntColony
         public static float GenerationLifeTime = 30;
-        public static int ScannerSubdivision = 0;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";
