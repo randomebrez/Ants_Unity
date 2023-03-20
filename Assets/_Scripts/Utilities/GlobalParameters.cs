@@ -34,7 +34,7 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationLifeTime = 30;
+        public static float GenerationLifeTime = 35;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";

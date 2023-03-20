@@ -57,17 +57,17 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         {
             { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },            
             { StatisticEnum.ComeBackMean, xPoint + (float)Math.Round(comeBackMean, 2) * Vector2.up },
-            { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
-            { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
+            { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up },
+            { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up }
         };
 
         if (_globalHighScore.Count == 0)
         {
             _globalHighScore = new Dictionary<StatisticEnum, Vector2>
             {
-                { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },
-                { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
-                { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
+                { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },                
+                { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up },
+                { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up }
             };
         }
         else
@@ -84,8 +84,8 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 
        
 
-        AddValues(currentHighScore);
-        UpdateHighScores(_globalHighScore);
+        AddStatisticsToCurve(currentHighScore);
+        UpdateStatisticsText(currentHighScore, _globalHighScore);
 
         if (generationId % 20 == 0)
             SaveWinners(generationId, ants, sumFoodCollected);
@@ -95,17 +95,20 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         Debug.Log($"Generation : {generationId}\nHighest score : {bestScore} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodCollected}");
     }
 
-    public void AddValues(Dictionary<StatisticEnum, Vector2> values)
+    public void AddStatisticsToCurve(Dictionary<StatisticEnum, Vector2> values)
     {
         foreach(var value in values)
             _gameViewManager.AddCurveValue(_statisticsDisplayZoneIndexes[value.Key], value.Value);
     }
 
-    public void UpdateHighScores(Dictionary<StatisticEnum, Vector2> scores)
+    public void UpdateStatisticsText(Dictionary<StatisticEnum, Vector2> currentGenerationScore, Dictionary<StatisticEnum, Vector2> globalHighScores)
     {
-        var text = new StringBuilder();
-        foreach (var pair in scores)
+        var text = new StringBuilder("HighScore :\n");
+        foreach (var pair in globalHighScores)
             text.AppendLine($"{pair.Key} : {pair.Value.y} - ({pair.Value.x})");
+        text.AppendLine("\nCurrent score :");
+        foreach (var pair in currentGenerationScore)
+            text.AppendLine($"{pair.Key} : {pair.Value.y}");
         _gameViewManager.UpdateHighScores(text.ToString());
     }
 

@@ -10,6 +10,7 @@ namespace mew
 {
     public abstract class BaseAnt : UnitBase
     {
+        protected List<Color> _colors = new List<Color> { Color.black, Color.red, Color.yellow, Color.blue, Color.magenta, Color.cyan, Color.green, Color.white };
         // Events
         public Action<BaseAnt> Clicked;
 
@@ -50,6 +51,7 @@ namespace mew
             };
         }
 
+
         // Unity methods
         private void Awake()
         {
@@ -64,8 +66,6 @@ namespace mew
         {
             _nest = transform.parent.parent.parent;
             _currentPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
-            if (name == "Worker_0")
-                transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.yellow;
         }
 
         void Update()
@@ -91,6 +91,18 @@ namespace mew
         protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
 
 
+        // Ant methods
+        protected void SetHeadColor(Color color)
+        {
+            _head.GetComponent<MeshRenderer>().material.color = color;
+        }
+
+        protected void SetBodyColor(Color color)
+        {
+            _body.GetComponent<MeshRenderer>().material.color = color;
+        }
+
+
         // Override methods
         public void Initialyze(ScriptableUnitBase.Stats stats, AntBrains brains, Transform pheromoneContainer)
         {
@@ -98,8 +110,11 @@ namespace mew
             _brainManager = new BrainManager(brains.MainBrain);
             _scannerManager.InitialyzeScanners(brains.ScannerBrains);
             _pheromoneContainer = pheromoneContainer;
+            SetHeadColor(_colors[0]);
+            SetBodyColor(_colors[0]);
             _initialyzed = true;
         }
+
 
         // Virtual Methods
         public virtual void Move()
