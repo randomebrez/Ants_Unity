@@ -4,6 +4,7 @@ using mew;
 using UnityEngine;
 using System;
 using Assets._Scripts.Utilities;
+using Assets.Dtos;
 
 public abstract class AntScannerBase : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public abstract class AntScannerBase : MonoBehaviour
     protected abstract float _scannerAngle { get; }
     protected abstract float _scannerRadius { get; }
     protected abstract bool _checkObtruction { get; }
+
+    protected int _scannerSurface { get; private set; }
 
     protected float _apothem => (float)Math.Sqrt(3) * GlobalParameters.NodeRadius / 2;
 
@@ -57,6 +60,18 @@ public abstract class AntScannerBase : MonoBehaviour
         _ant = ant;
         _scannerSubdivision = scannerSubdivision;
         _scanInterval = 1.0f / scanFrequency;
+
+        var colliders = new Collider[70];
+        Physics.OverlapSphereNonAlloc(transform.position, _scannerRadius, colliders, LayerMask.GetMask(Layer.Walkable.ToString()));
+        var blockCount = colliders.Where(t => t != null).Count();
+        var temp = (blockCount - 1)/ _scannerSubdivision;
+
+        //var scannerSurface = Mathf.PI * _scannerRadius * _scannerRadius;
+        //var nodeSurface = 2 * Mathf.Sqrt(3) * GlobalParameters.NodeRadius * GlobalParameters.NodeRadius;
+        //var temp = scannerSurface / nodeSurface;
+
+
+        _scannerSurface = (int)temp;
 
         float deltaTheta = 360 / _scannerSubdivision;
         // start at the back of the ant for the 'ToDictionary' method that uses the fact that indexes are increasing
@@ -113,7 +128,7 @@ public abstract class AntScannerBase : MonoBehaviour
         var direction = objPosition - position;
 
         // Check on angle
-        if (Mathf.Abs(Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up)) > _scannerAngle)
+        if (2 * Mathf.Abs(Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up)) > _scannerAngle)
             return false;
 
         if (_checkObtruction == false)

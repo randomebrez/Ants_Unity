@@ -31,7 +31,7 @@ public class SidePanels : MonoBehaviour
 
         var numberOfZoneInRightPanel = (_rightPanel.rect.height - _highScoreZoneHeight) / zoneHeight;
         // If we're close to put 2 zones (for instance) in right panel. Reduce a bit the zone height to fill correctly the right panel
-        if (numberOfZoneInRightPanel - Mathf.Floor(numberOfZoneInRightPanel) > 0.75f)
+        if (numberOfZoneInRightPanel - Mathf.Floor(numberOfZoneInRightPanel) > 0.6f)
             numberOfZoneInRightPanel = Mathf.Ceil(numberOfZoneInRightPanel);
         else
             numberOfZoneInRightPanel = Mathf.Floor(numberOfZoneInRightPanel);

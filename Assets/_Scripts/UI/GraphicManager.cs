@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GraphicManager : MonoBehaviour
 {
-    private Vector2 _maxAxisValue = 5 * Vector2.one;
+    private Vector2 _maxAxisValue = 0.05f * Vector2.one;
 
     private float _xScale = 2f;
     private float _yScale = 1.1f;

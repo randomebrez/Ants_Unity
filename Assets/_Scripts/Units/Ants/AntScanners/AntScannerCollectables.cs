@@ -1,15 +1,21 @@
-﻿using System.Linq;
+﻿using Assets.Dtos;
+using System.Linq;
 using UnityEngine;
 
 public class AntScannerCollectables : AntScannerBase
 {
     protected override float _scannerAngle => _ant.Stats.VisionAngle;
     protected override bool _checkObtruction => false;
-    protected override float _scannerRadius => _ant.Stats.VisionRadius * 3 * _apothem;
+    protected override float _scannerRadius => _ant.Stats.VisionRadius * 2 * _apothem;
 
     public override float GetPortionValue(int index)
     {
         throw new System.NotImplementedException();
+    }
+
+    public bool GetFoodToken(int portionIndex)
+    {
+        return Objects[portionIndex].Where(t => t.tag == "Food").Any();
     }
 
     public (bool isIt, Transform nest) IsNestInSight(int portionindex, string nestName)
@@ -49,9 +55,16 @@ public class AntScannerCollectables : AntScannerBase
     //        }
     //    }
     //
+    //    // Print ground detected
+    //    var colliders = new Collider[70];
+    //    Physics.OverlapSphereNonAlloc(transform.position, _scannerRadius, colliders, LayerMask.GetMask(Layer.Walkable.ToString()));
+    //    Gizmos.color = Color.magenta;
+    //    foreach (var collider in colliders)
+    //        Gizmos.DrawWireCube(collider.transform.position, Vector3.one);
+    //
     //    // Vision Field
-    //    //Gizmos.color = Color.red;
-    //    //Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, -_scannerAngle, 0) * _ant.BodyHeadAxis * _scannerRadius);
-    //    //Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, _scannerAngle, 0) * _ant.BodyHeadAxis * _scannerRadius);
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, -_scannerAngle / 2f, 0) * _ant.BodyHeadAxis * _scannerRadius);
+    //    Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, _scannerAngle / 2f, 0) * _ant.BodyHeadAxis * _scannerRadius);
     //}
 }    

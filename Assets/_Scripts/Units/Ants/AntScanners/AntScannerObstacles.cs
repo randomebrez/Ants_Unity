@@ -5,7 +5,7 @@ public class AntScannerObstacles : AntScannerBase
     private float _avoidDistance => _ant.PhysicalLength;
     protected override float _scannerAngle => _ant.Stats.VisionAngle;
     protected override bool _checkObtruction => true;
-    protected override float _scannerRadius => _ant.Stats.VisionRadius * 3 * _apothem;
+    protected override float _scannerRadius => _ant.Stats.VisionRadius * 2 * _apothem;
 
     public bool IsMoveValid(Vector3 from, Vector3 to)
     {

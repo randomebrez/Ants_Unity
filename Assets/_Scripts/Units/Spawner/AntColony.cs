@@ -1,5 +1,6 @@
 using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
+using Assets.Dtos;
 using Assets.Gateways;
 using mew;
 using NeuralNetwork.Interfaces.Model;
@@ -12,20 +13,18 @@ using UnityEngine;
 public class AntColony : MonoBehaviour
 {
     private NeuralNetworkGateway _neuralNetworkGateway;
+    private NeuralNetworkGateway _scannerNetworkGateway;
 
     private SpawnerAnt _spawner;
     private BlockBase _block;
     private List<BaseAnt> _population;
-    private List<(BaseAnt ant, Brain brain, float score)> _currentSelection = new List<(BaseAnt ant, Brain brain, float score)>();
-    private List<(BaseAnt ant, Brain brain, float score)> _bestBrains = new List<(BaseAnt ant, Brain brain, float score)>();
+    private List<(BaseAnt ant, float score)> _currentSelection = new List<(BaseAnt ant, float score)>();
+    private List<(BaseAnt ant, float score)> _bestBrains = new List<(BaseAnt ant, float score)>();
 
     private int _generationId = 0;
     private bool _startCooldown = false;
     private float _currentGenerationLifeTime;
     private bool _initialyzed = false;
-
-    private Dictionary<StatisticEnum, Vector2> _currentHighScore = new Dictionary<StatisticEnum, Vector2>();
-    private Dictionary<StatisticEnum, Vector2> _globalHighScore = new Dictionary<StatisticEnum, Vector2>();
 
     // Unity methods
     void Start()
@@ -63,6 +62,7 @@ public class AntColony : MonoBehaviour
         transform.name = name;
 
         _neuralNetworkGateway = new NeuralNetworkGateway(new PopulationManager(GlobalParameters.NetworkCaracteristics));
+        _scannerNetworkGateway = new NeuralNetworkGateway(new PopulationManager(GlobalParameters.PortionNetworkCaracteristics));
 
         _population = new List<BaseAnt>();
 
@@ -73,8 +73,8 @@ public class AntColony : MonoBehaviour
         StatisticsManager.Instance.InitializeView(new List<StatisticEnum>
         {
             StatisticEnum.Score,
-            StatisticEnum.BestFoodReach,
-            StatisticEnum.BestComeBack,
+            //StatisticEnum.BestFoodReachStepNumber,
+            StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
         });
@@ -90,15 +90,42 @@ public class AntColony : MonoBehaviour
         {
             SelectBestUnits();
             GetStatistics();
-            DestroyPreviousGeneration();
-            RepopFood();
             CleanPheromoneContainer();
+            RepopFood();
+            DestroyPreviousGeneration();
+            
         }
 
         // Get as many brain as ants we want to pop
-        var brains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, _bestBrains.Select(t => t.brain).ToList());
-        _population = _spawner.InstantiateUnits(brains.ToList(), ScriptableAntBase.AntTypeEnum.Worker);
+        var brainsToGive = GenerateBrainsAndUnits();
+        _population = _spawner.InstantiateUnits(brainsToGive, ScriptableAntBase.AntTypeEnum.Worker);
         _generationId++;
+    }
+
+    private List<AntBrains> GenerateBrainsAndUnits()
+    {
+        var antBrains = _bestBrains.Select(t => t.ant.GetBrain());
+        var mainBrains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, antBrains.Select(t => t.MainBrain).ToList());
+        var portionBrains = new Dictionary<int, List<Brain>>();
+        for (int i = 0; i < GlobalParameters.ScannerSubdivision; i++)
+        {
+            var bestPortionBrains = antBrains.Select(t => t.ScannerBrains[i]).ToList();
+            portionBrains.Add(i, _scannerNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, bestPortionBrains).ToList());
+        }
+        var brainsToGive = new List<AntBrains>();
+        for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
+        {
+            var scannerBrains = new Dictionary<int, Brain>();
+            for (int j = 0; j < GlobalParameters.ScannerSubdivision; j++)
+                scannerBrains.Add(j, portionBrains[j][i]);
+
+            brainsToGive.Add(new AntBrains
+            {
+                MainBrain = mainBrains[i],
+                ScannerBrains = scannerBrains
+            });
+        }
+        return brainsToGive;
     }
 
     private void SelectBestUnits()
@@ -108,75 +135,15 @@ public class AntColony : MonoBehaviour
 
         _currentSelection.Clear();
         foreach (var ant in _population)
-            _currentSelection.Add((ant, ant.BrainManager.GetBrain(), ant.GetUnitScore()));
+            _currentSelection.Add((ant, ant.GetUnitScore()));
 
         _bestBrains = _currentSelection.OrderByDescending(t => t.score).Take((int)(2 * GlobalParameters.ColonyMaxPopulation / 3f)).ToList();        
     }
 
     private void GetStatistics()
     {
-        var sumFoodCollected = 0f;
-        var sumFoodGrabbed = 0f;
-        var bestFoodReach = Mathf.Infinity;
-        var bestComeBack = Mathf.Infinity;
-        var highScore = _bestBrains.First();
-        foreach (var pair in _bestBrains.Where(t => t.score > 0))
-        {
-            var antStatistics = pair.ant.GetStatistics();
-
-            if (antStatistics[StatisticEnum.BestComeBack] < bestComeBack)
-                bestComeBack = antStatistics[StatisticEnum.BestComeBack];
-            if (antStatistics[StatisticEnum.BestFoodReach] < bestFoodReach)
-                bestFoodReach = antStatistics[StatisticEnum.BestFoodReach];
-
-            sumFoodCollected += antStatistics[StatisticEnum.FoodCollected];
-            sumFoodGrabbed += antStatistics[StatisticEnum.FoodGrabbed];
-        }
-
-        var xPoint = (_generationId - 1 ) * Vector2.right;
-
-        _currentHighScore = new Dictionary<StatisticEnum, Vector2>
-        {
-            { StatisticEnum.Score, xPoint + (float)Math.Round(highScore.score, 2) * Vector2.up },
-            { StatisticEnum.BestFoodReach, xPoint + (float)Math.Round(bestFoodReach, 2) * Vector2.up },
-            { StatisticEnum.BestComeBack, xPoint + (float)Math.Round(bestComeBack, 2) * Vector2.up },
-            { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
-            { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
-        };
-        if (_globalHighScore.Count == 0)
-        {
-            _globalHighScore = new Dictionary<StatisticEnum, Vector2>
-            {
-                { StatisticEnum.Score, xPoint + (float)Math.Round(highScore.score, 2) * Vector2.up },
-                { StatisticEnum.BestFoodReach, xPoint + (float)Math.Round(bestFoodReach, 2) * Vector2.up },
-                { StatisticEnum.BestComeBack, xPoint + (float)Math.Round(bestComeBack, 2) * Vector2.up },
-                { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
-                { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up }
-            };
-        }
-
-        if (_currentHighScore[StatisticEnum.Score].y > _globalHighScore[StatisticEnum.Score].y)
-            _globalHighScore[StatisticEnum.Score] = _currentHighScore[StatisticEnum.Score];
-
-        if (_currentHighScore[StatisticEnum.BestFoodReach].y < _globalHighScore[StatisticEnum.BestFoodReach].y)
-            _globalHighScore[StatisticEnum.BestFoodReach] = _currentHighScore[StatisticEnum.BestFoodReach];
-
-        if (_currentHighScore[StatisticEnum.BestComeBack].y < _globalHighScore[StatisticEnum.BestComeBack].y)
-            _globalHighScore[StatisticEnum.BestComeBack] = _currentHighScore[StatisticEnum.BestComeBack];
-
-        if (_currentHighScore[StatisticEnum.FoodCollected].y > _globalHighScore[StatisticEnum.FoodCollected].y)
-            _globalHighScore[StatisticEnum.FoodCollected] = _currentHighScore[StatisticEnum.FoodCollected];
-
-        if (_currentHighScore[StatisticEnum.FoodGrabbed].y > _globalHighScore[StatisticEnum.FoodGrabbed].y)
-            _globalHighScore[StatisticEnum.FoodGrabbed] = _currentHighScore[StatisticEnum.FoodGrabbed];
-
-        bestFoodReach = bestFoodReach < Mathf.Infinity ? bestFoodReach : 0;
-        bestComeBack = bestComeBack < Mathf.Infinity ? bestComeBack : 0;
-
-        StatisticsManager.Instance.AddValues(_currentHighScore);
-        StatisticsManager.Instance.UpdateHighScores(_globalHighScore);
-
-        Debug.Log($"Generation : {_generationId}\nHighest score : {highScore.score} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodCollected}");
+        var interestingStats = _bestBrains.Where(t => t.score > 0);
+        StatisticsManager.Instance.GetStatistics(_generationId, _bestBrains.Select(t => t.ant).ToList());
     }
 
     private void DestroyPreviousGeneration()
@@ -190,8 +157,6 @@ public class AntColony : MonoBehaviour
     private void RepopFood()
     {
         var foodContainer = EnvironmentManager.Instance.GetFoodContainer();
-        if (foodContainer.childCount <= 0)
-            return;
 
         for (int i = foodContainer.childCount; i > 0; i --)
         {

@@ -3,8 +3,8 @@
     public enum StatisticEnum
     {
         Score,
-        BestFoodReach,
-        BestComeBack,
+        BestFoodReachStepNumber,
+        ComeBackMean,
         FoodCollected,
         FoodGrabbed,
     }

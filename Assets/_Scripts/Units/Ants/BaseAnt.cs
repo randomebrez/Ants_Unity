@@ -19,7 +19,7 @@ namespace mew
         protected Block _nextPos;
 
         //Managers
-        public BrainManager BrainManager { get; private set; }
+        protected BrainManager _brainManager;
         protected AntScannerManager _scannerManager;
         protected PheromoneManager _pheromoneManager;
         protected Transform _pheromoneContainer;
@@ -29,6 +29,8 @@ namespace mew
         private Transform _body;
         private Transform _head;
         private Transform _nest;
+
+        protected int _age = 0;
 
         // Pheromones parameters
         protected int _dropPheroFrequency = 10;
@@ -55,6 +57,8 @@ namespace mew
         {
             _nest = transform.parent.parent.parent;
             _currentPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
+            if (name == "Worker_0")
+                transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.yellow;
         }
 
         void Update()
@@ -67,6 +71,7 @@ namespace mew
             CheckCollectableCollisions();
         }
 
+
         // Abstract Methods
         public abstract void CheckCollectableCollisions();
 
@@ -76,19 +81,27 @@ namespace mew
 
         protected abstract HashSet<StatisticEnum> RequiredStatistics();
 
-        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();        
+        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
 
 
         // Override methods
-        public void Initialyze(ScriptableUnitBase.Stats stats, Brain brain, Transform pheromoneContainer)
+        public void Initialyze(ScriptableUnitBase.Stats stats, AntBrains brains, Transform pheromoneContainer)
         {
             Stats = stats;
-            BrainManager = new BrainManager(brain);
-            _scannerManager.InitialyzeScanners();
+            _brainManager = new BrainManager(brains.MainBrain);
+            _scannerManager.InitialyzeScanners(brains.ScannerBrains);
             _pheromoneContainer = pheromoneContainer;
             _initialyzed = true;
         }
 
+        public AntBrains GetBrain()
+        {
+            return new AntBrains
+            {
+                MainBrain = _brainManager.GetBrain(),
+                ScannerBrains = _scannerManager.GetBrains()
+            };
+        }
 
         // Virtual Methods
         public virtual void Move()
@@ -104,6 +117,7 @@ namespace mew
             _currentPos = _nextPos;
 
             transform.SetPositionAndRotation(_currentPos.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
+            _age++;
         }
 
         internal virtual void DropPheromone()

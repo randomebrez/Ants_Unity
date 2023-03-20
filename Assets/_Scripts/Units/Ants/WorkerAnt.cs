@@ -13,10 +13,10 @@ namespace mew
         public bool _carryingFood = false;
         public int FoodCollected = 0;
         public int FoodGrabbed = 0;
-        private float _comeBackTimer = 0f;
-        private float _bestComeBackTime = Mathf.Infinity;
-        private float _findFoodTimer = 0f;
-        private float _bestFindFoodTime = Mathf.Infinity;
+        private int _comeBackStepNumber = 0;
+        private int _bestComeBackStepNumber = int.MaxValue;
+        private int _findFoodStepNumber = 0;
+        private int _bestFindFoodStepNumber = int.MaxValue;
 
         private float score = 0f;
 
@@ -27,7 +27,16 @@ namespace mew
             UpdateInputs();
 
             // Compute output using brain
-            var output = BrainManager.ComputeOutput(_scannerManager.GetInputs());
+            var scanneroutputs = _scannerManager.GetInputs();
+            //if (name == "Worker_0")
+            //{
+            //    var outputValue = new StringBuilder();
+            //    for (int i = 0; i < scanneroutputs.Count; i++)
+            //        outputValue.Append($"{scanneroutputs[i].ToString()} ; ");
+            //
+            //    Debug.Log(outputValue.ToString());
+            //}
+            var output = _brainManager.ComputeOutput(scanneroutputs);
 
             // Select next pos : Interpret output
             InterpretOutput(output.ouputId);
@@ -41,8 +50,8 @@ namespace mew
         protected override HashSet<StatisticEnum> RequiredStatistics() => new HashSet<StatisticEnum>
         { 
             StatisticEnum.Score,
-            StatisticEnum.BestFoodReach,
-            StatisticEnum.BestComeBack,
+            //StatisticEnum.BestFoodReachStepNumber,
+            StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
         };
@@ -57,11 +66,11 @@ namespace mew
                     case StatisticEnum.Score:
                         stats.Add(statType, GetUnitScore());
                         break;
-                    case StatisticEnum.BestFoodReach:
-                        stats.Add(statType, _bestFindFoodTime);
+                    case StatisticEnum.BestFoodReachStepNumber:
+                        stats.Add(statType, _bestFindFoodStepNumber);
                         break;
-                    case StatisticEnum.BestComeBack:
-                        stats.Add(statType, _bestComeBackTime);
+                    case StatisticEnum.ComeBackMean:
+                        stats.Add(statType, _bestComeBackStepNumber);
                         break;
                     case StatisticEnum.FoodCollected:
                         stats.Add(statType, FoodCollected);
@@ -84,15 +93,15 @@ namespace mew
                 var foodtoken = colliders.Where(t => t != null).FirstOrDefault(t => t.tag == "Food");
                 if (foodtoken != null)
                 {
-                    if (_findFoodTimer < _bestFindFoodTime)
-                        _bestFindFoodTime = _findFoodTimer;
+                    if (_findFoodStepNumber < _bestFindFoodStepNumber)
+                        _bestFindFoodStepNumber = _findFoodStepNumber;
 
-                    score += 1 / _findFoodTimer;
+                    FoodGrabbed++;
+                    score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
 
-                    _findFoodTimer = 0f;
+                    _findFoodStepNumber = 0;
                     Destroy(foodtoken.transform.parent.gameObject);
                     _carryingFood = true;
-                    FoodGrabbed++;
 
                 }
             }
@@ -101,12 +110,13 @@ namespace mew
                 var nest = colliders.Where(t => t != null).FirstOrDefault(t => t.transform.parent.parent.name == NestName);
                 if (nest != null)
                 {
-                    if (_comeBackTimer < _bestComeBackTime)
-                        _bestComeBackTime = _comeBackTimer;
-                    score += 1 / _comeBackTimer;
+                    if (_comeBackStepNumber < _bestComeBackStepNumber)
+                        _bestComeBackStepNumber = _comeBackStepNumber;
 
-                    _comeBackTimer = 0f;
                     FoodCollected++;
+                    score += Mathf.Pow(1f / _comeBackStepNumber, 1f / (2 * FoodCollected));
+
+                    _comeBackStepNumber = 0;
                     _carryingFood = false;
                 }
             }
@@ -114,9 +124,7 @@ namespace mew
 
         public override float GetUnitScore()
         {
-            var bestComeBackTime = _bestComeBackTime == 0 ? Mathf.Infinity : _bestComeBackTime;
-            var bestFindFoodTime = _bestFindFoodTime == 0 ? Mathf.Infinity : _bestFindFoodTime;
-            return score + (1f / bestComeBackTime) + (1f / bestFindFoodTime);
+            return score;// + (1f / _bestComeBackTime) + (1f / _bestFindFoodTime);
         }
 
         protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
@@ -133,9 +141,9 @@ namespace mew
         {
             _scannerManager.UpdateAntInputs(_carryingFood);
             if (_carryingFood)
-                _comeBackTimer += Time.deltaTime;
+                _comeBackStepNumber++;
             else
-                _findFoodTimer+= Time.deltaTime;
+                _findFoodStepNumber++;
         }
 
         private void InterpretOutput(int outputValue)
