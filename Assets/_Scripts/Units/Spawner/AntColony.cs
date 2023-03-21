@@ -6,6 +6,7 @@ using mew;
 using NeuralNetwork.Managers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public class AntColony : MonoBehaviour
@@ -68,7 +69,7 @@ public class AntColony : MonoBehaviour
 
         StatisticsManager.Instance.InitializeView(new List<StatisticEnum>
         {
-            StatisticEnum.Score,
+            //StatisticEnum.Score,
             StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
@@ -120,8 +121,20 @@ public class AntColony : MonoBehaviour
         _currentSelection.Clear();
         foreach (var ant in _population)
             _currentSelection.Add((ant, ant.GetUnitScore()));
+        var numberToTake = (int)(2 * GlobalParameters.ColonyMaxPopulation / 3f);
+        _currentSelection = _currentSelection.Where(t => t.score > 0).OrderByDescending(t => t.score).Take(numberToTake).ToList();
 
-        _bestBrains = _currentSelection.OrderByDescending(t => t.score).Take((int)(2 * GlobalParameters.ColonyMaxPopulation / 3f)).ToList();        
+        var index1 = (int)(numberToTake / 3);
+        for (int i = 0; i < Mathf.Min(numberToTake, _currentSelection.Count); i++)
+        {
+            if (i < index1)
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = 5;
+            else if (i < numberToTake - index1)
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = 3;
+            else
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = 1;
+        }
+        _bestBrains = _currentSelection;
     }
 
     private void GetStatistics()

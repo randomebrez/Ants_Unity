@@ -32,7 +32,7 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         var sumFoodCollected = 0f;
         var sumFoodGrabbed = 0f;
         var comeBackMean = 0f;
-        var bestScore = 0f;
+        var bestScore = Mathf.NegativeInfinity;
         var count2 = 0f;
         foreach (var ant in ants)
         {
@@ -98,7 +98,8 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
     public void AddStatisticsToCurve(Dictionary<StatisticEnum, Vector2> values)
     {
         foreach(var value in values)
-            _gameViewManager.AddCurveValue(_statisticsDisplayZoneIndexes[value.Key], value.Value);
+            if (_statisticsDisplayZoneIndexes.ContainsKey(value.Key))
+                _gameViewManager.AddCurveValue(_statisticsDisplayZoneIndexes[value.Key], value.Value);
     }
 
     public void UpdateStatisticsText(Dictionary<StatisticEnum, Vector2> currentGenerationScore, Dictionary<StatisticEnum, Vector2> globalHighScores)

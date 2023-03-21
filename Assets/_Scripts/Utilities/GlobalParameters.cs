@@ -17,7 +17,7 @@ namespace Assets._Scripts.Utilities
         public static int BaseScannerRate = 100;
         public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
         {
-            GeneNumber = 300,
+            GeneNumber = 350,
             InputNumber = 31,
             OutputNumber = 6,
             NeutralNumbers = new List<int> { 6, 3 },
@@ -34,7 +34,7 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationLifeTime = 35;
+        public static float GenerationLifeTime = 30;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";

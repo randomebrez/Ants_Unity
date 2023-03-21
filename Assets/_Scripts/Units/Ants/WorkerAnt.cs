@@ -16,8 +16,9 @@ namespace mew
         private int _bestComeBackStepNumber = int.MaxValue;
         private int _findFoodStepNumber = 0;
         private int _bestFindFoodStepNumber = int.MaxValue;
+        private float RandomMoveCount = 0f;
 
-        private float score = 0f;
+        private float _score = 0f;
 
         // Override Methods
         public override void Move()
@@ -87,7 +88,8 @@ namespace mew
                         _bestFindFoodStepNumber = _findFoodStepNumber;
 
                     FoodGrabbed++;
-                    score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
+                    if (FoodGrabbed > 1)
+                        _score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
 
                     _findFoodStepNumber = 0;
                     Destroy(foodtoken.transform.parent.gameObject);
@@ -104,7 +106,7 @@ namespace mew
                         _bestComeBackStepNumber = _comeBackStepNumber;
 
                     FoodCollected++;
-                    score += Mathf.Pow(1f / _comeBackStepNumber, 1f / (2 * FoodCollected));
+                    _score += Mathf.Pow(1f / _comeBackStepNumber, 1f / (2 * FoodCollected));
 
                     _comeBackStepNumber = 0;
                     _carryingFood = false;
@@ -115,7 +117,9 @@ namespace mew
 
         public override float GetUnitScore()
         {
-            return score;
+            var bonusGrab = FoodGrabbed > 0 ? 1 : 0;
+            var bonusCollected = FoodCollected > 0 ? 1 : 0;
+            return FoodGrabbed + FoodCollected + _score - RandomMoveCount / _age;
         }
 
         protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
@@ -157,7 +161,10 @@ namespace mew
                     if (Physics.Raycast(_currentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
                         _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
                     else
+                    {
                         RandomMove();
+                        RandomMoveCount++;
+                    }
                     break;
             }
         }
