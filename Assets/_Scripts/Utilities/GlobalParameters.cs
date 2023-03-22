@@ -17,10 +17,10 @@ namespace Assets._Scripts.Utilities
         public static int BaseScannerRate = 100;
         public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
         {
-            GeneNumber = 350,
-            InputNumber = 31,
+            GeneNumber = 300,
+            InputNumber = 25,
             OutputNumber = 6,
-            NeutralNumbers = new List<int> { 6, 3 },
+            NeutralNumbers = new List<int> { 6, 6 },
             WeighBytesNumber = 4
         };
         public static NetworkCaracteristics PortionNetworkCaracteristics = new NetworkCaracteristics

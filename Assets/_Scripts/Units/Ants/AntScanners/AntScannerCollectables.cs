@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using mew;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AntScannerCollectables : AntScannerBase
@@ -7,9 +9,30 @@ public class AntScannerCollectables : AntScannerBase
     protected override bool _checkObtruction => false;
     protected override float _scannerRadius => _ant.Stats.VisionRadius * 2 * _apothem;
 
+    private Dictionary<int, bool> _visionFieldPortion = new Dictionary<int, bool>();
+
     public override float GetPortionValue(int index)
     {
         throw new System.NotImplementedException();
+    }
+
+    public override void Initialyze(BaseAnt ant, int scannerSubdivision, int scanFrequency)
+    {
+        base.Initialyze(ant, scannerSubdivision, scanFrequency);
+        for(int i = 0; i < scannerSubdivision; i++)
+        {
+            if (Mathf.Abs(_subdivisions[i] + 60) < _scannerAngle / 2f)
+                _visionFieldPortion.Add(i, true);
+            else if (Mathf.Abs(_subdivisions[i]) < _scannerAngle / 2f)
+                _visionFieldPortion.Add(i, true);
+            else
+                _visionFieldPortion.Add(i, false);
+        }
+    }
+
+    public bool IsPortionActive(int portionIndex)
+    {
+        return _visionFieldPortion[portionIndex];
     }
 
     public bool GetFoodToken(int portionIndex)

@@ -18,7 +18,7 @@ public abstract class AntScannerBase : MonoBehaviour
 
     // Base scanner parameters
     private float _scanInterval;
-    private List<float> _subdivisions = new List<float>();
+    protected List<float> _subdivisions = new List<float>();
 
     protected bool _initialyzed = false;
     protected int _scannerSubdivision;
@@ -55,7 +55,7 @@ public abstract class AntScannerBase : MonoBehaviour
 
     public abstract float GetPortionValue(int index);
 
-    public void Initialyze(BaseAnt ant, int scannerSubdivision, int scanFrequency)
+    public virtual void Initialyze(BaseAnt ant, int scannerSubdivision, int scanFrequency)
     {
         _ant = ant;
         _scannerSubdivision = scannerSubdivision;

@@ -94,7 +94,8 @@ namespace mew
                     _findFoodStepNumber = 0;
                     Destroy(foodtoken.transform.parent.gameObject);
                     _carryingFood = true;
-                    SetHeadColor(_colors[FoodGrabbed]);
+                    if (FoodGrabbed < _colors.Count)
+                        SetHeadColor(_colors[FoodGrabbed]);
                 }
             }
             else
@@ -110,7 +111,8 @@ namespace mew
 
                     _comeBackStepNumber = 0;
                     _carryingFood = false;
-                    SetBodyColor(_colors[FoodCollected]);
+                    if (FoodCollected < _colors.Count)
+                        SetBodyColor(_colors[FoodCollected]);
                 }
             }
         }

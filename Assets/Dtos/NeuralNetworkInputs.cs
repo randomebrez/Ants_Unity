@@ -15,16 +15,22 @@ namespace Assets.Dtos
 
         public bool IsNestInSight { get; set; }
 
+        public bool ActivateTriggerObject = true;
+
         public List<float> ToList() 
         {
-            return new List<float>
+            var result = new List<float>
             {
                 PheroW,
                 PheroC,
-                WallDist,
-                FoodToken ? 1 : 0,
-                IsNestInSight ? 1 : 0
+                WallDist
             };
+            if (ActivateTriggerObject)
+            {
+                result.Add(FoodToken ? 1 : 0);
+                result.Add(IsNestInSight ? 1 : 0);
+            }
+            return result;
         }
     }
 

@@ -106,6 +106,7 @@ public class AntScannerManager : MonoBehaviour
             FoodToken = _collectableScanner.GetFoodToken(portionIndex),
             IsNestInSight = _collectableScanner.IsNestInSight(portionIndex, _ant.NestName).isIt
         };
+        portioninputs.ActivateTriggerObject = _collectableScanner.IsPortionActive(portionIndex);
 
         //if (_ant.name == "Worker_0")
         //{

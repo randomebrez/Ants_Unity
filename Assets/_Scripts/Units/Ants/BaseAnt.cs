@@ -10,7 +10,7 @@ namespace mew
 {
     public abstract class BaseAnt : UnitBase
     {
-        protected List<Color> _colors = new List<Color> { Color.black, Color.red, Color.yellow, Color.blue, Color.magenta, Color.cyan, Color.green, Color.white };
+        protected List<Color> _colors = new List<Color> { Color.black, Color.red, Color.yellow, Color.blue, Color.magenta, Color.cyan, Color.green, Color.gray, Color.white };
         // Events
         public Action<BaseAnt> Clicked;
 
