@@ -13,7 +13,7 @@ namespace Assets._Scripts.Utilities
 
 
         // AntParameters
-        public static int ColonyMaxPopulation = 40;
+        public static int ColonyMaxPopulation = 42;
         public static int BaseScannerRate = 100;
         public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
         {

@@ -34,6 +34,24 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
         var spawned = InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, foodContainer, 3 * GlobalParameters.NodeRadius);
     }
 
+    public void SpawnFoodPaquet(int tokenNumber)
+    {
+        var randomXpos = Random.Range(GlobalParameters.GroundSize.x / 2f, GlobalParameters.GroundSize.x - 3);
+        if (Random.Range(0, 2) == 1)
+            randomXpos = -randomXpos;
+        var randomZpos = Random.Range(GlobalParameters.GroundSize.z / 2f, GlobalParameters.GroundSize.x - 3);
+        if (Random.Range(0, 2) == 1)
+            randomZpos = -randomZpos;
+        for (int i = 0; i < tokenNumber; i++)
+        {
+            var randomXShift = Random.Range(-2, 3);
+            var randomZShift = Random.Range(-2, 3);
+            var spawnPosition = ((randomZpos + randomZShift) * Vector3.forward + (randomXpos + randomXShift) * Vector3.right) + GlobalParameters.NodeRadius * Vector3.up;
+            var foodContainer = Instance.GetFoodContainer();
+            InstantiateObject(FoodPrefab, spawnPosition, Quaternion.identity, foodContainer, 3 * GlobalParameters.NodeRadius);
+        }
+    }
+
     public Block BlockFromWorldPoint(Vector3 worldPosition)
     {
         return _ground.GetBlockFromWorldPosition(worldPosition);

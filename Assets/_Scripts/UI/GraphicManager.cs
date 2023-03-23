@@ -3,10 +3,13 @@ using UnityEngine;
 
 public class GraphicManager : MonoBehaviour
 {
-    private Vector2 _maxAxisValue = 0.05f * Vector2.one;
+    private Vector2 _xMinMax = new Vector2(1, 9);
+    private Vector2 _yMinMax = new Vector2(1, 1);
+    private int _axisIndexNumber = 5;
 
-    private float _xScale = 2f;
+    private int _xShift = 2;
     private float _yScale = 1.1f;
+    private int _numberToAverage;
 
     private Axis _xAxis;
     private Axis _yAxis;
@@ -22,31 +25,47 @@ public class GraphicManager : MonoBehaviour
 
     void Start()
     {
-        _xAxis.Initialyze(AxisEnum.Horizontal);
-        _yAxis.Initialyze(AxisEnum.Vertical);
+        _xAxis.Initialyze(AxisEnum.Horizontal, _axisIndexNumber, _xShift);
+        _yAxis.Initialyze(AxisEnum.Vertical, _axisIndexNumber, _yMinMax.y / _axisIndexNumber);
+        _numberToAverage = 1 + (_axisIndexNumber - 1) * _xShift;
+        _curve.Initialyze(_numberToAverage, new Vector2(_xMinMax.y, _yMinMax.y), _axisIndexNumber);
     }
 
     public void AddCurveValue(Vector2 point)
     {
-        if (point.x > 0.8 * _maxAxisValue.x)
-            _maxAxisValue.x = _xScale * point.x;
-        if (point.y > 0.9 * _maxAxisValue.y)
-            _maxAxisValue.y = _yScale * point.y;
-
-        _curve.SetDataMax(_maxAxisValue);
-        UpdateAxisIndexes(AxisEnum.Horizontal);
-        UpdateAxisIndexes(AxisEnum.Vertical);
-
         _coordinates.Add(point);
+        // Handle xAxis
+        if (_curve.GetQueueLength == _numberToAverage)
+        {
+            _curve.ClearQueue();
+            _xMinMax.x = _xMinMax.y + 1;
+            _xMinMax.y = _xMinMax.x + (_axisIndexNumber - 1) * _xShift;
+            UpdateHorizontalIndexes();
+        }
+        // Handle yAxis
+        if (point.y > 0.9 * _yMinMax.y)
+        {
+            _yMinMax.y = _yScale * point.y;
+            UpdateVerticalIndexes();
+            _curve.SetTopRightPoint(new Vector2(_xMinMax.y, _yMinMax.y));
+        }
         _curve.AddValue(point);
     }
 
-    private void UpdateAxisIndexes(AxisEnum axisType)
+    private void UpdateHorizontalIndexes()
     {
-        var (axis, maxValue) = axisType == AxisEnum.Horizontal ? (_xAxis, _maxAxisValue.x) : (_yAxis, _maxAxisValue.y);
         var dict = new Dictionary<int, float>();
-        for (int i = 0; i < 5; i++)
-            dict.Add(i, (i +1) * maxValue / 5f);
-        axis.UpdateIndexesValue(dict);
+
+        for (int i = 0; i < _axisIndexNumber; i++)
+            dict.Add(i, _xMinMax.x + i * _xShift);
+        _xAxis.UpdateIndexesValue(dict);
+    }
+
+    private void UpdateVerticalIndexes()
+    {
+        var dict = new Dictionary<int, float>();
+        for (int i = 0; i < _axisIndexNumber; i++)
+            dict.Add(i, (i + 1) * _yMinMax.y / _axisIndexNumber);
+        _yAxis.UpdateIndexesValue(dict);
     }
 }

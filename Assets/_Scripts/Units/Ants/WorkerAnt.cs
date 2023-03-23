@@ -121,7 +121,7 @@ namespace mew
         {
             var bonusGrab = FoodGrabbed > 0 ? 1 : 0;
             var bonusCollected = FoodCollected > 0 ? 1 : 0;
-            return FoodGrabbed + FoodCollected + _score - RandomMoveCount / _age;
+            return bonusGrab + bonusCollected + _score - RandomMoveCount / _age;
         }
 
         protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()

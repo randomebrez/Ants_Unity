@@ -52,7 +52,7 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 
         comeBackMean = count2 > 0 ? comeBackMean / count2 : 0;
 
-        var xPoint = (generationId - 1) * Vector2.right;
+        var xPoint = generationId * Vector2.right;
         var currentHighScore = new Dictionary<StatisticEnum, Vector2>
         {
             { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },            

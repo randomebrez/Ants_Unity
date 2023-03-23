@@ -8,8 +8,7 @@ public class AxisIndexes : MonoBehaviour
     public Transform IndexPrefab;
     private int _digitNumber;
 
-
-    public void Initialyze(AxisEnum axisType, int indexNumber = 5)
+    public void Initialyze(AxisEnum axisType, int indexNumber, float shift)
     {
         var xShift = 1f / indexNumber;
         var yShift = 1f / indexNumber;
@@ -29,7 +28,10 @@ public class AxisIndexes : MonoBehaviour
             var newIndex = Instantiate(IndexPrefab, transform);
             newIndex.GetComponent<RectTransform>().anchorMin += new Vector2((i + 1) * xShift, (i + 1) * yShift);
             newIndex.GetComponent<RectTransform>().anchorMax += new Vector2((i + 1) * xShift, (i + 1) * yShift);
-            newIndex.GetChild(0).GetComponent<TextMeshPro>().text = $"{i + 1}";
+            if (axisType == AxisEnum.Horizontal)
+                newIndex.GetChild(0).GetComponent<TextMeshPro>().text = $"{1 + i * shift}";
+            else
+                newIndex.GetChild(0).GetComponent<TextMeshPro>().text = $"{(i + 1) * shift}";
             newIndex.name = $"Index_{i}";
         }
     }

@@ -14,6 +14,8 @@ public class Axis : MonoBehaviour
 
     private LineRenderer _lineRenderer;
     private AxisIndexes _indexes;
+    private int _indexNumber;
+    private float _shift;
 
     // Unity methods
     void Awake()
@@ -29,9 +31,11 @@ public class Axis : MonoBehaviour
             _lineRenderer.SetPosition(i, anchors[i].position);
     }
 
-    public void Initialyze(AxisEnum axisType)
+    public void Initialyze(AxisEnum axisType, int indexNumber, float shift)
     {
-        _indexes.Initialyze(axisType);
+        _indexNumber = indexNumber;
+        _shift = shift;
+        _indexes.Initialyze(axisType, _indexNumber, _shift);
     }
 
     public void UpdateIndexesValue(Dictionary<int, float> newValues)

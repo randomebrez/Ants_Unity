@@ -140,7 +140,7 @@ public class AntColony : MonoBehaviour
     private void GetStatistics()
     {
         var interestingStats = _bestBrains.Where(t => t.score > 0);
-        StatisticsManager.Instance.GetStatistics(_generationId, _bestBrains.Select(t => t.ant).ToList());
+        StatisticsManager.Instance.GetStatistics(_generationId - 1, _bestBrains.Select(t => t.ant).ToList());
     }
 
     private void DestroyPreviousGeneration()
@@ -153,16 +153,22 @@ public class AntColony : MonoBehaviour
 
     private void RepopFood()
     {
-        var foodContainer = EnvironmentManager.Instance.GetFoodContainer();
-
-        for (int i = foodContainer.childCount; i > 0; i --)
-        {
-            Destroy(foodContainer.GetChild(i - 1).gameObject);
-        }
         var foodNumber = 100;
-        var deltaTheta = 360f / (foodNumber / 10);
-        for (int i = 0; i < foodNumber; i++)
-            EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
+        var foodContainer = EnvironmentManager.Instance.GetFoodContainer();
+        for (int i = foodContainer.childCount; i > 0; i--)
+            Destroy(foodContainer.GetChild(i - 1).gameObject);
+
+        if (_generationId >= 15)
+        {
+            EnvironmentManager.Instance.SpawnFoodPaquet(50);
+            EnvironmentManager.Instance.SpawnFoodPaquet(50);
+        }
+        else
+        {
+            var deltaTheta = 360f / (foodNumber / 10);
+            for (int i = 0; i < foodNumber; i++)
+                EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
+        }
     }
 
     private void CleanPheromoneContainer()
