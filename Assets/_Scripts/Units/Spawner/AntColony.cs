@@ -153,20 +153,19 @@ public class AntColony : MonoBehaviour
 
     private void RepopFood()
     {
-        var foodNumber = 100;
         var foodContainer = EnvironmentManager.Instance.GetFoodContainer();
         for (int i = foodContainer.childCount; i > 0; i--)
             Destroy(foodContainer.GetChild(i - 1).gameObject);
 
-        if (_generationId >= 15)
+        if (_generationId % 15 > 10)
         {
-            EnvironmentManager.Instance.SpawnFoodPaquet(50);
-            EnvironmentManager.Instance.SpawnFoodPaquet(50);
+            EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);
+            EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);
         }
         else
         {
-            var deltaTheta = 360f / (foodNumber / 10);
-            for (int i = 0; i < foodNumber; i++)
+            var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
+            for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
                 EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
         }
     }

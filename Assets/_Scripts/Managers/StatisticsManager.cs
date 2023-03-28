@@ -119,9 +119,9 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         for(int i = 0; i < ants.Count(); i++)
         {
             var antBrains = ants[i].GetBrain();
-            text.AppendLine(ToSaveFormat(antBrains.MainBrain.Vertices));
+            text.AppendLine(ToSaveFormat(antBrains.MainBrain.Edges));
             for (int j = 0; j < antBrains.ScannerBrains.Count(); j++)
-                text.AppendLine($"{j}{ToSaveFormat(antBrains.ScannerBrains[j].Vertices)}");
+                text.AppendLine($"{j}{ToSaveFormat(antBrains.ScannerBrains[j].Edges)}");
         }
 
         using (var stream = File.Create($"{GlobalParameters.LogFileBase}\\{generationId}.txt"))
@@ -132,7 +132,7 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         }
     }
 
-    private string ToSaveFormat(List<Vertex> edges)
+    private string ToSaveFormat(List<Edge> edges)
     {
         var result = new StringBuilder();
         foreach(var edge in edges)

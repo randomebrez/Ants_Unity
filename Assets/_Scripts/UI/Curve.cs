@@ -83,7 +83,7 @@ public class Curve : MonoBehaviour
             _pointsToDestroy.Add(_queuePoints[i].transform);
             mean += _realCoordinates[realCoordinateIndex].y;
         }
-        var meanCoordinates = new Vector2(_meanPoints.Count, mean);
+        var meanCoordinates = new Vector2(_meanPoints.Count, mean / _queuePoints.Count);
         _realMeanCoordinates.Add(meanCoordinates);
 
         var meanPoint = Instantiate(_curvePointPrefab, transform);
