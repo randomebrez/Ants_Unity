@@ -34,9 +34,14 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationLifeTime = 30;
+        public static float GenerationLifeTime = 20;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";
+
+        // Database
+        public static int StoreFrequency = 20;
+        public static string SqlFilePath = @".\Database\NeuralNetworkDatabase.txt";
+        public static string SqlFolderPath = ".\\Database";
     }
 }

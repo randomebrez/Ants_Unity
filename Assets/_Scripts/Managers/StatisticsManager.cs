@@ -1,5 +1,7 @@
+using Assets._Scripts.Gateways;
 using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
+using Assets.Abstractions;
 using mew;
 using NeuralNetwork.Interfaces.Model;
 using System;
@@ -7,11 +9,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 internal class StatisticsManager : BaseManager<StatisticsManager>
 {
     private GameViewsManager _gameViewManager;
+    private IStorage _dbGateway;
     private Dictionary<StatisticEnum, int> _statisticsDisplayZoneIndexes = new Dictionary<StatisticEnum, int>();
     private Dictionary<StatisticEnum, Vector2> _globalHighScore = new Dictionary<StatisticEnum, Vector2>();
 
@@ -20,14 +24,15 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         _gameViewManager = gameViewManager;
     }
 
-    public void InitializeView(List<StatisticEnum> statisticsToDisplay)
+    public async Task InitializeViewAsync(List<StatisticEnum> statisticsToDisplay)
     {
+        _dbGateway = new FileStorageGateway(GlobalParameters.SqlFolderPath);
         _gameViewManager.Initialyze(statisticsToDisplay.Select(t => t.ToString()).ToList());
         for(int i = 0; i < statisticsToDisplay.Count; i++)
             _statisticsDisplayZoneIndexes.Add(statisticsToDisplay[i], i);
     }
 
-    public void GetStatistics(int generationId, List<BaseAnt> ants)
+    public async Task GetStatisticsAsync(int generationId, List<BaseAnt> ants)
     {
         var sumFoodCollected = 0f;
         var sumFoodGrabbed = 0f;
@@ -87,10 +92,10 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         AddStatisticsToCurve(currentHighScore);
         UpdateStatisticsText(currentHighScore, _globalHighScore);
 
-        if (generationId % 20 == 0)
-            SaveWinners(generationId, ants, sumFoodCollected);
+        if (generationId % GlobalParameters.StoreFrequency == 0)
+            await SaveWinnersAsync(generationId, ants, sumFoodCollected).ConfigureAwait(false);
         else if (sumFoodCollected >= 99)
-            SaveWinners(generationId, ants, sumFoodCollected);
+            await SaveWinnersAsync(generationId, ants, sumFoodCollected).ConfigureAwait(false);
 
         Debug.Log($"Generation : {generationId}\nHighest score : {bestScore} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodCollected}");
     }
@@ -113,30 +118,8 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         _gameViewManager.UpdateHighScores(text.ToString());
     }
 
-    private void SaveWinners(int generationId, List<BaseAnt> ants, float foodCollected)
+    private async Task SaveWinnersAsync(int generationId, List<BaseAnt> ants, float foodCollected)
     {
-        var text = new StringBuilder($"{foodCollected}\n");
-        for(int i = 0; i < ants.Count(); i++)
-        {
-            var antBrains = ants[i].GetBrain();
-            text.AppendLine(ToSaveFormat(antBrains.MainBrain.Edges));
-            for (int j = 0; j < antBrains.ScannerBrains.Count(); j++)
-                text.AppendLine($"{j}{ToSaveFormat(antBrains.ScannerBrains[j].Edges)}");
-        }
-
-        using (var stream = File.Create($"{GlobalParameters.LogFileBase}\\{generationId}.txt"))
-        {
-            var bytes = new UTF8Encoding().GetBytes(text.ToString());
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Flush();
-        }
-    }
-
-    private string ToSaveFormat(List<Edge> edges)
-    {
-        var result = new StringBuilder();
-        foreach(var edge in edges)
-            result.Append($"{edge.Identifier}?{Math.Round(edge.Weight, 2)}!");
-        return result.ToString();
+        await _dbGateway.StoreBrainsAsync(generationId, ants.Select(t => t.GetBrain().MainBrain).ToList()).ConfigureAwait(false);
     }
 }

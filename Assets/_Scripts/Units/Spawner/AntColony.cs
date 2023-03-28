@@ -3,10 +3,8 @@ using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using Assets.Gateways;
 using mew;
-using NeuralNetwork.Managers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 public class AntColony : MonoBehaviour
@@ -59,7 +57,7 @@ public class AntColony : MonoBehaviour
     {
         transform.name = name;
 
-        _neuralNetworkGateway = new NeuralNetworkGateway(new PopulationManager(GlobalParameters.NetworkCaracteristics));
+        _neuralNetworkGateway = new NeuralNetworkGateway();
 
         _population = new List<BaseAnt>();
 
@@ -67,13 +65,13 @@ public class AntColony : MonoBehaviour
 
         _initialyzed = true;
 
-        StatisticsManager.Instance.InitializeView(new List<StatisticEnum>
+        StatisticsManager.Instance.InitializeViewAsync(new List<StatisticEnum>
         {
             //StatisticEnum.Score,
             StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
-        });
+        }).GetAwaiter().GetResult();
     }
 
 
@@ -140,7 +138,7 @@ public class AntColony : MonoBehaviour
     private void GetStatistics()
     {
         var interestingStats = _bestBrains.Where(t => t.score > 0);
-        StatisticsManager.Instance.GetStatistics(_generationId - 1, _bestBrains.Select(t => t.ant).ToList());
+        StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _bestBrains.Select(t => t.ant).ToList()).GetAwaiter().GetResult();
     }
 
     private void DestroyPreviousGeneration()
