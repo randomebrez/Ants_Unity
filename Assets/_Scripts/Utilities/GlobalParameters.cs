@@ -35,6 +35,8 @@ namespace Assets._Scripts.Utilities
 
         //AntColony
         public static float GenerationLifeTime = 20;
+        public static int MeanChildNumberByBrains = 2;
+        public static float PercentToSelectAmongstBest = 0.35f;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";

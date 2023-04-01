@@ -4,6 +4,7 @@ using Assets.Dtos;
 using Assets.Gateways;
 using mew;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -19,8 +20,10 @@ public class AntColony : MonoBehaviour
 
     private int _generationId = 0;
     private bool _startCooldown = false;
+    private string _firstBrainsFilePath = "";
     private float _currentGenerationLifeTime;
     private bool _initialyzed = false;
+    private int _numberMaxToSelect = 0;
 
     // Unity methods
     void Start()
@@ -29,6 +32,7 @@ public class AntColony : MonoBehaviour
         _block = GetComponentInChildren<BlockBase>();
 
         _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
+        _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * 2 * GlobalParameters.ColonyMaxPopulation);
     }
 
     void Update()
@@ -53,7 +57,7 @@ public class AntColony : MonoBehaviour
 
 
     // Public methods
-    public void Initialyze(string name)
+    public void Initialyze(string name, string firstBrainsFilePath = "")
     {
         transform.name = name;
 
@@ -63,7 +67,7 @@ public class AntColony : MonoBehaviour
 
         _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
 
-        _initialyzed = true;
+        _firstBrainsFilePath = firstBrainsFilePath;
 
         StatisticsManager.Instance.InitializeViewAsync(new List<StatisticEnum>
         {
@@ -72,6 +76,8 @@ public class AntColony : MonoBehaviour
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
         }).GetAwaiter().GetResult();
+
+        _initialyzed = true;
     }
 
 
@@ -90,8 +96,13 @@ public class AntColony : MonoBehaviour
             
         }
 
+        List<AntBrains> brainsToGive;
         // Get as many brain as ants we want to pop
-        var brainsToGive = GenerateBrainsAndUnits();
+        if (_generationId == 0 && string.IsNullOrEmpty(_firstBrainsFilePath) == false)
+            brainsToGive = GetBrainsFromFile(_firstBrainsFilePath);
+        else
+            brainsToGive = GenerateBrainsAndUnits();
+
         _population = _spawner.InstantiateUnits(brainsToGive, ScriptableAntBase.AntTypeEnum.Worker);
         _generationId++;
     }
@@ -100,6 +111,7 @@ public class AntColony : MonoBehaviour
     {
         var antBrains = _bestBrains.Select(t => t.ant.GetBrain());
         var mainBrains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, antBrains.Select(t => t.MainBrain).ToList());
+        var childBrains = mainBrains.Where(t => t.ParentA != new System.Guid());
         var brainsToGive = new List<AntBrains>();
         for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
         {
@@ -111,33 +123,55 @@ public class AntColony : MonoBehaviour
         return brainsToGive;
     }
 
+    private List<AntBrains> GetBrainsFromFile(string fileName)
+    {
+        var lines = File.ReadAllLines(fileName);
+        var brains = _neuralNetworkGateway.GetBrainsFromString(lines.ToList());
+        var brainNumberToGenerate = GlobalParameters.ColonyMaxPopulation - brains.Count;
+        var otherBrains = _neuralNetworkGateway.GenerateNextGeneration(brainNumberToGenerate, brains);
+        brains.AddRange(otherBrains);
+
+        var result = new List<AntBrains>();
+        for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
+        {
+            result.Add(new AntBrains
+            {
+                MainBrain = brains[i]
+            });
+        }
+
+        return result;
+    }
+
     private void SelectBestUnits()
     {
         if (_population.Count == 0)
             return;
 
         _currentSelection.Clear();
+        // Get all scores
         foreach (var ant in _population)
             _currentSelection.Add((ant, ant.GetUnitScore()));
-        var numberToTake = (int)(2 * GlobalParameters.ColonyMaxPopulation / 3f);
-        _currentSelection = _currentSelection.Where(t => t.score > 0).OrderByDescending(t => t.score).Take(numberToTake).ToList();
 
-        var index1 = (int)(numberToTake / 3);
-        for (int i = 0; i < Mathf.Min(numberToTake, _currentSelection.Count); i++)
+        // Filter best ones
+        _currentSelection = _currentSelection.Where(t => t.score > 0).OrderByDescending(t => t.score).Take(_numberMaxToSelect).ToList();
+
+        var selectedNumber = Mathf.Min(_numberMaxToSelect, _currentSelection.Count);
+        var index1 = selectedNumber / 3;
+        for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = 5;
-            else if (i < numberToTake - index1)
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = 3;
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + 1;
+            else if (i < _numberMaxToSelect - index1)
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains;
             else
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = 1;
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - 1;
         }
         _bestBrains = _currentSelection;
     }
 
     private void GetStatistics()
     {
-        var interestingStats = _bestBrains.Where(t => t.score > 0);
         StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _bestBrains.Select(t => t.ant).ToList()).GetAwaiter().GetResult();
     }
 
@@ -155,7 +189,7 @@ public class AntColony : MonoBehaviour
         for (int i = foodContainer.childCount; i > 0; i--)
             Destroy(foodContainer.GetChild(i - 1).gameObject);
 
-        if (_generationId % 15 > 10)
+        if (_bestBrains.Count >= _numberMaxToSelect && _generationId % 15 > 10)
         {
             EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);
             EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);

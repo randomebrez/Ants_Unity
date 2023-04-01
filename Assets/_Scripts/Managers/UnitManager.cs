@@ -38,7 +38,8 @@ internal class UnitManager : BaseManager<UnitManager>
 
         var id = _colonies.Count + 1;
         var colony = spawned.GetComponent<AntColony>();
-        colony.Initialyze($"Colony_{id}");
+        colony.Initialyze($"Colony_{id}", @"D:\Codes\Test\1.txt");
+        //colony.Initialyze($"Colony_{id}");
         _colonies.Add(id, colony);
     }
 

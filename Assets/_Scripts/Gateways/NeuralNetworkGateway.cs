@@ -26,5 +26,11 @@ namespace Assets.Gateways
                 brains = _populationManager.GenerateFirstGeneration(childNumber);
             return brains;
         }
+
+        public List<Brain> GetBrainsFromString(List<string> stringBrains)
+        {
+            var stringGenomes = stringBrains.Where(t => t != string.Empty).Select(t => t.Split(";")[5]).ToList();
+            return _populationManager.GetBrainFromGenomes(stringGenomes).ToList();
+        }
     }
 }

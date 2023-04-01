@@ -32,10 +32,11 @@ namespace Assets._Scripts.Gateways
                 stringBrains.AppendLine(ToSaveFormat(generationId, brains[i]));
             stringBrains.AppendLine();
 
-            using (var stream = File.OpenWrite(_filePath))
+            using (var stream = File.AppendText(_filePath))
             {
                 var bytes = new UTF8Encoding().GetBytes(stringBrains.ToString());
-                await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false); ;
+                await stream.WriteAsync(stringBrains.ToString()).ConfigureAwait(false);
+                //await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
                 await stream.FlushAsync().ConfigureAwait(false);
             }
         }
