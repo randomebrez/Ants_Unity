@@ -41,8 +41,7 @@ internal class UnitManager : BaseManager<UnitManager>
 
         var id = _colonies.Count + 1;
         var colony = spawned.GetComponent<AntColony>();
-        colony.Initialyze($"Colony_{id}", @"D:\Codes\Test\1.txt");
-        //colony.Initialyze($"Colony_{id}");
+        colony.Initialyze($"Colony_{id}");
         _colonies.Add(colony);
     }
 
@@ -66,6 +65,13 @@ internal class UnitManager : BaseManager<UnitManager>
     {
         for (int i = 0; i < _colonies.Count; i++)
             _colonies[i].MoveAllAnts();
+    }
+
+    public void RenewColonies()
+    {
+        for (int i = 0; i < _colonies.Count; i++)
+            _colonies[i].RenewPopulation();
+
     }
 
     public void AntClick(BaseAnt ant)

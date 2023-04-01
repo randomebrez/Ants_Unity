@@ -34,7 +34,7 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationLifeTime = 5;
+        public static float GenerationFrameCount = 150;
         public static int MeanChildNumberByBrains = 2;
         public static float PercentToSelectAmongstBest = 0.35f;
 
@@ -45,5 +45,8 @@ namespace Assets._Scripts.Utilities
         public static int StoreFrequency = 20;
         public static string SqlFilePath = @".\Database\NeuralNetworkDatabase.txt";
         public static string SqlFolderPath = ".\\Database";
+
+        // Local brain file
+        public static string FirstBrainsFilePath = @"D:\Codes\Test\1.txt";
     }
 }

@@ -83,8 +83,18 @@ internal class SceneManager : BaseManager<SceneManager>
 
     private void RunLife()
     {
-        EnvironmentManager.Instance.ApplyTimeEffect();
-        UnitManager.Instance.MoveAllUnits();
-        EnvironmentManager.Instance.DropPheromones();
+        if (_frameCount < GlobalParameters.GenerationFrameCount)
+        {
+            EnvironmentManager.Instance.ApplyTimeEffect();
+            UnitManager.Instance.MoveAllUnits();
+            EnvironmentManager.Instance.DropPheromones();
+        }
+        else
+        {
+            UnitManager.Instance.RenewColonies();
+            _frameCount = -1;
+        }
+
+        _frameCount++;
     }
 }

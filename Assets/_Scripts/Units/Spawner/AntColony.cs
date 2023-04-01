@@ -20,10 +20,6 @@ public class AntColony : MonoBehaviour
     private List<(BaseAnt ant, float score)> _bestBrains = new List<(BaseAnt ant, float score)>();
 
     private int _generationId = 0;
-    private int _colonyAge = 0;
-    private bool _startCooldown = false;
-    private string _firstBrainsFilePath = "";
-    private float _currentGenerationLifeTime;
     private bool _initialyzed = false;
     private int _numberMaxToSelect = 0;
 
@@ -37,42 +33,20 @@ public class AntColony : MonoBehaviour
         _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * 2 * GlobalParameters.ColonyMaxPopulation);
     }
 
-    void Update()
+    public void Update()
     {
-        if (_initialyzed == false)
-            return;
-
-        if (!_startCooldown)
-        {
-            GenerateNewGeneration();
-            _startCooldown = true;
-        }
-        else
-        {
-            _currentGenerationLifeTime -= Time.deltaTime;
-            if (_currentGenerationLifeTime < 0)
-            {
-                _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
-                GenerateNewGeneration();
-                Debug.Log($"Colony Age : {_colonyAge}");
-                _colonyAge = 0;
-            }
-        }
+        if (_generationId == 0 && _initialyzed && _population.Count <= 0)
+            GenerateNewGeneration(GlobalParameters.FirstBrainsFilePath);
     }
 
 
     // Public methods
-    public void Initialyze(string name, string firstBrainsFilePath = "")
+    public void Initialyze(string name)
     {
         transform.name = name;
 
         _neuralNetworkGateway = new NeuralNetworkGateway();
-
         _population = new List<BaseAnt>();
-
-        _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
-
-        _firstBrainsFilePath = firstBrainsFilePath;
 
         StatisticsManager.Instance.InitializeViewAsync(new List<StatisticEnum>
         {
@@ -90,7 +64,6 @@ public class AntColony : MonoBehaviour
         if (_initialyzed == false)
             return;
 
-        _colonyAge++;
         for (int i = 0; i < _population.Count; i++)
             _population[i].Move();
     }
@@ -112,25 +85,27 @@ public class AntColony : MonoBehaviour
         return result;
     }
 
+    public void RenewPopulation()
+    {
+        SelectBestUnits();
+        GetStatistics();
+        CleanPheromoneContainer();
+        RepopFood();
+        DestroyPreviousGeneration();
+
+        GenerateNewGeneration();
+    }
+
+
     // Private methods
-    private void GenerateNewGeneration()
+    private void GenerateNewGeneration(string filePath = null)
     {
         AntSceneManager.Instance.SetNewGenerationId(_generationId);
 
-        if (_population.Count != 0)
-        {
-            SelectBestUnits();
-            GetStatistics();
-            CleanPheromoneContainer();
-            RepopFood();
-            DestroyPreviousGeneration();
-            
-        }
-
         List<AntBrains> brainsToGive;
         // Get as many brain as ants we want to pop
-        if (_generationId == 0 && string.IsNullOrEmpty(_firstBrainsFilePath) == false)
-            brainsToGive = GetBrainsFromFile(_firstBrainsFilePath);
+        if (string.IsNullOrEmpty(filePath) == false)
+            brainsToGive = GetBrainsFromFile(filePath);
         else
             brainsToGive = GenerateBrainsAndUnits();
 
