@@ -28,6 +28,10 @@ public class BasePheromone : MonoBehaviour
             return;
 
         _timeSinceLastTick += Time.deltaTime;
+
+        var color = _renderer.material.color;
+        color.a = Mathf.Max(0, Pheromone.Density);
+        _renderer.material.color = color;
     }
 
     public virtual void Initialyze(ScriptablePheromoneBase.Caracteristics caracteristics, Block position)
@@ -48,10 +52,6 @@ public class BasePheromone : MonoBehaviour
     {
         Pheromone.RemainingTime -= _timeSinceLastTick;
         Pheromone.Density = Pheromone.RemainingTime / Pheromone.Lifetime;
-
-        var color = _renderer.material.color;
-        color.a = Mathf.Max(0, Pheromone.Density);
-        _renderer.material.color = color;
 
         _timeSinceLastTick = 0;
 

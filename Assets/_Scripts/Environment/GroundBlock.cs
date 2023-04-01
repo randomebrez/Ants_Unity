@@ -28,10 +28,17 @@ public class GroundBlock : MonoBehaviour
 
     private void SetPheromoneTokenPositions()
     {
-        _pheromoneTokenPositions.Add(PheromoneTypeEnum.Wander, Vector3.up + 0.5f * GlobalParameters.NodeRadius * Vector3.right);
-        _pheromoneTokenPositions.Add(PheromoneTypeEnum.CarryFood, Vector3.up - 0.5f * GlobalParameters.NodeRadius * Vector3.right);
-        _pheromoneTokens.Add(PheromoneTypeEnum.Wander, null);
-        _pheromoneTokens.Add(PheromoneTypeEnum.CarryFood, null);
+        _pheromoneTokenPositions = new Dictionary<PheromoneTypeEnum, Vector3>
+        {
+            { PheromoneTypeEnum.Wander, 0.5f * GlobalParameters.NodeRadius * Vector3.right },
+            { PheromoneTypeEnum.CarryFood, - 0.5f * GlobalParameters.NodeRadius * Vector3.right }
+        };
+
+        _pheromoneTokens = new Dictionary<PheromoneTypeEnum, BasePheromone>
+        {
+            { PheromoneTypeEnum.Wander, null },
+            { PheromoneTypeEnum.CarryFood, null }
+        };
     }
 
     public void AddOrCreatePheromoneOnBlock(BasePheromone pheromone)
@@ -41,8 +48,10 @@ public class GroundBlock : MonoBehaviour
         if (pheromoneToHandle == null)
         {
             pheromone.transform.parent = transform;
-            pheromone.transform.position = _pheromoneTokenPositions[pheromone.Caracteristics.PheromoneType];
+            pheromone.transform.localPosition = _pheromoneTokenPositions[pheromone.Caracteristics.PheromoneType];
             _pheromoneTokens[pheromone.Caracteristics.PheromoneType] = pheromone;
+
+            HasAnyActivePheromoneToken = true;
         }
         else
         {
@@ -53,16 +62,21 @@ public class GroundBlock : MonoBehaviour
 
     public void CleanPheromones()
     {
-        foreach (var pheromone in _pheromoneTokens.Values)
+        foreach (var pheromone in _pheromoneTokens.Values.Where(t => t!= null))
             Destroy(pheromone.gameObject);
     }
 
     public void ApplyTimeEffect()
     {
-        foreach (var pheromoneToken in _pheromoneTokens.Values)
+        var activePheromones = _pheromoneTokens.Values.Where(t => t != null);
+
+        if (activePheromones.Count() == 0)
+            return;
+
+        foreach (var pheromoneToken in activePheromones)
             pheromoneToken.ApplyTimeEffect();
 
-        HasAnyActivePheromoneToken = _pheromoneTokens.Values.Any(t => t.Pheromone.RemainingTime > 0);
+        HasAnyActivePheromoneToken = activePheromones.Count() > 0;
     }
 
     public void SetWalkable()

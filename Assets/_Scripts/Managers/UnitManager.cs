@@ -11,7 +11,7 @@ internal class UnitManager : BaseManager<UnitManager>
     public AntColony AntColonyPrefab;
 
     private Vector3 GetGroundSize => GlobalParameters.GroundSize;
-    private Dictionary<int, AntColony> _colonies = new Dictionary<int, AntColony>();
+    private List<AntColony> _colonies = new List<AntColony>();
     private BaseAnt _lastClicked;
 
     private void Update()
@@ -43,7 +43,7 @@ internal class UnitManager : BaseManager<UnitManager>
         var colony = spawned.GetComponent<AntColony>();
         colony.Initialyze($"Colony_{id}", @"D:\Codes\Test\1.txt");
         //colony.Initialyze($"Colony_{id}");
-        _colonies.Add(id, colony);
+        _colonies.Add(colony);
     }
 
     public Dictionary<PheromoneTypeEnum, List<Block>> GetUnitPositions()

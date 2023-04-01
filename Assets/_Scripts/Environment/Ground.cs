@@ -47,10 +47,10 @@ public class Ground : MonoBehaviour
     {
         for (int i = 0; i < _gridSizeX; i++)
         {
-            for(int j = 0; j < _gridSizeY; i++)
+            for(int j = 0; j < _gridSizeZ; j++)
             {
-                if (_grid[i,j].HasAnyActivePheromoneToken)
-                    _grid[i,j].ApplyTimeEffect();
+                if ((i + j) % 2 == 0 && _grid[i, j].HasAnyActivePheromoneToken)
+                    _grid[i, j].ApplyTimeEffect();
             }
         }
     }
@@ -59,9 +59,9 @@ public class Ground : MonoBehaviour
     {
         for (int i = 0; i < _gridSizeX; i++)
         {
-            for (int j = 0; j < _gridSizeY; i++)
+            for (int j = 0; j < _gridSizeZ; j++)
             {
-                if (_grid[i, j].HasAnyActivePheromoneToken)
+                if ((i + j) % 2 == 0 && _grid[i, j].HasAnyActivePheromoneToken)
                     _grid[i, j].CleanPheromones();
             }
         }

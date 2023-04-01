@@ -13,7 +13,7 @@ namespace Assets._Scripts.Utilities
 
 
         // AntParameters
-        public static int ColonyMaxPopulation = 42;
+        public static int ColonyMaxPopulation = 30;
         public static int BaseScannerRate = 100;
         public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
         {
@@ -34,7 +34,7 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationLifeTime = 20;
+        public static float GenerationLifeTime = 5;
         public static int MeanChildNumberByBrains = 2;
         public static float PercentToSelectAmongstBest = 0.35f;
 
