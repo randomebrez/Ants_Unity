@@ -2,8 +2,6 @@ using System;
 using Assets.Dtos;
 using UnityEngine;
 using mew;
-using Assets._Scripts.Utilities;
-using System.Linq;
 
 public class BasePheromone : MonoBehaviour
 {
@@ -12,7 +10,6 @@ public class BasePheromone : MonoBehaviour
     public Block BlockPos;
 
     private MeshRenderer _renderer;
-    private float _timeSinceLastTick = 0f;
     private bool _initialyzed = false;
 
     // Unity methods
@@ -26,8 +23,6 @@ public class BasePheromone : MonoBehaviour
     {
         if (_initialyzed == false)
             return;
-
-        _timeSinceLastTick += Time.deltaTime;
 
         var color = _renderer.material.color;
         color.a = Mathf.Max(0, Pheromone.Density);
@@ -50,10 +45,8 @@ public class BasePheromone : MonoBehaviour
 
     public void ApplyTimeEffect()
     {
-        Pheromone.RemainingTime -= _timeSinceLastTick;
-        Pheromone.Density = Pheromone.RemainingTime / Pheromone.Lifetime;
-
-        _timeSinceLastTick = 0;
+        Pheromone.RemainingTime --;
+        Pheromone.Density = (float)Pheromone.RemainingTime / Pheromone.Lifetime;
 
         if (Pheromone.RemainingTime <= 0)
             Destroy(gameObject);
@@ -63,6 +56,6 @@ public class BasePheromone : MonoBehaviour
     {
         Pheromone.Lifetime += other.Pheromone.RemainingTime;
         Pheromone.RemainingTime += other.Pheromone.RemainingTime;
-        Pheromone.Density = Pheromone.RemainingTime / Pheromone.Lifetime;
+        Pheromone.Density = (float)Pheromone.RemainingTime / Pheromone.Lifetime;
     }
 }

@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _caracteristics:
     PheromoneType: 1
-    Duration: 7
+    Duration: 20
     Color: {r: 1, g: 0, b: 0, a: 1}
   PheromonePrefab: {fileID: 1955827543060294025, guid: 57ed56e4d9ad8a740af90463889cc85d, type: 3}
