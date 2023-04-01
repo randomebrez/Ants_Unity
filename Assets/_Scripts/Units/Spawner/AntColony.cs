@@ -179,7 +179,7 @@ public class AntColony : MonoBehaviour
 
     private void GetStatistics()
     {
-        StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _bestBrains.Select(t => t.ant).ToList()).GetAwaiter().GetResult();
+        StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _population).GetAwaiter().GetResult();
     }
 
     private void DestroyPreviousGeneration()
