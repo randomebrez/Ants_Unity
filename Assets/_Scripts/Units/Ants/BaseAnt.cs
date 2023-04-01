@@ -31,6 +31,8 @@ namespace mew
         private Transform _nest;
 
         protected int _age = 0;
+        protected float _roundNumber = 0f;
+        protected float _totalRotation = 0f;
 
         // Pheromones parameters
         protected int _dropPheroFrequency = 10;
@@ -119,6 +121,7 @@ namespace mew
         // Virtual Methods
         public virtual void Move()
         {
+            _age++;
             // _nextPos must be updated in inherited classes
             if (_nextPos == null)
             {
@@ -127,10 +130,16 @@ namespace mew
             }
 
             var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.WorldPosition - _currentPos.WorldPosition, Vector3.up);
+            _totalRotation += rotation;
+            if (Mathf.Abs(_totalRotation) >= 360)
+            {
+                _totalRotation = 0f;
+                _roundNumber++;
+            }
+
             _currentPos = _nextPos;
 
             transform.SetPositionAndRotation(_currentPos.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
-            _age++;
         }
 
         internal virtual void DropPheromone()

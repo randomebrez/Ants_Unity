@@ -3,6 +3,7 @@ using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace mew
@@ -17,8 +18,11 @@ namespace mew
         private int _findFoodStepNumber = 0;
         private int _bestFindFoodStepNumber = int.MaxValue;
         private float RandomMoveCount = 0f;
+        private float WrongFoodCollision = 0f;
 
         private float _score = 0f;
+        private int[] _outputs = new int[7];
+
 
         // Override Methods
         public override void Move()
@@ -79,16 +83,16 @@ namespace mew
         {
             Collider[] colliders = new Collider[5];
             Physics.OverlapSphereNonAlloc(transform.position, GlobalParameters.NodeRadius / 2f, colliders, LayerMask.GetMask(Layer.Trigger.ToString()));
+            var foodtoken = colliders.Where(t => t != null).FirstOrDefault(t => t.tag == "Food");
             if (!_carryingFood)
             {
-                var foodtoken = colliders.Where(t => t != null).FirstOrDefault(t => t.tag == "Food");
                 if (foodtoken != null)
                 {
                     if (_findFoodStepNumber < _bestFindFoodStepNumber)
                         _bestFindFoodStepNumber = _findFoodStepNumber;
 
                     FoodGrabbed++;
-                    if (FoodGrabbed > 1)
+                    //if (FoodGrabbed > 1)
                         _score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
 
                     _findFoodStepNumber = 0;
@@ -100,6 +104,9 @@ namespace mew
             }
             else
             {
+                if (foodtoken != null)
+                    WrongFoodCollision++;
+
                 var nest = colliders.Where(t => t != null).FirstOrDefault(t => t.transform.parent.parent.name == NestName);
                 if (nest != null)
                 {
@@ -119,9 +126,22 @@ namespace mew
 
         public override float GetUnitScore()
         {
-            var bonusGrab = FoodGrabbed > 0 ? 1 : 0;
-            var bonusCollected = FoodCollected > 0 ? 1 : 0;
-            return bonusGrab + bonusCollected + _score - RandomMoveCount / _age;
+            var maxRound = _age / 3;
+
+            var bonusGrab = Mathf.Min(1, FoodGrabbed);
+            var bonusCollected = Mathf.Min(1, FoodCollected);
+            var roundMalus = _roundNumber / maxRound;
+            var randomMoveMalus = RandomMoveCount / _age;
+            var wrongFoodMalus = Mathf.Pow(WrongFoodCollision / _age, 2);
+            var overloadedOutputs = _outputs.Where(t => t > 0.4 * _age).ToList();
+            var outputOverloadMalus = 0f;
+            for (int i = 0; i < overloadedOutputs.Count(); i++)
+                outputOverloadMalus += (overloadedOutputs[i] * 100) / _age;
+
+            if (overloadedOutputs.Count > 0)
+                outputOverloadMalus /= overloadedOutputs.Count;
+
+            return _score + bonusGrab - outputOverloadMalus - randomMoveMalus;
         }
 
         protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
@@ -145,6 +165,8 @@ namespace mew
 
         private void InterpretOutput(int outputValue)
         {
+            _outputs[outputValue + 1]++;
+
             var deltaTheta = 360f / Stats.ScannerSubdivisions;
             Vector3 direction;
             RaycastHit hit;
