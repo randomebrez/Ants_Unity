@@ -41,21 +41,10 @@ public class AntScannerManager : MonoBehaviour
         _collectableScanner = GetComponentInChildren<AntScannerCollectables>();
     }
 
-    private void Update()
+    public List<float> GetInputs()
     {
-        if (!initialyzed)
-            return;
-
-        _scanTimer -= Time.deltaTime;
-        if (_scanTimer < 0)
-        {
-            _scanTimer += _scanInterval;
-            Scan();
-        }
-        if (_updateinputs)
-            InputsUpdate();
+        return _inputs.GetAllInputs();
     }
-
 
     public void InitialyzeScanners(Dictionary<int, Brain> brains)
     {
@@ -68,17 +57,17 @@ public class AntScannerManager : MonoBehaviour
         initialyzed = true;
     }
 
-    public void UpdateAntInputs(bool carryFood)
+    public void ScanAll(bool carryFood)
     {
+        if (!initialyzed)
+            return;
+
+        ScanWithAllScanners();
+        PortionInputsUpdate();
         _inputs.CarryFood = carryFood;
     }
 
-    public List<float> GetInputs()
-    {
-        return _inputs.GetAllInputs();
-    }
-
-    private void Scan()
+    private void ScanWithAllScanners()
     {
         _obstacleScanner.Scan();
         _pheromoneScanner.Scan();
@@ -86,7 +75,7 @@ public class AntScannerManager : MonoBehaviour
         _updateinputs = true;
     }
 
-    private void InputsUpdate()
+    private void PortionInputsUpdate()
     {
         for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
             _inputs.UpdatePortion(i, GetPortionInputs(i));

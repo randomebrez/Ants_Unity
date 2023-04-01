@@ -175,6 +175,7 @@ MonoBehaviour:
     m_Bits: 64
   GroundPrefab: {fileID: 716169139456190993, guid: eed89b8ca0186104398e50e3d153b356, type: 3}
   FoodPrefab: {fileID: 9118383675733826743, guid: d6fa6f2371ca0404db370beadfd14c10, type: 3}
+  PheromonePrefab: {fileID: 8210093955749242564, guid: 57ed56e4d9ad8a740af90463889cc85d, type: 3}
   EnvironmentContainer: {fileID: 5687161917509185140}
 --- !u!1 &2845647890631615004
 GameObject:
@@ -322,6 +323,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51bfae109627232418218c7bc35cd78d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObstructionLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &8917298041131750026
 GameObject:
   m_ObjectHideFlags: 0

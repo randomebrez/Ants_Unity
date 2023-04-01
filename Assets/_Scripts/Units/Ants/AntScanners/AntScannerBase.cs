@@ -17,7 +17,6 @@ public abstract class AntScannerBase : MonoBehaviour
     protected BaseAnt _ant;
 
     // Base scanner parameters
-    private float _scanInterval;
     protected List<float> _subdivisions = new List<float>();
 
     protected bool _initialyzed = false;
@@ -59,7 +58,6 @@ public abstract class AntScannerBase : MonoBehaviour
     {
         _ant = ant;
         _scannerSubdivision = scannerSubdivision;
-        _scanInterval = 1.0f / scanFrequency;
 
 
         // Compute number of tile within scanner range

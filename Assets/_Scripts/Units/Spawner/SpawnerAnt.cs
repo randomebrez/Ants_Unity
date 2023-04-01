@@ -6,12 +6,10 @@ using UnityEngine;
 
 public class SpawnerAnt : MonoBehaviour
 {
-    private PheromoneManager _pheromoneManager;
     private Transform _unitContainer;
 
     private void Start()
     {
-        _pheromoneManager = GetComponentInChildren<PheromoneManager>();
         _unitContainer = transform.GetChild(1);
     }
 
@@ -35,16 +33,11 @@ public class SpawnerAnt : MonoBehaviour
             spawnedAnt.name = $"{antType}_{i}";
 
             //Set statistics according to scriptable object
-            spawnedAnt.Initialyze(scriptableObject.BaseStats, brains[i], _pheromoneManager.transform);
+            spawnedAnt.Initialyze(scriptableObject.BaseStats, brains[i]);
             spawnedAnt.Clicked += UnitManager.Instance.AntClick;
             result.Add(spawnedAnt);
         }
 
         return result;
-    }
-
-    public void CleanPheromones()
-    {
-        _pheromoneManager.CleanAllPheromones();
     }
 }

@@ -27,8 +27,14 @@ namespace mew
         // Override Methods
         public override void Move()
         {
-            // Update Inputs (CarryFood)
-            UpdateInputs();
+            if (_initialyzed == false)
+                return;
+
+            // Scan environment
+            _scannerManager.ScanAll(_carryingFood);
+
+            // Update Statistics
+            UpdateStatistics();
 
             // Compute output using brain
             var scanneroutputs = _scannerManager.GetInputs();
@@ -144,7 +150,7 @@ namespace mew
             return _score + bonusGrab - outputOverloadMalus - randomMoveMalus;
         }
 
-        protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
+        public override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
         {
             if (_carryingFood)
                 return ScriptablePheromoneBase.PheromoneTypeEnum.CarryFood;
@@ -154,9 +160,8 @@ namespace mew
 
 
         // Private methods
-        private void UpdateInputs()
+        private void UpdateStatistics()
         {
-            _scannerManager.UpdateAntInputs(_carryingFood);
             if (_carryingFood)
                 _comeBackStepNumber++;
             else
@@ -182,7 +187,7 @@ namespace mew
                 case 4:
                 case 5:
                     direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
-                    if (Physics.Raycast(_currentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
+                    if (Physics.Raycast(CurrentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
                         _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
                     else
                     {
@@ -195,9 +200,9 @@ namespace mew
 
         private void RandomMove()
         {
-            var maxNeighbourIndex = _currentPos.Neighbours.Count();
+            var maxNeighbourIndex = CurrentPos.Neighbours.Count();
             var randomIndex = Random.Range(0, maxNeighbourIndex);
-            _nextPos = _currentPos.Neighbours[randomIndex];
+            _nextPos = CurrentPos.Neighbours[randomIndex];
         }
 
 

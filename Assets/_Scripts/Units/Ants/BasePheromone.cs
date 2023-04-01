@@ -12,13 +12,8 @@ public class BasePheromone : MonoBehaviour
     public Block BlockPos;
 
     private MeshRenderer _renderer;
-    private float _livingTime = 0;
-    private bool _expired = false;
-    private float _cleaningTime = 0f;
-    private bool _hasAlreadyClean = false;
+    private float _timeSinceLastTick = 0f;
     private bool _initialyzed = false;
-
-    public float Remainingtime => Pheromone.LifeTimeSeconds - _livingTime;
 
     // Unity methods
     void Start()
@@ -32,29 +27,8 @@ public class BasePheromone : MonoBehaviour
         if (_initialyzed == false)
             return;
 
-        _livingTime += Time.deltaTime;
-        _expired = _livingTime > Pheromone.LifeTimeSeconds;
-
-        if (_expired)
-            Destroy(gameObject);
-
-        var percentDone = _livingTime / Pheromone.LifeTimeSeconds;
-        Pheromone.Density = 1 - (float)percentDone;
-        var color = _renderer.material.color;
-        color.a = Mathf.Max(0, Pheromone.Density);
-        _renderer.material.color = color;
+        _timeSinceLastTick += Time.deltaTime;
     }
-
-    void FixedUpdate()
-    {
-        if (_initialyzed == false)
-            return;
-    
-        if (_hasAlreadyClean == false && _livingTime > _cleaningTime)
-            CleanOtherPheromones();
-    }
-
-
 
     public virtual void Initialyze(ScriptablePheromoneBase.Caracteristics caracteristics, Block position)
     {
@@ -63,32 +37,32 @@ public class BasePheromone : MonoBehaviour
         Pheromone = new Pheromone
         {
             CreationDate = DateTime.UtcNow,
-            LifeTimeSeconds = Caracteristics.Duration,
+            Lifetime = Caracteristics.Duration,
+            RemainingTime = Caracteristics.Duration,
             Density = 1
         };
-        _cleaningTime = Remainingtime / 10f;
         _initialyzed = true;
     }
 
-    private void CleanOtherPheromones()
+    public void ApplyTimeEffect()
     {
-        Collider[] colliders = new Collider[10];
-        Physics.OverlapSphereNonAlloc(transform.position, GlobalParameters.NodeRadius / 2f, colliders, LayerMask.GetMask(Layer.Pheromone.ToString()));
-        var temp = colliders.Where(t => t != null && t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == Caracteristics.PheromoneType).ToList();
-        foreach (var t in temp)
-        {
-            if (t.transform == transform)
-                continue;
-            try
-            {
-                Pheromone.LifeTimeSeconds += t.GetComponent<BasePheromone>().Remainingtime;
-                Destroy(t.gameObject);
-            }
-            catch
-            {
-                continue;
-            }
-        }
-        _hasAlreadyClean = true;
+        Pheromone.RemainingTime -= _timeSinceLastTick;
+        Pheromone.Density = Pheromone.RemainingTime / Pheromone.Lifetime;
+
+        var color = _renderer.material.color;
+        color.a = Mathf.Max(0, Pheromone.Density);
+        _renderer.material.color = color;
+
+        _timeSinceLastTick = 0;
+
+        if (Pheromone.RemainingTime <= 0)
+            Destroy(gameObject);
+    }
+
+    public void MergePheromones(BasePheromone other)
+    {
+        Pheromone.Lifetime += other.Pheromone.RemainingTime;
+        Pheromone.RemainingTime += other.Pheromone.RemainingTime;
+        Pheromone.Density = Pheromone.RemainingTime / Pheromone.Lifetime;
     }
 }

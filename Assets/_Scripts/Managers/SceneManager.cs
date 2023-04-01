@@ -17,6 +17,7 @@ internal class SceneManager : BaseManager<SceneManager>
     public Action<SceneState> AfterStateChanged;
 
     private bool _stateChanged = false;
+    private int _frameCount = 0;
 
     public void Start()
     {
@@ -25,10 +26,8 @@ internal class SceneManager : BaseManager<SceneManager>
 
     private void Update()
     {
-        if (!_stateChanged)
-            return;
+        _frameCount++;
 
-        _stateChanged = false;
         switch (_sceneState)
         {
             case SceneState.SpawnContext:
@@ -40,6 +39,7 @@ internal class SceneManager : BaseManager<SceneManager>
                 ChangeState();
                 break;
             case SceneState.Running:
+                RunLife();
                 break;
         }
     }
@@ -79,5 +79,12 @@ internal class SceneManager : BaseManager<SceneManager>
 
         // Spawn ants
         UnitManager.Instance.CreateNewColony();
+    }
+
+    private void RunLife()
+    {
+        EnvironmentManager.Instance.ApplyTimeEffect();
+        UnitManager.Instance.MoveAllUnits();
+        EnvironmentManager.Instance.DropPheromones();
     }
 }

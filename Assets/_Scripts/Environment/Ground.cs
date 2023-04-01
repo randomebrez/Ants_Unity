@@ -31,39 +31,40 @@ public class Ground : MonoBehaviour
         _wallContainer = transform.GetChild(1);
     }
 
-    public void SetupGrid()
+    public void AddorCreatePheromoneOnBlock(BasePheromone pheromone, Block block)
     {
-        _gridWorldSize = GlobalParameters.GroundSize;
+        var blockGo = _grid[block.XCoordinate, block.ZCoordinate];
 
-        _gridSizeX = Mathf.RoundToInt(_gridWorldSize.x / _nodeDiameter);
-        _gridSizeY = Mathf.RoundToInt(_gridWorldSize.y / _nodeDiameter);
-        _gridSizeZ = Mathf.RoundToInt(_gridWorldSize.z / _nodeDiameter);
-        _gridWorldSize = new Vector3(_gridSizeX * _nodeDiameter, 0, _gridSizeZ * _nodeDiameter);
+        blockGo.AddOrCreatePheromoneOnBlock(pheromone);
+    }
 
-        _grid = new GroundBlock[_gridSizeX, _gridSizeZ];
-        var wolrdBottomLeft = transform.position - Vector3.right * _gridWorldSize.x / 2f - Vector3.forward * _gridWorldSize.z / 2f;
-        var id = 0;
+    public void ApplyTimeEffect()
+    {
+        PheromoneTimeEffect();
+    }
+
+    private void PheromoneTimeEffect()
+    {
         for (int i = 0; i < _gridSizeX; i++)
         {
-            for (int j = 0; j < _gridSizeZ; j++)
+            for(int j = 0; j < _gridSizeY; i++)
             {
-                var worldPosition = wolrdBottomLeft + Vector3.right * (i * _nodeDiameter + NodeRadius) + Vector3.forward * (j * _nodeDiameter + NodeRadius) + 0.5f * Vector3.up;
-                var walkable = !Physics.CheckSphere(worldPosition, NodeRadius, UnwalkableMask);
-                var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, _blockContainer.transform);
-                var component = blockGo.GetComponent<GroundBlock>();
-                blockGo.transform.localScale = new Vector3(_nodeDiameter, 1f, _nodeDiameter);
-                component.SetWalkable();
-                component.Block = new Block(worldPosition, walkable, id);
-                blockGo.name = $"({i},{j})";
-                component.Block.XCoordinate = i;
-                component.Block.ZCoordinate = j;
-                id++;
-                _grid[i, j] = component;
+                if (_grid[i,j].HasAnyActivePheromoneToken)
+                    _grid[i,j].ApplyTimeEffect();
             }
         }
+    }
 
-        SetNeighbours();
-        SetupWalls();
+    public void CleanAllPheromones()
+    {
+        for (int i = 0; i < _gridSizeX; i++)
+        {
+            for (int j = 0; j < _gridSizeY; i++)
+            {
+                if (_grid[i, j].HasAnyActivePheromoneToken)
+                    _grid[i, j].CleanPheromones();
+            }
+        }
     }
 
     public void SetupHexaGrid()
@@ -130,31 +131,6 @@ public class Ground : MonoBehaviour
         //BuildRandomWall();
     }
 
-    public void SetupWalls()
-    {
-        var xPos = (_gridWorldSize.x + NodeRadius) / 2;
-        var zPos = (_gridWorldSize.z + NodeRadius) / 2;
-        var leftWallPos = new Vector3(0, 1f, - xPos);
-        var righttWallPos = new Vector3(0, 1f, xPos);
-        var topWallPos = new Vector3(0, 1f, zPos);
-        var botWallPos = new Vector3(0, 1f, - zPos);
-
-        var leftWall = Instantiate(WallPrefab, leftWallPos, Quaternion.identity, _wallContainer);
-        leftWall.name = "LeftWall";
-        leftWall.BuildWall(_gridWorldSize.z + _nodeDiameter, 5, 3, 0, 90,0);
-        var rightWall = Instantiate(WallPrefab, righttWallPos, Quaternion.identity, _wallContainer);
-        rightWall.name = "RightWall";
-        rightWall.BuildWall(_gridWorldSize.z + _nodeDiameter, 5, 3, 0, 90,0);
-        var topWall = Instantiate(WallPrefab, topWallPos, Quaternion.identity, _wallContainer);
-        topWall.name = "TopWall";
-        topWall.BuildWall(_gridWorldSize.x + _nodeDiameter, 5, 3);
-        var botWall = Instantiate(WallPrefab, botWallPos, Quaternion.identity, _wallContainer);
-        botWall.name = "BotWall";
-        botWall.BuildWall(_gridWorldSize.x + _nodeDiameter, 5, 3);
-
-        //BuildRandomWall();
-    }
-
     public void BuildRandomWall()
     {
         var number = Mathf.RoundToInt(Random.value * 10);
@@ -180,18 +156,6 @@ public class Ground : MonoBehaviour
         }
     }
 
-    private void SetNeighbours()
-    {
-        for (int i = 0; i < _gridSizeX; i++)
-        {
-            for (int j = 0; j < _gridSizeZ; j++)
-            {
-                var block = _grid[i, j].Block;
-                block.Neighbours = GetNeighbours(block);
-            }
-        }
-    }
-
     private void SetHexaNeighbours()
     {
         for (int i = 0; i < _gridSizeX; i++)
@@ -210,27 +174,6 @@ public class Ground : MonoBehaviour
                 }
             }
         }
-    }
-
-
-    private List<Block> GetNeighbours(Block block)
-    {
-        var neighbours = new List<Block>();
-        for (int i = -1; i <= 1; i++)
-        {
-            for (int j = -1; j <= 1; j++)
-            {
-                if (i == 0 && j == 0)
-                    continue;
-
-                var checkX = block.XCoordinate + i;
-                var checkY = block.ZCoordinate + j;
-
-                if (checkX >= 0 && checkX < _gridSizeX && checkY >= 0 && checkY < _gridSizeZ)
-                    neighbours.Add(_grid[checkX, checkY].Block);
-            }
-        }
-        return neighbours;
     }
 
     private List<Block> GetHexaNeighbours(Block block)
@@ -255,6 +198,7 @@ public class Ground : MonoBehaviour
         }
         return neighbours;
     }
+
 
     public Block BlockFromWorldPoint(Vector3 worldPosition)
     {

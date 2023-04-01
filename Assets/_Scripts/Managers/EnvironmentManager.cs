@@ -6,14 +6,10 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
 {
     public Ground GroundPrefab;
     public GameObject FoodPrefab;
+    public GameObject PheromonePrefab;
     public Transform EnvironmentContainer;
 
     private Ground _ground;
-
-    private void Update()
-    {
-        // Get mouse position to spawn food on click
-    }
 
     public void SpawnGround()
     {
@@ -22,6 +18,36 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
 
         _ground = Instantiate(GroundPrefab, EnvironmentContainer.position, Quaternion.identity, EnvironmentContainer);
         _ground.SetupHexaGrid();
+    }
+
+    public void DropPheromones()
+    {
+        // Positions of ants given by unitmanager
+        var unitPositions = UnitManager.Instance.GetUnitPositions();
+
+        foreach(var pair in unitPositions)
+        {
+            for(int i = 0; i < pair.Value.Count; i++)
+            {
+                // Spawn pheromone
+                var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(pair.Key);
+                var newPheromone = Instantiate(scriptablePheromone.PheromonePrefab, GetPheromoneContainer());
+                newPheromone.Initialyze(scriptablePheromone.BaseCaracteristics, pair.Value[i]);
+
+                //Add pheromone on block
+                _ground.AddorCreatePheromoneOnBlock(newPheromone, pair.Value[i]);
+            }
+        }
+    }
+
+    public void ApplyTimeEffect()
+    {
+        _ground.ApplyTimeEffect();
+    }
+
+    public void CleanAllPheromones()
+    {
+        _ground.CleanAllPheromones();
     }
 
     public void SpawnFood(float angle)

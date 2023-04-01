@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using static mew.ScriptablePheromoneBase;
 
 public class AntColony : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class AntColony : MonoBehaviour
     private List<(BaseAnt ant, float score)> _bestBrains = new List<(BaseAnt ant, float score)>();
 
     private int _generationId = 0;
+    private int _colonyAge = 0;
     private bool _startCooldown = false;
     private string _firstBrainsFilePath = "";
     private float _currentGenerationLifeTime;
@@ -39,6 +41,7 @@ public class AntColony : MonoBehaviour
     {
         if (_initialyzed == false)
             return;
+
         if (!_startCooldown)
         {
             GenerateNewGeneration();
@@ -51,6 +54,8 @@ public class AntColony : MonoBehaviour
             {
                 _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
                 GenerateNewGeneration();
+                Debug.Log($"Colony Age : {_colonyAge}");
+                _colonyAge = 0;
             }
         }
     }
@@ -80,6 +85,32 @@ public class AntColony : MonoBehaviour
         _initialyzed = true;
     }
 
+    public void MoveAllAnts()
+    {
+        if (_initialyzed == false)
+            return;
+
+        _colonyAge++;
+        for (int i = 0; i < _population.Count; i++)
+            _population[i].Move();
+    }
+
+    public Dictionary<PheromoneTypeEnum, List<Block>> GetAllAntPositions()
+    {
+        if (_initialyzed == false)
+            return new Dictionary<PheromoneTypeEnum, List<Block>>();
+        var result = new Dictionary<PheromoneTypeEnum, List<Block>>();
+        result.Add(PheromoneTypeEnum.Wander, new List<Block>());
+        result.Add(PheromoneTypeEnum.CarryFood, new List<Block>());
+
+        for (int i = 0; i < _population.Count; i++)
+        {
+            var ant = _population[i];
+            result[ant.GetPheroType()].Add(ant.CurrentPos);
+        }
+
+        return result;
+    }
 
     // Private methods
     private void GenerateNewGeneration()
@@ -204,6 +235,6 @@ public class AntColony : MonoBehaviour
 
     private void CleanPheromoneContainer()
     {
-        _spawner.CleanPheromones();
+        EnvironmentManager.Instance.CleanAllPheromones();
     }
 }

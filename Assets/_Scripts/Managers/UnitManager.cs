@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using mew;
 using Assets._Scripts.Utilities;
+using static mew.ScriptablePheromoneBase;
+using Assets.Dtos;
+using System.Linq;
 
 internal class UnitManager : BaseManager<UnitManager>
 {
@@ -41,6 +44,28 @@ internal class UnitManager : BaseManager<UnitManager>
         colony.Initialyze($"Colony_{id}", @"D:\Codes\Test\1.txt");
         //colony.Initialyze($"Colony_{id}");
         _colonies.Add(id, colony);
+    }
+
+    public Dictionary<PheromoneTypeEnum, List<Block>> GetUnitPositions()
+    {
+        if (_colonies.Any() == false)
+            return new Dictionary<PheromoneTypeEnum, List<Block>>();
+
+        var result = _colonies[0].GetAllAntPositions();
+        for (int i = 1; i < _colonies.Count; i++)
+        {
+            var temp = _colonies[i].GetAllAntPositions();
+            foreach(var pair in temp)
+                result[pair.Key].AddRange(pair.Value);
+        }
+
+        return result;
+    }
+
+    public void MoveAllUnits()
+    {
+        for (int i = 0; i < _colonies.Count; i++)
+            _colonies[i].MoveAllAnts();
     }
 
     public void AntClick(BaseAnt ant)
