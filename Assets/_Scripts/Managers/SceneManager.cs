@@ -73,7 +73,7 @@ internal class SceneManager : BaseManager<SceneManager>
     private void InstantiateContextObjects()
     {
         // Spawn food
-        var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
+        var deltaTheta = 360f / 6;
         for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
             EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
 
@@ -85,9 +85,18 @@ internal class SceneManager : BaseManager<SceneManager>
     {
         if (_frameCount < GlobalParameters.GenerationFrameCount)
         {
-            EnvironmentManager.Instance.ApplyTimeEffect();
-            UnitManager.Instance.MoveAllUnits();
-            EnvironmentManager.Instance.DropPheromones();
+            switch(_frameCount%3)
+            {
+                case 0:
+                    EnvironmentManager.Instance.ApplyTimeEffect();
+                    break;
+                case 1:
+                    UnitManager.Instance.MoveAllUnits();
+                    break;
+                case 2:
+                    EnvironmentManager.Instance.DropPheromones();
+                    break;
+            }
         }
         else
         {

@@ -7,7 +7,6 @@
         ComeBackMean,
         FoodCollected,
         FoodGrabbed,
-        AgeMax,
-        AgeMin
+        Age
     }
 }

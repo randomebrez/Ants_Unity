@@ -3,7 +3,6 @@ using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace mew
@@ -52,6 +51,7 @@ namespace mew
         protected override HashSet<StatisticEnum> RequiredStatistics() => new HashSet<StatisticEnum>
         { 
             StatisticEnum.Score,
+            StatisticEnum.Age,
             StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
@@ -78,6 +78,9 @@ namespace mew
                         break;
                     case StatisticEnum.FoodGrabbed:
                         stats.Add(statType, FoodGrabbed);
+                        break;
+                    case StatisticEnum.Age:
+                        stats.Add(statType, _age);
                         break;
                 }
             }
@@ -141,13 +144,16 @@ namespace mew
             var wrongFoodMalus = Mathf.Pow(WrongFoodCollision / _age, 2);
             var overloadedOutputs = _outputs.Where(t => t > 0.4 * _age).ToList();
             var outputOverloadMalus = 0f;
-            for (int i = 0; i < overloadedOutputs.Count(); i++)
-                outputOverloadMalus += (overloadedOutputs[i] * 100) / _age;
+            if (bonusGrab > 0)
+            {
+                for (int i = 0; i < overloadedOutputs.Count(); i++)
+                    outputOverloadMalus += overloadedOutputs[i] / _age;
 
-            if (overloadedOutputs.Count > 0)
-                outputOverloadMalus /= overloadedOutputs.Count;
-
-            return _score + bonusGrab - outputOverloadMalus - randomMoveMalus;
+                if (overloadedOutputs.Count > 0)
+                    outputOverloadMalus /= overloadedOutputs.Count;
+            }
+            var result = _score + bonusGrab - outputOverloadMalus - randomMoveMalus;
+            return result;
         }
 
         public override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()

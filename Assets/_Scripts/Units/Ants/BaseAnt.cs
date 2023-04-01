@@ -108,14 +108,14 @@ namespace mew
         // Virtual Methods
         public virtual void Move()
         {
+            _age++;
+
             // _nextPos must be updated in inherited classes
             if (_nextPos == null)
             {
                 Debug.Log("Next pos null");
                 return;
             }
-
-            _age++;
 
             var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.WorldPosition - CurrentPos.WorldPosition, Vector3.up);
             _totalRotation += rotation;
