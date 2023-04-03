@@ -5,10 +5,6 @@ using UnityEngine;
 
 public class AntScannerCollectables : AntScannerBase
 {
-    protected override float _scannerAngle => _ant.Stats.VisionAngle;
-    protected override bool _checkObtruction => false;
-    protected override float _scannerRadius => _ant.Stats.VisionRadius * 2 * _apothem;
-
     private Dictionary<int, bool> _visionFieldPortion = new Dictionary<int, bool>();
 
     public override float GetPortionValue(int index)
@@ -16,9 +12,9 @@ public class AntScannerCollectables : AntScannerBase
         throw new System.NotImplementedException();
     }
 
-    public override void Initialyze(BaseAnt ant, int scannerSubdivision, int scanFrequency)
+    public override void Initialyze(BaseAnt ant, int scannerSubdivision)
     {
-        base.Initialyze(ant, scannerSubdivision, scanFrequency);
+        base.Initialyze(ant, scannerSubdivision);
         for(int i = 0; i < scannerSubdivision; i++)
         {
             if (Mathf.Abs(_subdivisions[i] + 60) < _scannerAngle / 2f)
@@ -46,7 +42,7 @@ public class AntScannerCollectables : AntScannerBase
         if (nest == null)
             return (false, null);
 
-        if (Physics.Linecast(transform.position, nest.transform.position - transform.position, OcclusionLayer))
+        if (Physics.Linecast(_positionAtScanTime, nest.transform.position - _positionAtScanTime, OcclusionLayer))
             return (false, null);
 
         return (true, nest.transform);
@@ -62,7 +58,7 @@ public class AntScannerCollectables : AntScannerBase
     //    var current = -180 - deltaTheta / 2f;
     //    for (int i = 0; i < _scannerSubdivision; i++)
     //    {
-    //        Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, current, 0) * _ant.BodyHeadAxis * _scannerRadius);
+    //        Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, current, 0) * _directionAtScanTime * _scannerRadius);
     //        current += deltaTheta;
     //    }
     //
@@ -86,7 +82,7 @@ public class AntScannerCollectables : AntScannerBase
     //
     //    // Vision Field
     //    Gizmos.color = Color.red;
-    //    Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, -_scannerAngle / 2f, 0) * _ant.BodyHeadAxis * _scannerRadius);
-    //    Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, _scannerAngle / 2f, 0) * _ant.BodyHeadAxis * _scannerRadius);
+    //    Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, -_scannerAngle / 2f, 0) * _directionAtScanTime * _scannerRadius);
+    //    Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, _scannerAngle / 2f, 0) * _directionAtScanTime * _scannerRadius);
     //}
 }    

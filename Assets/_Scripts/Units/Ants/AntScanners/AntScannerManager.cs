@@ -6,6 +6,7 @@ using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
 using NeuralNetwork.Interfaces.Model;
+using Assets._Scripts.Units.Ants.AntScanners;
 
 public class AntScannerManager : MonoBehaviour
 {
@@ -25,8 +26,8 @@ public class AntScannerManager : MonoBehaviour
 
     private BaseAnt _ant;
 
+    private AntScannerBlock _scannerBlock;
     private AntScannerObstacles _obstacleScanner;
-    private AntScannerPheromones _pheromoneScanner;
     private AntScannerCollectables _collectableScanner;
     public string[] PortionInfos => _portionInfos;
 
@@ -37,7 +38,7 @@ public class AntScannerManager : MonoBehaviour
         _ant = GetComponentInParent<BaseAnt>();
 
         _obstacleScanner = GetComponentInChildren<AntScannerObstacles>();
-        _pheromoneScanner = GetComponentInChildren<AntScannerPheromones>();
+        _scannerBlock = GetComponentInChildren<AntScannerBlock>();
         _collectableScanner = GetComponentInChildren<AntScannerCollectables>();
     }
 
@@ -49,9 +50,9 @@ public class AntScannerManager : MonoBehaviour
     public void InitialyzeScanners(Dictionary<int, Brain> brains)
     {
         var subdiv = _ant.Stats.ScannerSubdivisions;
-        _obstacleScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
-        _pheromoneScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
-        _collectableScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
+        _obstacleScanner.Initialyze(_ant, subdiv);
+        _collectableScanner.Initialyze(_ant, subdiv);
+        _scannerBlock.Initialyze(_ant, subdiv);
         _inputs = new NeuralNetworkInputs(subdiv, brains);
         _portionInfos = new string[subdiv];
         initialyzed = true;
@@ -70,8 +71,8 @@ public class AntScannerManager : MonoBehaviour
     private void ScanWithAllScanners()
     {
         _obstacleScanner.Scan();
-        _pheromoneScanner.Scan();
         _collectableScanner.Scan();
+        _scannerBlock.Scan();
         _updateinputs = true;
     }
 
@@ -84,8 +85,8 @@ public class AntScannerManager : MonoBehaviour
 
     private PortionInputs GetPortionInputs(int portionIndex)
     {
-        var pheroW = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
-        var pheroC = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
+        var pheroW = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
+        var pheroC = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
 
         var portioninputs = new PortionInputs
         {

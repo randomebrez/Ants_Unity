@@ -3,16 +3,14 @@ using UnityEngine;
 public class AntScannerObstacles : AntScannerBase
 {
     private float _avoidDistance => _ant.PhysicalLength;
-    protected override float _scannerAngle => _ant.Stats.VisionAngle;
-    protected override bool _checkObtruction => true;
-    protected override float _scannerRadius => _ant.Stats.VisionRadius * 4 * _apothem;    
+    protected override float _scannerRadius => _ant.Stats.VisionRadius * 4 * _apothem + 0.1f;    
 
     public override float GetPortionValue(int index)
     {
         var currentMin = _scannerRadius;
         foreach(var obj in Objects[index])
         {
-            var distance = Vector3.Distance(_ant.transform.position, obj.transform.position);
+            var distance = Vector3.Distance(_positionAtScanTime, obj.transform.position);
 
             if (distance < currentMin)
                 currentMin = distance;
@@ -22,9 +20,8 @@ public class AntScannerObstacles : AntScannerBase
 
     protected override bool IsInSight(GameObject obj)
     {
-        var position = transform.position;
         var objPosition = obj.transform.position;
-        var direction = objPosition - position;
+        var direction = objPosition - _positionAtScanTime;
 
         if (direction.magnitude < _ant.PhysicalLength * 4)
             return true;
@@ -42,7 +39,7 @@ public class AntScannerObstacles : AntScannerBase
     public bool IsHeadingForCollision()
     {
         RaycastHit hit;
-        if (Physics.SphereCast(transform.position, _ant.Stats.BoundRadius, _ant.BodyHeadAxis, out hit, _avoidDistance, OcclusionLayer))
+        if (Physics.SphereCast(_positionAtScanTime, _ant.Stats.BoundRadius, _directionAtScanTime, out hit, _avoidDistance, OcclusionLayer))
         {
             return true;
         }
@@ -54,18 +51,17 @@ public class AntScannerObstacles : AntScannerBase
     {
         var deltaTheta = 360f / _scannerSubdivision;
         var currentAngle = -180f + deltaTheta / 2f;
-        var antAxe = _ant.BodyHeadAxis;
         for (int i = 0; i < _scannerSubdivision; i++)
         {
-            Vector3 dir = Quaternion.Euler(0, currentAngle, 0) * antAxe;
-            Ray ray = new Ray(_ant.transform.position, dir);
+            Vector3 dir = Quaternion.Euler(0, currentAngle, 0) * _directionAtScanTime;
+            Ray ray = new Ray(_positionAtScanTime, dir);
             if (!Physics.SphereCast(ray, _ant.Stats.BoundRadius, _avoidDistance, OcclusionLayer))
             {
                 return dir;
             }
         }
 
-        return antAxe;
+        return _directionAtScanTime;
     }
 
     #endregion

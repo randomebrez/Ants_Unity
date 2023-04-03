@@ -6,8 +6,7 @@ public class AntScannerPheromones : AntScannerBase
 {
     protected override float _scannerAngle => 360;
     protected override bool _checkObtruction => false;
-    protected override float _scannerRadius => _ant.Stats.VisionRadius * 2 * _apothem;
-
+    protected override bool _checkVisionField => false;
     public (int number, float averageDensity) GetPheromonesOfType(int index, ScriptablePheromoneBase.PheromoneTypeEnum type)
     {
         try
@@ -15,7 +14,7 @@ public class AntScannerPheromones : AntScannerBase
             var sum = 0f;
             var pheroDensities = Objects[index]
                 .Where(t => t.GetComponent<BasePheromone>().Caracteristics.PheromoneType == type && t.GetComponent<BasePheromone>().Pheromone != null)
-                .Select(t => t.GetComponent<BasePheromone>().Pheromone.Density).OrderByDescending(t => t).Take(_scannerSurface);
+                .Select(t => t.GetComponent<BasePheromone>().Pheromone.Density).OrderByDescending(t => t).Take(_scannerSurface).ToList();
 
             var number = pheroDensities.Count();
             if (number == 0)
@@ -31,7 +30,6 @@ public class AntScannerPheromones : AntScannerBase
             Debug.LogException(e);
             return (0, 0);
         }
-        
     }
 
     public override float GetPortionValue(int index)
@@ -50,7 +48,7 @@ public class AntScannerPheromones : AntScannerBase
         var current = -180 - deltaTheta / 2f;
         for (int i = 0; i < _scannerSubdivision; i++)
         {
-            Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, current, 0) * _ant.BodyHeadAxis * _scannerRadius);
+            Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, current, 0) * _directionAtScanTime * _scannerRadius);
             current += deltaTheta;
         }
     
@@ -76,7 +74,7 @@ public class AntScannerPheromones : AntScannerBase
     
         // Vision Field
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, -_scannerAngle / 2f, 0) * _ant.BodyHeadAxis * _scannerRadius);
-        Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, _scannerAngle / 2f, 0) * _ant.BodyHeadAxis * _scannerRadius);
+        Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, -_scannerAngle / 2f, 0) * _directionAtScanTime * _scannerRadius);
+        Gizmos.DrawLine(transform.position, transform.position + Quaternion.Euler(0, _scannerAngle / 2f, 0) * _directionAtScanTime * _scannerRadius);
     }*/
 }

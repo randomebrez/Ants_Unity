@@ -24,21 +24,14 @@ public class GroundBlock : MonoBehaviour
     {
         _renderer = GetComponentInChildren<MeshRenderer>();
         SetPheromoneTokenPositions();
-    }
+    }    
 
-    private void SetPheromoneTokenPositions()
+    public float GetPheromoneDensity(PheromoneTypeEnum pheroType)
     {
-        _pheromoneTokenPositions = new Dictionary<PheromoneTypeEnum, Vector3>
-        {
-            { PheromoneTypeEnum.Wander, 0.5f * GlobalParameters.NodeRadius * Vector3.right },
-            { PheromoneTypeEnum.CarryFood, - 0.5f * GlobalParameters.NodeRadius * Vector3.right }
-        };
+        if (_pheromoneTokens[pheroType] != null)
+            return _pheromoneTokens[pheroType].Pheromone.Density;
 
-        _pheromoneTokens = new Dictionary<PheromoneTypeEnum, BasePheromone>
-        {
-            { PheromoneTypeEnum.Wander, null },
-            { PheromoneTypeEnum.CarryFood, null }
-        };
+        return 0;
     }
 
     public void AddOrCreatePheromoneOnBlock(BasePheromone pheromone)
@@ -91,6 +84,21 @@ public class GroundBlock : MonoBehaviour
         gameObject.layer = (int) Layer.Unwalkable;
     }
 
+
+    private void SetPheromoneTokenPositions()
+    {
+        _pheromoneTokenPositions = new Dictionary<PheromoneTypeEnum, Vector3>
+        {
+            { PheromoneTypeEnum.Wander, 0.5f * GlobalParameters.NodeRadius * Vector3.right },
+            { PheromoneTypeEnum.CarryFood, - 0.5f * GlobalParameters.NodeRadius * Vector3.right }
+        };
+
+        _pheromoneTokens = new Dictionary<PheromoneTypeEnum, BasePheromone>
+        {
+            { PheromoneTypeEnum.Wander, null },
+            { PheromoneTypeEnum.CarryFood, null }
+        };
+    }
     /*
     public void OnDrawGizmos()
     {

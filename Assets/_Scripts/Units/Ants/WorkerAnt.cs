@@ -144,15 +144,15 @@ namespace mew
             var wrongFoodMalus = Mathf.Pow(WrongFoodCollision / _age, 2);
             var overloadedOutputs = _outputs.Where(t => t > 0.4 * _age).ToList();
             var outputOverloadMalus = 0f;
-            if (bonusGrab > 0)
-            {
-                for (int i = 0; i < overloadedOutputs.Count(); i++)
-                    outputOverloadMalus += overloadedOutputs[i] / _age;
-
-                if (overloadedOutputs.Count > 0)
-                    outputOverloadMalus /= overloadedOutputs.Count;
-            }
-            var result = _score + bonusGrab - outputOverloadMalus - randomMoveMalus;
+            //if (bonusGrab > 0)
+            //{
+            //    for (int i = 0; i < overloadedOutputs.Count(); i++)
+            //        outputOverloadMalus += overloadedOutputs[i] / _age;
+            //
+            //    if (overloadedOutputs.Count > 0)
+            //        outputOverloadMalus /= overloadedOutputs.Count;
+            //}
+            var result = _score + bonusGrab + bonusCollected  - outputOverloadMalus - randomMoveMalus;
             return result;
         }
 

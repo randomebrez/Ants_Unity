@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _carryingFood: 0
-  FoodCounter: 0
+  FoodCollected: 0
   FoodGrabbed: 0
 --- !u!136 &8715979901215348697
 CapsuleCollider:
@@ -326,10 +326,6 @@ PrefabInstance:
     - target: {fileID: 8308056340260256886, guid: 1f410521184585441a9dfb4df608900f, type: 3}
       propertyPath: m_Layer
       value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8308056340260256888, guid: 1f410521184585441a9dfb4df608900f, type: 3}
-      propertyPath: ScanningMainLayer.m_Bits
-      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 8308056340264601477, guid: 1f410521184585441a9dfb4df608900f, type: 3}
       propertyPath: m_Layer

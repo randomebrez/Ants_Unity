@@ -15,23 +15,26 @@ public abstract class AntScannerBase : MonoBehaviour
 
     // Ant reference
     protected BaseAnt _ant;
+    protected Vector3 _positionAtScanTime;
+    protected Vector3 _directionAtScanTime;
 
     // Base scanner parameters
     protected List<float> _subdivisions = new List<float>();
 
     protected bool _initialyzed = false;
     protected int _scannerSubdivision;
-    protected abstract float _scannerAngle { get; }
-    protected abstract float _scannerRadius { get; }
-    protected abstract bool _checkObtruction { get; }
+    protected virtual float _scannerAngle => _ant.Stats.VisionAngle;
+    protected virtual float _scannerRadius => _ant.Stats.VisionRadius * 2 * _apothem + 0.1f;
+    protected virtual bool _checkObtruction => true;
+    protected virtual bool _checkVisionField => true;
 
     protected int _scannerSurface { get; private set; }
 
     protected float _apothem => (float)Math.Sqrt(3) * GlobalParameters.NodeRadius / 2;
 
     // Colliders container
-    private List<GameObject> _objects = new List<GameObject>();
-    private Collider[] _colliders = new Collider[150];
+    protected List<GameObject> _objects = new List<GameObject>();
+    protected Collider[] _colliders = new Collider[150];
 
 
     // Public methods to get colliders
@@ -54,11 +57,12 @@ public abstract class AntScannerBase : MonoBehaviour
 
     public abstract float GetPortionValue(int index);
 
-    public virtual void Initialyze(BaseAnt ant, int scannerSubdivision, int scanFrequency)
+    public virtual void Initialyze(BaseAnt ant, int scannerSubdivision)
     {
         _ant = ant;
         _scannerSubdivision = scannerSubdivision;
-
+        _positionAtScanTime = transform.position;
+        _directionAtScanTime = _ant.BodyHeadAxis;
 
         // Compute number of tile within scanner range
         var colliders = new Collider[70];
@@ -79,7 +83,9 @@ public abstract class AntScannerBase : MonoBehaviour
 
     public virtual void Scan()
     {
-        var count = Physics.OverlapSphereNonAlloc(transform.position, _scannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);
+        _positionAtScanTime = _ant.CurrentPos.WorldPosition;
+        _directionAtScanTime = _ant.BodyHeadAxis;
+        var count = Physics.OverlapSphereNonAlloc(_positionAtScanTime, _scannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);
 
         _objects.Clear();
         for (int i = 0; i < count; i++)
@@ -90,7 +96,7 @@ public abstract class AntScannerBase : MonoBehaviour
         }
     }
 
-    private Dictionary<int, List<GameObject>> ToDictionnary(List<GameObject> objects)
+    protected virtual Dictionary<int, List<GameObject>> ToDictionnary(List<GameObject> objects)
     {
         var result = new Dictionary<int, List<GameObject>>();
 
@@ -100,9 +106,8 @@ public abstract class AntScannerBase : MonoBehaviour
         var delta = 360f / _scannerSubdivision;
         foreach (var obj in objects)
         {
-            var objDirection = obj.transform.position - transform.position;
-            var angle = Vector3.SignedAngle(_ant.BodyHeadAxis, objDirection, Vector3.up);
-
+            var objDirection = obj.transform.position - _positionAtScanTime;
+            var angle = Vector3.SignedAngle(_directionAtScanTime, objDirection, Vector3.up);
             if (_subdivisions.Any(t => t > angle))
                 result[_subdivisions.FindIndex(t => t > angle) - 1].Add(obj);
             else if (360 + _subdivisions[0] > angle)
@@ -116,21 +121,25 @@ public abstract class AntScannerBase : MonoBehaviour
 
     protected virtual bool IsInSight(GameObject obj)
     {
-        var position = transform.position;
         var objPosition = obj.transform.position;
-        var direction = objPosition - position;
+        var direction = objPosition - _positionAtScanTime;
+        var floatDist = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
+
+        // Check on distance
+        if (floatDist <= _apothem * _apothem || floatDist > _scannerRadius * _scannerRadius)
+            return false;
 
         // Check on angle
-        if (2 * Mathf.Abs(Vector3.SignedAngle(_ant.BodyHeadAxis, direction, Vector3.up)) > _scannerAngle)
+        if (_checkVisionField && 2 * Mathf.Abs(Vector3.SignedAngle(_directionAtScanTime, direction, Vector3.up)) > _scannerAngle)
             return false;
 
         if (_checkObtruction == false)
             return true;
 
         // Check if no obstruction
-        position.y += objPosition.y;
+        var fakePos = new Vector3(_positionAtScanTime.x, objPosition.y, _positionAtScanTime.z);
         direction.y = 0;
-        if (Physics.Linecast(position, direction, OcclusionLayer))
+        if (Physics.Linecast(fakePos, direction, OcclusionLayer))
             return false;
 
         return true;

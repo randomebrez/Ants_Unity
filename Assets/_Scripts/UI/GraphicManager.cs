@@ -4,7 +4,7 @@ using UnityEngine;
 public class GraphicManager : MonoBehaviour
 {
     private Vector2 _xMinMax = new Vector2(1, 9);
-    private Vector2 _yMinMax = new Vector2(1, 1);
+    private Vector2 _yMinMax = new Vector2(1, 0.2f);
     private int _axisIndexNumber = 5;
 
     private int _xShift = 2;
