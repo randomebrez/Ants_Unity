@@ -73,9 +73,7 @@ internal class SceneManager : BaseManager<SceneManager>
     private void InstantiateContextObjects()
     {
         // Spawn food
-        var deltaTheta = 360f / 6;
-        for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
-            EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
+        EnvironmentManager.Instance.SpawnFood();
 
         // Spawn ants
         UnitManager.Instance.CreateNewColony();
@@ -100,6 +98,7 @@ internal class SceneManager : BaseManager<SceneManager>
         }
         else
         {
+            EnvironmentManager.Instance.RenewEnvironment();
             UnitManager.Instance.RenewColonies();
             _frameCount = -1;
         }

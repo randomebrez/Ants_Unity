@@ -7,7 +7,6 @@ public class BasePheromone : MonoBehaviour
 {
     public ScriptablePheromoneBase.Caracteristics Caracteristics { get; private set; }
     public Pheromone Pheromone;
-    public Block BlockPos;
 
     private MeshRenderer _renderer;
     private bool _initialyzed = false;
@@ -29,9 +28,8 @@ public class BasePheromone : MonoBehaviour
         _renderer.material.color = color;
     }
 
-    public virtual void Initialyze(ScriptablePheromoneBase.Caracteristics caracteristics, Block position)
+    public virtual void Initialyze(ScriptablePheromoneBase.Caracteristics caracteristics)
     {
-        BlockPos = position;
         Caracteristics = caracteristics;
         Pheromone = new Pheromone
         {
@@ -52,10 +50,10 @@ public class BasePheromone : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void MergePheromones(BasePheromone other)
+    public void MergePheromones(int otherRemainingTime)
     {
-        Pheromone.Lifetime += other.Pheromone.RemainingTime;
-        Pheromone.RemainingTime += other.Pheromone.RemainingTime;
+        Pheromone.Lifetime += otherRemainingTime;
+        Pheromone.RemainingTime += otherRemainingTime;
         Pheromone.Density = (float)Pheromone.RemainingTime / Pheromone.Lifetime;
     }
 }

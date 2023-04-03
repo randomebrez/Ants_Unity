@@ -69,6 +69,15 @@ public class AntColony : MonoBehaviour
             _population[i].Move();
     }
 
+    public void RenewPopulation()
+    {
+        SelectBestUnits();
+        GetStatistics();
+        DestroyPreviousGeneration();
+
+        GenerateNewGeneration();
+    }
+
     public Dictionary<PheromoneTypeEnum, List<Block>> GetAllAntPositions()
     {
         if (_initialyzed == false)
@@ -84,17 +93,6 @@ public class AntColony : MonoBehaviour
         }
 
         return result;
-    }
-
-    public void RenewPopulation()
-    {
-        SelectBestUnits();
-        GetStatistics();
-        CleanPheromoneContainer();
-        RepopFood();
-        DestroyPreviousGeneration();
-
-        GenerateNewGeneration();
     }
 
 
@@ -188,33 +186,5 @@ public class AntColony : MonoBehaviour
             Destroy(ant.gameObject);
 
         _population.Clear();
-    }
-
-    private void RepopFood()
-    {
-        var foodContainer = EnvironmentManager.Instance.GetFoodContainer();
-        for (int i = foodContainer.childCount; i > 0; i--)
-            Destroy(foodContainer.GetChild(i - 1).gameObject);
-
-        var deltaTheta = 360f / 6;
-        for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
-            EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
-
-        //if (_bestBrains.Count >= _numberMaxToSelect && _generationId % 15 > 10)
-        //{
-        //    EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);
-        //    EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);
-        //}
-        //else
-        //{
-        //    var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
-        //    for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
-        //        EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
-        //}
-    }
-
-    private void CleanPheromoneContainer()
-    {
-        EnvironmentManager.Instance.CleanAllPheromones();
     }
 }

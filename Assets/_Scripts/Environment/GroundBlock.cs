@@ -1,5 +1,6 @@
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using mew;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,7 +16,11 @@ public class GroundBlock : MonoBehaviour
     private Dictionary<PheromoneTypeEnum, Vector3> _pheromoneTokenPositions;
     private Dictionary<PheromoneTypeEnum, BasePheromone> _pheromoneTokens;
 
+    private Vector3 _foodTokenPosition;
+    private FoodToken _foodToken;
+
     public bool HasAnyActivePheromoneToken = false;
+    public int FoodToken = 0;
 
     private MeshRenderer _renderer;
     [Range(0,31)] public int OcclusionLayer;
@@ -34,22 +39,23 @@ public class GroundBlock : MonoBehaviour
         return 0;
     }
 
-    public void AddOrCreatePheromoneOnBlock(BasePheromone pheromone)
+    public void AddOrCreatePheromoneOnBlock(PheromoneTypeEnum pheroType)
     {
-        var pheromoneToHandle = _pheromoneTokens[pheromone.Caracteristics.PheromoneType];
-
-        if (pheromoneToHandle == null)
-        {
-            pheromone.transform.parent = transform;
-            pheromone.transform.localPosition = _pheromoneTokenPositions[pheromone.Caracteristics.PheromoneType];
-            _pheromoneTokens[pheromone.Caracteristics.PheromoneType] = pheromone;
-
-            HasAnyActivePheromoneToken = true;
-        }
+        var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(pheroType);
+        var pheromoneToHandle = _pheromoneTokens[pheroType];
+        
+        if (pheromoneToHandle != null)
+            pheromoneToHandle.MergePheromones(scriptablePheromone.BaseCaracteristics.Duration);
         else
         {
-            pheromoneToHandle.MergePheromones(pheromone);
-            Destroy(pheromone.gameObject);
+            // Spawn pheromone
+            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, transform);
+            pheromone.transform.localPosition = _pheromoneTokenPositions[pheroType];
+            pheromone.Initialyze(scriptablePheromone.BaseCaracteristics);
+
+            _pheromoneTokens[pheroType] = pheromone;
+
+            HasAnyActivePheromoneToken = true;
         }
     }
 
@@ -57,6 +63,29 @@ public class GroundBlock : MonoBehaviour
     {
         foreach (var pheromone in _pheromoneTokens.Values.Where(t => t!= null))
             Destroy(pheromone.gameObject);
+    }
+
+    public void AddOrCreateFoodTookenOnBlock(FoodToken foodToken)
+    {
+        if (FoodToken <= 0)
+        {
+            var spawned = Instantiate(foodToken, transform);
+            foodToken.transform.localPosition = _foodTokenPosition;
+            _foodToken = spawned;
+        }
+        FoodToken++;
+    }
+
+    public void RemoveFoodToken(bool allToken = false)
+    {
+        if (allToken)
+            FoodToken = 0;
+
+        if (FoodToken > 0)
+            FoodToken--;
+
+        if (_foodToken != null && FoodToken == 0)
+            Destroy(_foodToken.gameObject);
     }
 
     public void ApplyTimeEffect()
@@ -98,6 +127,8 @@ public class GroundBlock : MonoBehaviour
             { PheromoneTypeEnum.Wander, null },
             { PheromoneTypeEnum.CarryFood, null }
         };
+
+        _foodTokenPosition = 0.5f * GlobalParameters.NodeRadius * Vector3.up;
     }
     /*
     public void OnDrawGizmos()

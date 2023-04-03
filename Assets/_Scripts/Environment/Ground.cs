@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using mew;
 using UnityEngine;
 
 public class Ground : MonoBehaviour
@@ -31,11 +32,18 @@ public class Ground : MonoBehaviour
         _wallContainer = transform.GetChild(1);
     }
 
-    public void AddorCreatePheromoneOnBlock(BasePheromone pheromone, Block block)
+    public void AddOrCreatePheromoneOnBlock(ScriptablePheromoneBase.PheromoneTypeEnum pheroType, Block block)
     {
         var blockGo = _grid[block.XCoordinate, block.ZCoordinate];
 
-        blockGo.AddOrCreatePheromoneOnBlock(pheromone);
+        blockGo.AddOrCreatePheromoneOnBlock(pheroType);
+    }
+
+    public void AddOrCreateFoodTookenOnBlock(FoodToken foodToken, Block block)
+    {
+        var blockGo = _grid[block.XCoordinate, block.ZCoordinate];
+
+        blockGo.AddOrCreateFoodTookenOnBlock(foodToken);
     }
 
     public void ApplyTimeEffect()
@@ -63,6 +71,18 @@ public class Ground : MonoBehaviour
             {
                 if ((i + j) % 2 == 0 && _grid[i, j].HasAnyActivePheromoneToken)
                     _grid[i, j].CleanPheromones();
+            }
+        }
+    }
+
+    public void CleanAllFoodToken()
+    {
+        for (int i = 0; i < _gridSizeX; i++)
+        {
+            for (int j = 0; j < _gridSizeZ; j++)
+            {
+                if ((i + j) % 2 == 0 && _grid[i, j].FoodToken > 0)
+                    _grid[i, j].RemoveFoodToken(true);
             }
         }
     }
