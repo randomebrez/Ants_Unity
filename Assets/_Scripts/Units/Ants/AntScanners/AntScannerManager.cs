@@ -28,7 +28,6 @@ public class AntScannerManager : MonoBehaviour
 
     private AntScannerBlock _scannerBlock;
     private AntScannerObstacles _obstacleScanner;
-    private AntScannerCollectables _collectableScanner;
     public string[] PortionInfos => _portionInfos;
 
     bool initialyzed = false;
@@ -39,7 +38,6 @@ public class AntScannerManager : MonoBehaviour
 
         _obstacleScanner = GetComponentInChildren<AntScannerObstacles>();
         _scannerBlock = GetComponentInChildren<AntScannerBlock>();
-        _collectableScanner = GetComponentInChildren<AntScannerCollectables>();
     }
 
     public List<float> GetInputs()
@@ -51,7 +49,6 @@ public class AntScannerManager : MonoBehaviour
     {
         var subdiv = _ant.Stats.ScannerSubdivisions;
         _obstacleScanner.Initialyze(_ant, subdiv);
-        _collectableScanner.Initialyze(_ant, subdiv);
         _scannerBlock.Initialyze(_ant, subdiv);
         _inputs = new NeuralNetworkInputs(subdiv, brains);
         _portionInfos = new string[subdiv];
@@ -71,7 +68,6 @@ public class AntScannerManager : MonoBehaviour
     private void ScanWithAllScanners()
     {
         _obstacleScanner.Scan();
-        _collectableScanner.Scan();
         _scannerBlock.Scan();
         _updateinputs = true;
     }
@@ -94,7 +90,7 @@ public class AntScannerManager : MonoBehaviour
             PheroC = pheroC.averageDensity,
             WallDist = _obstacleScanner.GetPortionValue(portionIndex),
             FoodToken = _scannerBlock.IsThereFood(portionIndex),
-            IsNestInSight = _collectableScanner.IsNestInSight(portionIndex, _ant.NestName).isIt
+            IsNestInSight = _scannerBlock.IsNestInSight(portionIndex)
         };
         portioninputs.ActivateTriggerObject = _scannerBlock.IsPortionInVisionField(portionIndex);
 

@@ -19,8 +19,9 @@ public class GroundBlock : MonoBehaviour
     private Vector3 _foodTokenPosition;
     private FoodToken _foodToken;
 
-    public bool HasAnyActivePheromoneToken = false;
+    public bool HasAnyActivePheromoneToken { get; private set; } = false;
     public bool HasAnyFood => _foodToken != null && _foodToken.StackNumber > 0;
+    public bool IsUnderNest = false;
 
     private MeshRenderer _renderer;
     [Range(0,31)] public int OcclusionLayer;

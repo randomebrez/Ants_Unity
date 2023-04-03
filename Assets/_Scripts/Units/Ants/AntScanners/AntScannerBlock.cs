@@ -71,6 +71,13 @@ namespace Assets._Scripts.Units.Ants.AntScanners
             return blocks.Any(t => t.HasAnyFood);
         }
 
+        public bool IsNestInSight(int index)
+        {
+            var blocks = Objects[index].Select(t => t.GetComponent<GroundBlock>()).Where(t => t != null).ToList();
+            return blocks.Any(t => t.IsUnderNest);
+        }
+
+
         public bool IsPortionInVisionField(int portionIndex)
         {
             return _visionFieldPortion[portionIndex];

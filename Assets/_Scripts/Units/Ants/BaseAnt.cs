@@ -32,11 +32,6 @@ namespace mew
         protected float _roundNumber = 0f;
         protected float _totalRotation = 0f;
 
-        // Pheromones parameters
-        protected int _dropPheroFrequency = 10;
-        protected float _dropPheroInterval;
-        protected float _dropPheroTimer;
-
         // Public methods
         public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
@@ -59,12 +54,6 @@ namespace mew
             _head = transform.GetChild(1);
 
             _scannerManager = GetComponentInChildren<AntScannerManager>();
-            _dropPheroInterval = 1.0f / _dropPheroFrequency;
-        }
-
-        void Start()
-        {
-            _nest = transform.parent.parent.parent;
         }
 
 

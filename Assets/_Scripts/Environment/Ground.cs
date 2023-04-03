@@ -248,16 +248,16 @@ public class Ground : MonoBehaviour
         return _grid[block.XCoordinate, block.ZCoordinate];
     }
 
-    public List<Block> GetAllBlocksInCircle(Vector3 center, float radius)
+    public List<GroundBlock> GroundBlockWithinCircle(Vector3 center, float radius)
     {
-        var blocks = new List<Block>();
+        var blocks = new List<GroundBlock>();
 
         var colliders = Physics.OverlapSphere(center, radius);
         foreach (var col in colliders)
         {
-            var blockGo = col.GetComponent<GroundBlock>();
+            var blockGo = col.transform.parent.GetComponent<GroundBlock>();
             if (blockGo != null)
-                blocks.Add(blockGo.Block);
+                blocks.Add(blockGo);
         }
 
         return blocks;

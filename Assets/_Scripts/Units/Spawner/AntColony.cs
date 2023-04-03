@@ -48,6 +48,10 @@ public class AntColony : MonoBehaviour
         _neuralNetworkGateway = new NeuralNetworkGateway();
         _population = new List<BaseAnt>();
 
+        var blocksUnderneath = EnvironmentManager.Instance.GroundBlockWithinCircle(transform.position, 2 * GlobalParameters.NodeRadius);
+        foreach (var block in blocksUnderneath)
+            block.IsUnderNest = true;
+
         StatisticsManager.Instance.InitializeViewAsync(new List<StatisticEnum>
         {
             //StatisticEnum.Score,

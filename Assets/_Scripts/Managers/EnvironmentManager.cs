@@ -1,5 +1,6 @@
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using System.Collections.Generic;
 using UnityEngine;
 
 internal class EnvironmentManager : BaseManager<EnvironmentManager>
@@ -83,6 +84,11 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
     public GroundBlock GroundBlockFromBlock(Block block)
     {
         return _ground.GroundBlockFromBlock(block);
+    }
+
+    public List<GroundBlock> GroundBlockWithinCircle(Vector3 center, float radius)
+    {
+        return _ground.GroundBlockWithinCircle(center, radius);
     }
 
 
