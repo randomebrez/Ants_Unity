@@ -5,35 +5,9 @@ using UnityEngine;
 
 public class AntScannerCollectables : AntScannerBase
 {
-    private Dictionary<int, bool> _visionFieldPortion = new Dictionary<int, bool>();
-
     public override float GetPortionValue(int index)
     {
         throw new System.NotImplementedException();
-    }
-
-    public override void Initialyze(BaseAnt ant, int scannerSubdivision)
-    {
-        base.Initialyze(ant, scannerSubdivision);
-        for(int i = 0; i < scannerSubdivision; i++)
-        {
-            if (Mathf.Abs(_subdivisions[i] + 60) < _scannerAngle / 2f)
-                _visionFieldPortion.Add(i, true);
-            else if (Mathf.Abs(_subdivisions[i]) < _scannerAngle / 2f)
-                _visionFieldPortion.Add(i, true);
-            else
-                _visionFieldPortion.Add(i, false);
-        }
-    }
-
-    public bool IsPortionActive(int portionIndex)
-    {
-        return _visionFieldPortion[portionIndex];
-    }
-
-    public bool GetFoodToken(int portionIndex)
-    {
-        return Objects[portionIndex].Where(t => t.tag == "Food").Any();
     }
 
     public (bool isIt, Transform nest) IsNestInSight(int portionindex, string nestName)

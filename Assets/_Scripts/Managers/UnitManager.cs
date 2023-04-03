@@ -33,10 +33,10 @@ internal class UnitManager : BaseManager<UnitManager>
 
             var spawnerMaxRange = Mathf.Max(AntColonyPrefab.transform.lossyScale.x, AntColonyPrefab.transform.lossyScale.y, AntColonyPrefab.transform.lossyScale.z);
             var spawnposition = 2 * GlobalParameters.NodeRadius * Vector3.up;
-            var spawnBlock = EnvironmentManager.Instance.BlockFromWorldPoint(spawnposition);
+            var spawnBlock = EnvironmentManager.Instance.GroundBlockFromWorldPoint(spawnposition);
             if (spawnBlock == null)
                 Debug.Log("spawn null");
-            spawned = InstantiateObject(AntColonyPrefab.gameObject, spawnBlock.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.identity, EnvironmentManager.Instance.GetUnitContainer(), spawnerMaxRange * 1.5f);
+            spawned = InstantiateObject(AntColonyPrefab.gameObject, spawnBlock.Block.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.identity, EnvironmentManager.Instance.GetUnitContainer(), spawnerMaxRange * 1.5f);
         }
 
         var id = _colonies.Count + 1;

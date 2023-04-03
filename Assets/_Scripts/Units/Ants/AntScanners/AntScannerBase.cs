@@ -83,7 +83,7 @@ public abstract class AntScannerBase : MonoBehaviour
 
     public virtual void Scan()
     {
-        _positionAtScanTime = _ant.CurrentPos.WorldPosition;
+        _positionAtScanTime = _ant.CurrentPos.Block.WorldPosition;
         _directionAtScanTime = _ant.BodyHeadAxis;
         var count = Physics.OverlapSphereNonAlloc(_positionAtScanTime, _scannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);
 

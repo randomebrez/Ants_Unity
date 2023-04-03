@@ -24,6 +24,7 @@ public class SpawnerAnt : MonoBehaviour
             var randomPoint = Random.value * 2 * Mathf.PI;
             var randomVector = new Vector3(Mathf.Cos(randomPoint), 0, Mathf.Sin(randomPoint));
             var startPosition = GlobalParameters.NodeRadius * (1 + GlobalParameters.NodeRadius) * Vector3.up + GlobalParameters.NodeRadius * randomVector;
+            var startingBlock = EnvironmentManager.Instance.GroundBlockFromWorldPoint(startPosition);
             var startAngle = Vector3.SignedAngle(Vector3.right, randomVector, Vector3.up);
 
             // Ant game object
@@ -33,7 +34,7 @@ public class SpawnerAnt : MonoBehaviour
             spawnedAnt.name = $"{antType}_{i}";
 
             //Set statistics according to scriptable object
-            spawnedAnt.Initialyze(scriptableObject.BaseStats, brains[i]);
+            spawnedAnt.Initialyze(transform.parent, scriptableObject.BaseStats, brains[i], startingBlock);
             spawnedAnt.Clicked += UnitManager.Instance.AntClick;
             result.Add(spawnedAnt);
         }

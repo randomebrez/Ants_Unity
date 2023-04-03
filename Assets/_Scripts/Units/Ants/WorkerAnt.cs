@@ -92,41 +92,44 @@ namespace mew
         {
             Collider[] colliders = new Collider[5];
             Physics.OverlapSphereNonAlloc(transform.position, GlobalParameters.NodeRadius / 2f, colliders, LayerMask.GetMask(Layer.Trigger.ToString()));
-            var foodtoken = colliders.Where(t => t != null).FirstOrDefault(t => t.tag == "Food");
+            var foodtoken = CurrentPos.HasAnyFood;
             if (!_carryingFood)
             {
-                if (foodtoken != null)
+                if (CurrentPos.HasAnyFood)
                 {
+                    CurrentPos.RemoveFoodToken();
+                    FoodGrabbed++;
+
                     if (_findFoodStepNumber < _bestFindFoodStepNumber)
                         _bestFindFoodStepNumber = _findFoodStepNumber;
 
-                    FoodGrabbed++;
                     //if (FoodGrabbed > 1)
                         _score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
 
                     _findFoodStepNumber = 0;
-                    Destroy(foodtoken.transform.parent.gameObject);
                     _carryingFood = true;
+
                     if (FoodGrabbed < _colors.Count)
                         SetHeadColor(_colors[FoodGrabbed]);
                 }
             }
             else
             {
-                if (foodtoken != null)
+                if (foodtoken)
                     WrongFoodCollision++;
 
                 var nest = colliders.Where(t => t != null).FirstOrDefault(t => t.transform.parent.parent.name == NestName);
                 if (nest != null)
                 {
+                    FoodCollected++;
+
                     if (_comeBackStepNumber < _bestComeBackStepNumber)
                         _bestComeBackStepNumber = _comeBackStepNumber;
 
-                    FoodCollected++;
                     _score += Mathf.Pow(1f / _comeBackStepNumber, 1f / (2 * FoodCollected));
-
                     _comeBackStepNumber = 0;
                     _carryingFood = false;
+
                     if (FoodCollected < _colors.Count)
                         SetBodyColor(_colors[FoodCollected]);
                 }
@@ -193,8 +196,8 @@ namespace mew
                 case 4:
                 case 5:
                     direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
-                    if (Physics.Raycast(CurrentPos.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
-                        _nextPos = hit.collider.GetComponentInParent<GroundBlock>().Block;
+                    if (Physics.Raycast(CurrentPos.Block.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
+                        _nextPos = hit.collider.GetComponentInParent<GroundBlock>();
                     else
                     {
                         RandomMove();
@@ -206,9 +209,9 @@ namespace mew
 
         private void RandomMove()
         {
-            var maxNeighbourIndex = CurrentPos.Neighbours.Count();
+            var maxNeighbourIndex = CurrentPos.Block.Neighbours.Count();
             var randomIndex = Random.Range(0, maxNeighbourIndex);
-            _nextPos = CurrentPos.Neighbours[randomIndex];
+            _nextPos = EnvironmentManager.Instance.GroundBlockFromBlock(CurrentPos.Block.Neighbours[randomIndex]);
         }
 
 

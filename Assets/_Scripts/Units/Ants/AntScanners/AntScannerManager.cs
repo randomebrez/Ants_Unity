@@ -93,10 +93,10 @@ public class AntScannerManager : MonoBehaviour
             PheroW = pheroW.averageDensity,
             PheroC = pheroC.averageDensity,
             WallDist = _obstacleScanner.GetPortionValue(portionIndex),
-            FoodToken = _collectableScanner.GetFoodToken(portionIndex),
+            FoodToken = _scannerBlock.IsThereFood(portionIndex),
             IsNestInSight = _collectableScanner.IsNestInSight(portionIndex, _ant.NestName).isIt
         };
-        portioninputs.ActivateTriggerObject = _collectableScanner.IsPortionActive(portionIndex);
+        portioninputs.ActivateTriggerObject = _scannerBlock.IsPortionInVisionField(portionIndex);
 
         //if (_ant.name == "Worker_0")
         //{

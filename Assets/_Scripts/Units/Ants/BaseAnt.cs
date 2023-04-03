@@ -15,8 +15,8 @@ namespace mew
         public Action<BaseAnt> Clicked;
 
         // Positions
-        public Block CurrentPos { get; protected set; }
-        protected Block _nextPos;
+        public GroundBlock CurrentPos { get; protected set; }
+        protected GroundBlock _nextPos;
 
         //Managers
         protected BrainManager _brainManager;
@@ -65,7 +65,6 @@ namespace mew
         void Start()
         {
             _nest = transform.parent.parent.parent;
-            CurrentPos = EnvironmentManager.Instance.BlockFromWorldPoint(transform.position);
         }
 
 
@@ -94,9 +93,11 @@ namespace mew
 
 
         // Override methods
-        public void Initialyze(ScriptableUnitBase.Stats stats, AntBrains brains)
+        public void Initialyze(Transform nest, ScriptableUnitBase.Stats stats, AntBrains brains, GroundBlock block)
         {
+            _nest = nest;
             Stats = stats;
+            CurrentPos = block;
             _brainManager = new BrainManager(brains.MainBrain);
             _scannerManager.InitialyzeScanners(brains.ScannerBrains);
             SetHeadColor(_colors[0]);
@@ -117,7 +118,7 @@ namespace mew
                 return;
             }
 
-            var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.WorldPosition - CurrentPos.WorldPosition, Vector3.up);
+            var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.Block.WorldPosition - CurrentPos.Block.WorldPosition, Vector3.up);
             _totalRotation += rotation;
             if (Mathf.Abs(_totalRotation) >= 360)
             {
@@ -126,7 +127,7 @@ namespace mew
             }
 
             CurrentPos = _nextPos;
-            transform.SetPositionAndRotation(CurrentPos.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
+            transform.SetPositionAndRotation(CurrentPos.Block.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
 
             CheckCollectableCollisions();
         }

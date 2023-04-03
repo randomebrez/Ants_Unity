@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Assets._Scripts.Units.Ants.AntScanners
@@ -12,10 +11,25 @@ namespace Assets._Scripts.Units.Ants.AntScanners
         protected override bool _checkObtruction => false;
         protected override bool _checkVisionField => false;
 
+        private Dictionary<int, bool> _visionFieldPortion = new Dictionary<int, bool>();
+
+        public override void Initialyze(BaseAnt ant, int scannerSubdivision)
+        {
+            base.Initialyze(ant, scannerSubdivision);
+            for (int i = 0; i < scannerSubdivision; i++)
+            {
+                if (Mathf.Abs(_subdivisions[i] + 60) < _scannerAngle / 2f)
+                    _visionFieldPortion.Add(i, true);
+                else if (Mathf.Abs(_subdivisions[i]) < _scannerAngle / 2f)
+                    _visionFieldPortion.Add(i, true);
+                else
+                    _visionFieldPortion.Add(i, false);
+            }
+        }
 
         public override void Scan()
         {
-            _positionAtScanTime = _ant.CurrentPos.WorldPosition;
+            _positionAtScanTime = _ant.CurrentPos.Block.WorldPosition;
             _directionAtScanTime = _ant.BodyHeadAxis;
             var count = Physics.OverlapSphereNonAlloc(_positionAtScanTime, _scannerRadius, _colliders, ScanningMainLayer, QueryTriggerInteraction.Collide);
 
@@ -49,6 +63,17 @@ namespace Assets._Scripts.Units.Ants.AntScanners
                 Debug.LogException(e);
                 return (0, 0);
             }
+        }
+
+        public bool IsThereFood(int index)
+        {
+            var blocks = Objects[index].Select(t => t.GetComponent<GroundBlock>()).Where(t => t != null).ToList();
+            return blocks.Any(t => t.HasAnyFood);
+        }
+
+        public bool IsPortionInVisionField(int portionIndex)
+        {
+            return _visionFieldPortion[portionIndex];
         }
 
         public override float GetPortionValue(int index)

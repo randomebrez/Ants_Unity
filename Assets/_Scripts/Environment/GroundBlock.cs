@@ -20,7 +20,7 @@ public class GroundBlock : MonoBehaviour
     private FoodToken _foodToken;
 
     public bool HasAnyActivePheromoneToken = false;
-    public int FoodToken = 0;
+    public bool HasAnyFood => _foodToken != null && _foodToken.StackNumber > 0;
 
     private MeshRenderer _renderer;
     [Range(0,31)] public int OcclusionLayer;
@@ -67,25 +67,29 @@ public class GroundBlock : MonoBehaviour
 
     public void AddOrCreateFoodTookenOnBlock(FoodToken foodToken)
     {
-        if (FoodToken <= 0)
+        if (_foodToken == null)
         {
             var spawned = Instantiate(foodToken, transform);
             foodToken.transform.localPosition = _foodTokenPosition;
             _foodToken = spawned;
         }
-        FoodToken++;
+        _foodToken.StackNumber++;
+        _foodToken.gameObject.SetActive(true);
     }
 
     public void RemoveFoodToken(bool allToken = false)
     {
+        if (_foodToken == null)
+            return;
+
         if (allToken)
-            FoodToken = 0;
+            _foodToken.StackNumber = 0;
 
-        if (FoodToken > 0)
-            FoodToken--;
+        else if (_foodToken.StackNumber > 0)
+            _foodToken.StackNumber--;
 
-        if (_foodToken != null && FoodToken == 0)
-            Destroy(_foodToken.gameObject);
+        if (_foodToken != null && _foodToken.StackNumber == 0)
+            _foodToken.gameObject.SetActive(false);
     }
 
     public void ApplyTimeEffect()

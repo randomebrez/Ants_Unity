@@ -89,7 +89,7 @@ public class AntColony : MonoBehaviour
         for (int i = 0; i < _population.Count; i++)
         {
             var ant = _population[i];
-            result[ant.GetPheroType()].Add(ant.CurrentPos);
+            result[ant.GetPheroType()].Add(ant.CurrentPos.Block);
         }
 
         return result;

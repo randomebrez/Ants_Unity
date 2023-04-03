@@ -48,9 +48,9 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
             var randomZShift = Random.Range(-2, 3);
 
             var spawnPosition = Quaternion.Euler(0, i * deltaTheta, 0) * ((radius + randomZShift) * Vector3.forward + randomXShift * Vector3.right) + GlobalParameters.NodeRadius * Vector3.up;
-            var blockPosition = BlockFromWorldPoint(spawnPosition);
+            var blockPosition = GroundBlockFromWorldPoint(spawnPosition);
 
-            _ground.AddOrCreateFoodTookenOnBlock(FoodPrefab, blockPosition);
+            _ground.AddOrCreateFoodTookenOnBlock(FoodPrefab, blockPosition.Block);
         }
     }
 
@@ -69,15 +69,20 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
             var randomZShift = Random.Range(-GlobalParameters.GroundSize.z / 7f, GlobalParameters.GroundSize.z / 7f);
 
             var spawnPosition = (randomZpos + randomZShift) * Vector3.forward + (randomXpos + randomXShift) * Vector3.right + GlobalParameters.NodeRadius * Vector3.up;
-            var blockPosition = BlockFromWorldPoint(spawnPosition);
+            var blockPosition = GroundBlockFromWorldPoint(spawnPosition);
 
-            _ground.AddOrCreateFoodTookenOnBlock(FoodPrefab, blockPosition);
+            _ground.AddOrCreateFoodTookenOnBlock(FoodPrefab, blockPosition.Block);
         }
     }
 
-    public Block BlockFromWorldPoint(Vector3 worldPosition)
+    public GroundBlock GroundBlockFromWorldPoint(Vector3 worldPosition)
     {
-        return _ground.GetBlockFromWorldPosition(worldPosition);
+        return _ground.GroundBlockFromWorldPosition(worldPosition);
+    }
+
+    public GroundBlock GroundBlockFromBlock(Block block)
+    {
+        return _ground.GroundBlockFromBlock(block);
     }
 
 

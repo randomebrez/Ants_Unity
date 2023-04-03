@@ -81,7 +81,7 @@ public class Ground : MonoBehaviour
         {
             for (int j = 0; j < _gridSizeZ; j++)
             {
-                if ((i + j) % 2 == 0 && _grid[i, j].FoodToken > 0)
+                if ((i + j) % 2 == 0 && _grid[i, j].HasAnyFood)
                     _grid[i, j].RemoveFoodToken(true);
             }
         }
@@ -234,13 +234,18 @@ public class Ground : MonoBehaviour
         return _grid[i, j].Block;
     }
 
-    public Block GetBlockFromWorldPosition(Vector3 worldPosition)
+    public GroundBlock GroundBlockFromWorldPosition(Vector3 worldPosition)
     {
         var layer = LayerMask.GetMask(Layer.Walkable.ToString());
         if (Physics.Raycast(transform.position + worldPosition + Vector3.up, Vector3.down, out RaycastHit hit, 10f, layer))
-            return hit.collider.GetComponentInParent<GroundBlock>().Block;
+            return hit.collider.GetComponentInParent<GroundBlock>();
 
         return null;
+    }
+
+    public GroundBlock GroundBlockFromBlock(Block block)
+    {
+        return _grid[block.XCoordinate, block.ZCoordinate];
     }
 
     public List<Block> GetAllBlocksInCircle(Vector3 center, float radius)
