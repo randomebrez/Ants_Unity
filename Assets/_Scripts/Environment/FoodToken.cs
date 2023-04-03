@@ -2,7 +2,7 @@ using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using UnityEngine;
 
-public class Food : MonoBehaviour
+public class FoodToken : MonoBehaviour
 {
     private Block _blockPos;
 
