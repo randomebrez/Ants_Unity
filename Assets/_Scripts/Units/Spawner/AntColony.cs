@@ -30,7 +30,7 @@ public class AntColony : MonoBehaviour
         _block = GetComponentInChildren<BlockBase>();
 
         _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
-        _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * 2 * GlobalParameters.ColonyMaxPopulation);
+        _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * GlobalParameters.ColonyMaxPopulation);
     }
 
     public void Update()
@@ -163,18 +163,18 @@ public class AntColony : MonoBehaviour
             _currentSelection.Add((ant, ant.GetUnitScore()));
 
         // Filter best ones
-        _currentSelection = _currentSelection.Where(t => t.score > 0).OrderByDescending(t => t.score).Take(_numberMaxToSelect).ToList();
+        _currentSelection = _currentSelection.OrderByDescending(t => t.score).Take(_numberMaxToSelect).ToList();
 
         var selectedNumber = Mathf.Min(_numberMaxToSelect, _currentSelection.Count);
         var index1 = selectedNumber / 3;
         for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + 1;
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + GlobalParameters.MeanChildNumberByBrains / 2;
             else if (i < _numberMaxToSelect - index1)
                 _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains;
             else
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - 1;
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - GlobalParameters.MeanChildNumberByBrains / 2;
         }
         _bestBrains = _currentSelection;
     }

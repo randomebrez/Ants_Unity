@@ -19,7 +19,7 @@ namespace mew
         private float RandomMoveCount = 0f;
         private float WrongFoodCollision = 0f;
 
-        private float _score = 0f;
+        private float _score = 1f;
         private int[] _outputs = new int[7];
 
 
@@ -147,14 +147,15 @@ namespace mew
             var wrongFoodMalus = Mathf.Pow(WrongFoodCollision / _age, 2);
             var overloadedOutputs = _outputs.Where(t => t > 0.4 * _age).ToList();
             var outputOverloadMalus = 0f;
-            //if (bonusGrab > 0)
-            //{
-            //    for (int i = 0; i < overloadedOutputs.Count(); i++)
-            //        outputOverloadMalus += overloadedOutputs[i] / _age;
-            //
-            //    if (overloadedOutputs.Count > 0)
-            //        outputOverloadMalus /= overloadedOutputs.Count;
-            //}
+
+            for (int i = 0; i < overloadedOutputs.Count(); i++)
+            {
+                outputOverloadMalus += (float)overloadedOutputs[i] / _age;
+            }
+
+            if (overloadedOutputs.Count > 0)
+                outputOverloadMalus /= overloadedOutputs.Count;
+
             var result = _score + bonusGrab + bonusCollected  - outputOverloadMalus - randomMoveMalus;
             return result;
         }

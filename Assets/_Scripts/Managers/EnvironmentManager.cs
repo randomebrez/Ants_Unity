@@ -44,6 +44,7 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
         var deltaTheta = 360f / 6;
         for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
         {
+            //Maybe take random value with step NodeRadius or apothem
             var radius = (GlobalParameters.GroundSize.z / 3f);
             var randomXShift = Random.Range(-2, 3);
             var randomZShift = Random.Range(-2, 3);
@@ -51,6 +52,8 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
             var spawnPosition = Quaternion.Euler(0, i * deltaTheta, 0) * ((radius + randomZShift) * Vector3.forward + randomXShift * Vector3.right) + GlobalParameters.NodeRadius * Vector3.up;
             var blockPosition = GroundBlockFromWorldPoint(spawnPosition);
 
+            if (blockPosition == null)
+                i--;
             _ground.AddOrCreateFoodTookenOnBlock(FoodPrefab, blockPosition.Block);
         }
     }

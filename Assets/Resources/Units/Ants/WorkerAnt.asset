@@ -17,7 +17,7 @@ MonoBehaviour:
     SteerStrength: 3
     WanderStrength: 1
     Color: {r: 0, g: 0.33982182, b: 1, a: 0}
-    VisionRadius: 3
+    VisionRadius: 5
     VisionAngle: 130
     ScannerSubdivisions: 6
     TargetDestroyTreshold: 0.3
