@@ -34,7 +34,7 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationFrameCount = 400;
+        public static float GenerationFrameCount = 150;
         //This number should be >= 2/PercentToSelectAmongstBest to have a complete MaxColonyNumber generation generated only from selected brains
         public static int MeanChildNumberByBrains = 3;
         public static float PercentToSelectAmongstBest = 0.35f;
@@ -44,10 +44,10 @@ namespace Assets._Scripts.Utilities
 
         // Database
         public static int StoreFrequency = 20;
-        public static string SqlFilePath = @".\Database\NeuralNetworkDatabase.txt";
-        public static string SqlFolderPath = ".\\Database";
+        public static string SqlFolderPath = @".\Database";
 
-        // Local brain file
-        public static string FirstBrainsFilePath = @"D:\Codes\Test\1.txt";
+        // Saved brains
+        public static string FirstBrainsFolderPath = @".\SavedBrains";
+        public static string FirstBrainsFilePath = @".\SavedBrains\1.txt";
     }
 }

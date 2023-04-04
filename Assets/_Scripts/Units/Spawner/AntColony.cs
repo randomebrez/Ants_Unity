@@ -35,8 +35,8 @@ public class AntColony : MonoBehaviour
 
     public void Update()
     {
-        if (_generationId == 0 && _initialyzed && _population.Count <= 0)
-            GenerateNewGeneration(GlobalParameters.FirstBrainsFilePath);
+        if (_generationId == 0 && _initialyzed)
+            GenerateFirstGeneration(GlobalParameters.FirstBrainsFilePath);
     }
 
 
@@ -86,9 +86,12 @@ public class AntColony : MonoBehaviour
     {
         if (_initialyzed == false)
             return new Dictionary<PheromoneTypeEnum, List<Block>>();
-        var result = new Dictionary<PheromoneTypeEnum, List<Block>>();
-        result.Add(PheromoneTypeEnum.Wander, new List<Block>());
-        result.Add(PheromoneTypeEnum.CarryFood, new List<Block>());
+
+        var result = new Dictionary<PheromoneTypeEnum, List<Block>>
+        {
+            { PheromoneTypeEnum.Wander, new List<Block>() },
+            { PheromoneTypeEnum.CarryFood, new List<Block>() }
+        };
 
         for (int i = 0; i < _population.Count; i++)
         {
@@ -101,16 +104,27 @@ public class AntColony : MonoBehaviour
 
 
     // Private methods
-    private void GenerateNewGeneration(string filePath = null)
+
+    private void GenerateFirstGeneration(string filePath)
+    {
+        if (File.Exists(filePath))
+        {
+            var brainsToGive = GetBrainsFromFile(filePath);
+            _population = _spawner.InstantiateUnits(brainsToGive, ScriptableAntBase.AntTypeEnum.Worker);
+            _generationId++;
+        }
+        else
+        {
+            GenerateNewGeneration();
+        }
+    }
+
+    private void GenerateNewGeneration()
     {
         AntSceneManager.Instance.SetNewGenerationId(_generationId);
 
-        List<AntBrains> brainsToGive;
-        // Get as many brain as ants we want to pop
-        if (string.IsNullOrEmpty(filePath) == false)
-            brainsToGive = GetBrainsFromFile(filePath);
-        else
-            brainsToGive = GenerateBrainsAndUnits();
+        
+         var brainsToGive = GenerateBrainsAndUnits();
 
         _population = _spawner.InstantiateUnits(brainsToGive, ScriptableAntBase.AntTypeEnum.Worker);
         _generationId++;

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1818709232080784099}
   - component: {fileID: 2321924291503841578}
   - component: {fileID: 4427624046371053763}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Collider
   m_TagString: Food
   m_Icon: {fileID: 0}
@@ -107,7 +107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1804616862842402014}
   - component: {fileID: 2253493576930775884}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: FoodToken
   m_TagString: Food
   m_Icon: {fileID: 0}

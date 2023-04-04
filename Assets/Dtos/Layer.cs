@@ -9,8 +9,6 @@
         Water = 4,
         UI = 5,
         Unwalkable = 6,
-        Walkable = 7,
-        Trigger = 8,
-        Pheromone = 9
+        Walkable = 7
     }
 }

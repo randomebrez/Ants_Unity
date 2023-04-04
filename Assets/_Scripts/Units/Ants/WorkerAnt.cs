@@ -90,9 +90,6 @@ namespace mew
 
         public override void CheckCollectableCollisions()
         {
-            Collider[] colliders = new Collider[5];
-            Physics.OverlapSphereNonAlloc(transform.position, GlobalParameters.NodeRadius / 2f, colliders, LayerMask.GetMask(Layer.Trigger.ToString()));
-            var foodtoken = CurrentPos.HasAnyFood;
             if (!_carryingFood)
             {
                 if (CurrentPos.HasAnyFood)
@@ -115,11 +112,10 @@ namespace mew
             }
             else
             {
-                if (foodtoken)
+                if (CurrentPos.HasAnyFood)
                     WrongFoodCollision++;
 
-                var nest = colliders.Where(t => t != null).FirstOrDefault(t => t.transform.parent.parent.name == NestName);
-                if (nest != null)
+                if (CurrentPos.IsUnderNest)
                 {
                     FoodCollected++;
 

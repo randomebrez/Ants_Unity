@@ -1,11 +1,13 @@
 using Assets._Scripts.Utilities;
 using System;
+using System.IO;
 
 internal class SceneManager : BaseManager<SceneManager>
 {
     public enum SceneState
     {
         Initialyze,
+        CreateFolders,
         SpawnContext,
         SpawnContextObjects,
         Running
@@ -16,7 +18,6 @@ internal class SceneManager : BaseManager<SceneManager>
     public Action<SceneState> BeforeStateChanged;
     public Action<SceneState> AfterStateChanged;
 
-    private bool _stateChanged = false;
     private int _frameCount = 0;
 
     public void Start()
@@ -26,10 +27,12 @@ internal class SceneManager : BaseManager<SceneManager>
 
     private void Update()
     {
-        _frameCount++;
-
         switch (_sceneState)
         {
+            case SceneState.CreateFolders:
+                CreateFolders();
+                ChangeState();
+                break;
             case SceneState.SpawnContext:
                 InstantiateContext();
                 ChangeState();
@@ -51,6 +54,9 @@ internal class SceneManager : BaseManager<SceneManager>
         switch (_sceneState)
         {
             case SceneState.Initialyze:
+                _sceneState = SceneState.CreateFolders;
+                break;
+            case SceneState.CreateFolders:
                 _sceneState = SceneState.SpawnContext;
                 break;
             case SceneState.SpawnContext:
@@ -62,7 +68,13 @@ internal class SceneManager : BaseManager<SceneManager>
         }
 
         AfterStateChanged?.Invoke(_sceneState);
-        _stateChanged = true;
+    }
+
+
+    private void CreateFolders()
+    {
+        if (Directory.Exists(GlobalParameters.FirstBrainsFolderPath) == false)
+            Directory.CreateDirectory(GlobalParameters.FirstBrainsFolderPath);
     }
 
     private void InstantiateContext()
