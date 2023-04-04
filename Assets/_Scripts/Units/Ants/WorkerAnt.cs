@@ -19,7 +19,7 @@ namespace mew
         private float RandomMoveCount = 0f;
         private float WrongFoodCollision = 0f;
 
-        private float _score = 1f;
+        private float _score = 0f;
         private int[] _outputs = new int[7];
 
 
@@ -103,7 +103,7 @@ namespace mew
                     if (_findFoodStepNumber < _bestFindFoodStepNumber)
                         _bestFindFoodStepNumber = _findFoodStepNumber;
 
-                    //if (FoodGrabbed > 1)
+                    if (FoodGrabbed > 1)
                         _score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
 
                     _findFoodStepNumber = 0;
@@ -141,20 +141,20 @@ namespace mew
             var maxRound = _age / 3;
 
             var bonusGrab = Mathf.Min(1, FoodGrabbed);
-            var bonusCollected = Mathf.Min(1, FoodCollected);
+            var bonusCollected = Mathf.Min(0, FoodCollected);
             var roundMalus = _roundNumber / maxRound;
             var randomMoveMalus = RandomMoveCount / _age;
             var wrongFoodMalus = Mathf.Pow(WrongFoodCollision / _age, 2);
             var overloadedOutputs = _outputs.Where(t => t > 0.4 * _age).ToList();
             var outputOverloadMalus = 0f;
 
-            for (int i = 0; i < overloadedOutputs.Count(); i++)
-            {
-                outputOverloadMalus += (float)overloadedOutputs[i] / _age;
-            }
-
-            if (overloadedOutputs.Count > 0)
-                outputOverloadMalus /= overloadedOutputs.Count;
+            //for (int i = 0; i < overloadedOutputs.Count(); i++)
+            //{
+            //    outputOverloadMalus += (float)overloadedOutputs[i] / _age;
+            //}
+            //
+            //if (overloadedOutputs.Count > 0)
+            //    outputOverloadMalus /= overloadedOutputs.Count;
 
             var result = _score + bonusGrab + bonusCollected  - outputOverloadMalus - randomMoveMalus;
             return result;
