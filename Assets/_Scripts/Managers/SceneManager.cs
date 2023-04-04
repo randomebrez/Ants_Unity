@@ -83,18 +83,9 @@ internal class SceneManager : BaseManager<SceneManager>
     {
         if (_frameCount < GlobalParameters.GenerationFrameCount)
         {
-            switch(_frameCount%3)
-            {
-                case 0:
-                    EnvironmentManager.Instance.ApplyTimeEffect();
-                    break;
-                case 1:
-                    UnitManager.Instance.MoveAllUnits();
-                    break;
-                case 2:
-                    EnvironmentManager.Instance.DropPheromones();
-                    break;
-            }
+            UnitManager.Instance.MoveAllUnits();
+            EnvironmentManager.Instance.DropPheromones();
+            EnvironmentManager.Instance.ApplyTimeEffect();
         }
         else
         {

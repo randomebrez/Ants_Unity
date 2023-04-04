@@ -120,7 +120,6 @@ public class AntColony : MonoBehaviour
     {
         var antBrains = _bestBrains.Select(t => t.ant.GetBrain());
         var mainBrains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, antBrains.Select(t => t.MainBrain).ToList());
-        var childBrains = mainBrains.Where(t => t.ParentA != new System.Guid());
         var brainsToGive = new List<AntBrains>();
         for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
         {
@@ -163,7 +162,7 @@ public class AntColony : MonoBehaviour
             _currentSelection.Add((ant, ant.GetUnitScore()));
 
         // Filter best ones
-        _currentSelection = _currentSelection.OrderByDescending(t => t.score).Take(_numberMaxToSelect).ToList();
+        _currentSelection = _currentSelection.Where(t => t.score > 0).OrderByDescending(t => t.score).Take(_numberMaxToSelect).ToList();
 
         var selectedNumber = Mathf.Min(_numberMaxToSelect, _currentSelection.Count);
         var index1 = selectedNumber / 3;
