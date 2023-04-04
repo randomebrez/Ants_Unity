@@ -1,7 +1,5 @@
-﻿using Assets._Scripts.Utilities;
-using mew;
+﻿using mew;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
@@ -19,10 +17,6 @@ public class AntScannerManager : MonoBehaviour
 
     private NeuralNetworkInputs _inputs;
     private string[] _portionInfos;
-
-    protected float _scanInterval;
-    protected float _scanTimer;
-    protected bool _updateinputs = true;
 
     private BaseAnt _ant;
 
@@ -52,6 +46,7 @@ public class AntScannerManager : MonoBehaviour
         _scannerBlock.Initialyze(_ant, subdiv);
         _inputs = new NeuralNetworkInputs(subdiv, brains);
         _portionInfos = new string[subdiv];
+
         initialyzed = true;
     }
 
@@ -69,14 +64,12 @@ public class AntScannerManager : MonoBehaviour
     {
         _obstacleScanner.Scan();
         _scannerBlock.Scan();
-        _updateinputs = true;
     }
 
     private void PortionInputsUpdate()
     {
         for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
             _inputs.UpdatePortion(i, GetPortionInputs(i));
-        _updateinputs = false;
     }
 
     private PortionInputs GetPortionInputs(int portionIndex)
