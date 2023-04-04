@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using mew;
 using UnityEngine;
 
 public class Ground : MonoBehaviour
@@ -31,39 +32,59 @@ public class Ground : MonoBehaviour
         _wallContainer = transform.GetChild(1);
     }
 
-    public void SetupGrid()
+    public void AddOrCreatePheromoneOnBlock(ScriptablePheromoneBase.PheromoneTypeEnum pheroType, Block block)
     {
-        _gridWorldSize = GlobalParameters.GroundSize;
+        var blockGo = _grid[block.XCoordinate, block.ZCoordinate];
 
-        _gridSizeX = Mathf.RoundToInt(_gridWorldSize.x / _nodeDiameter);
-        _gridSizeY = Mathf.RoundToInt(_gridWorldSize.y / _nodeDiameter);
-        _gridSizeZ = Mathf.RoundToInt(_gridWorldSize.z / _nodeDiameter);
-        _gridWorldSize = new Vector3(_gridSizeX * _nodeDiameter, 0, _gridSizeZ * _nodeDiameter);
+        blockGo.AddOrCreatePheromoneOnBlock(pheroType);
+    }
 
-        _grid = new GroundBlock[_gridSizeX, _gridSizeZ];
-        var wolrdBottomLeft = transform.position - Vector3.right * _gridWorldSize.x / 2f - Vector3.forward * _gridWorldSize.z / 2f;
-        var id = 0;
+    public void AddOrCreateFoodTookenOnBlock(FoodToken foodToken, Block block)
+    {
+        var blockGo = _grid[block.XCoordinate, block.ZCoordinate];
+
+        blockGo.AddOrCreateFoodTookenOnBlock(foodToken);
+    }
+
+    public void ApplyTimeEffect()
+    {
+        PheromoneTimeEffect();
+    }
+
+    private void PheromoneTimeEffect()
+    {
+        for (int i = 0; i < _gridSizeX; i++)
+        {
+            for(int j = 0; j < _gridSizeZ; j++)
+            {
+                if ((i + j) % 2 == 0 && _grid[i, j].HasAnyActivePheromoneToken)
+                    _grid[i, j].ApplyTimeEffect();
+            }
+        }
+    }
+
+    public void CleanAllPheromones()
+    {
         for (int i = 0; i < _gridSizeX; i++)
         {
             for (int j = 0; j < _gridSizeZ; j++)
             {
-                var worldPosition = wolrdBottomLeft + Vector3.right * (i * _nodeDiameter + NodeRadius) + Vector3.forward * (j * _nodeDiameter + NodeRadius) + 0.5f * Vector3.up;
-                var walkable = !Physics.CheckSphere(worldPosition, NodeRadius, UnwalkableMask);
-                var blockGo = Instantiate(BlockPrefab, worldPosition, Quaternion.identity, _blockContainer.transform);
-                var component = blockGo.GetComponent<GroundBlock>();
-                blockGo.transform.localScale = new Vector3(_nodeDiameter, 1f, _nodeDiameter);
-                component.SetWalkable();
-                component.Block = new Block(worldPosition, walkable, id);
-                blockGo.name = $"({i},{j})";
-                component.Block.XCoordinate = i;
-                component.Block.ZCoordinate = j;
-                id++;
-                _grid[i, j] = component;
+                if ((i + j) % 2 == 0 && _grid[i, j].HasAnyActivePheromoneToken)
+                    _grid[i, j].CleanPheromones();
             }
         }
+    }
 
-        SetNeighbours();
-        SetupWalls();
+    public void CleanAllFoodToken()
+    {
+        for (int i = 0; i < _gridSizeX; i++)
+        {
+            for (int j = 0; j < _gridSizeZ; j++)
+            {
+                if ((i + j) % 2 == 0 && _grid[i, j].HasAnyFood)
+                    _grid[i, j].RemoveFoodToken(true);
+            }
+        }
     }
 
     public void SetupHexaGrid()
@@ -130,31 +151,6 @@ public class Ground : MonoBehaviour
         //BuildRandomWall();
     }
 
-    public void SetupWalls()
-    {
-        var xPos = (_gridWorldSize.x + NodeRadius) / 2;
-        var zPos = (_gridWorldSize.z + NodeRadius) / 2;
-        var leftWallPos = new Vector3(0, 1f, - xPos);
-        var righttWallPos = new Vector3(0, 1f, xPos);
-        var topWallPos = new Vector3(0, 1f, zPos);
-        var botWallPos = new Vector3(0, 1f, - zPos);
-
-        var leftWall = Instantiate(WallPrefab, leftWallPos, Quaternion.identity, _wallContainer);
-        leftWall.name = "LeftWall";
-        leftWall.BuildWall(_gridWorldSize.z + _nodeDiameter, 5, 3, 0, 90,0);
-        var rightWall = Instantiate(WallPrefab, righttWallPos, Quaternion.identity, _wallContainer);
-        rightWall.name = "RightWall";
-        rightWall.BuildWall(_gridWorldSize.z + _nodeDiameter, 5, 3, 0, 90,0);
-        var topWall = Instantiate(WallPrefab, topWallPos, Quaternion.identity, _wallContainer);
-        topWall.name = "TopWall";
-        topWall.BuildWall(_gridWorldSize.x + _nodeDiameter, 5, 3);
-        var botWall = Instantiate(WallPrefab, botWallPos, Quaternion.identity, _wallContainer);
-        botWall.name = "BotWall";
-        botWall.BuildWall(_gridWorldSize.x + _nodeDiameter, 5, 3);
-
-        //BuildRandomWall();
-    }
-
     public void BuildRandomWall()
     {
         var number = Mathf.RoundToInt(Random.value * 10);
@@ -180,18 +176,6 @@ public class Ground : MonoBehaviour
         }
     }
 
-    private void SetNeighbours()
-    {
-        for (int i = 0; i < _gridSizeX; i++)
-        {
-            for (int j = 0; j < _gridSizeZ; j++)
-            {
-                var block = _grid[i, j].Block;
-                block.Neighbours = GetNeighbours(block);
-            }
-        }
-    }
-
     private void SetHexaNeighbours()
     {
         for (int i = 0; i < _gridSizeX; i++)
@@ -210,27 +194,6 @@ public class Ground : MonoBehaviour
                 }
             }
         }
-    }
-
-
-    private List<Block> GetNeighbours(Block block)
-    {
-        var neighbours = new List<Block>();
-        for (int i = -1; i <= 1; i++)
-        {
-            for (int j = -1; j <= 1; j++)
-            {
-                if (i == 0 && j == 0)
-                    continue;
-
-                var checkX = block.XCoordinate + i;
-                var checkY = block.ZCoordinate + j;
-
-                if (checkX >= 0 && checkX < _gridSizeX && checkY >= 0 && checkY < _gridSizeZ)
-                    neighbours.Add(_grid[checkX, checkY].Block);
-            }
-        }
-        return neighbours;
     }
 
     private List<Block> GetHexaNeighbours(Block block)
@@ -256,6 +219,7 @@ public class Ground : MonoBehaviour
         return neighbours;
     }
 
+
     public Block BlockFromWorldPoint(Vector3 worldPosition)
     {
         float percentX = (worldPosition.x + _gridWorldSize.x / 2) / _gridWorldSize.x;
@@ -270,25 +234,30 @@ public class Ground : MonoBehaviour
         return _grid[i, j].Block;
     }
 
-    public Block GetBlockFromWorldPosition(Vector3 worldPosition)
+    public GroundBlock GroundBlockFromWorldPosition(Vector3 worldPosition)
     {
         var layer = LayerMask.GetMask(Layer.Walkable.ToString());
         if (Physics.Raycast(transform.position + worldPosition + Vector3.up, Vector3.down, out RaycastHit hit, 10f, layer))
-            return hit.collider.GetComponentInParent<GroundBlock>().Block;
+            return hit.collider.GetComponentInParent<GroundBlock>();
 
         return null;
     }
 
-    public List<Block> GetAllBlocksInCircle(Vector3 center, float radius)
+    public GroundBlock GroundBlockFromBlock(Block block)
     {
-        var blocks = new List<Block>();
+        return _grid[block.XCoordinate, block.ZCoordinate];
+    }
+
+    public List<GroundBlock> GroundBlockWithinCircle(Vector3 center, float radius)
+    {
+        var blocks = new List<GroundBlock>();
 
         var colliders = Physics.OverlapSphere(center, radius);
         foreach (var col in colliders)
         {
-            var blockGo = col.GetComponent<GroundBlock>();
+            var blockGo = col.transform.parent.GetComponent<GroundBlock>();
             if (blockGo != null)
-                blocks.Add(blockGo.Block);
+                blocks.Add(blockGo);
         }
 
         return blocks;

@@ -1,11 +1,10 @@
-﻿using Assets._Scripts.Utilities;
-using mew;
+﻿using mew;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
 using NeuralNetwork.Interfaces.Model;
+using Assets._Scripts.Units.Ants.AntScanners;
 
 public class AntScannerManager : MonoBehaviour
 {
@@ -19,15 +18,10 @@ public class AntScannerManager : MonoBehaviour
     private NeuralNetworkInputs _inputs;
     private string[] _portionInfos;
 
-    protected float _scanInterval;
-    protected float _scanTimer;
-    protected bool _updateinputs = true;
-
     private BaseAnt _ant;
 
+    private AntScannerBlock _scannerBlock;
     private AntScannerObstacles _obstacleScanner;
-    private AntScannerPheromones _pheromoneScanner;
-    private AntScannerCollectables _collectableScanner;
     public string[] PortionInfos => _portionInfos;
 
     bool initialyzed = false;
@@ -37,40 +31,7 @@ public class AntScannerManager : MonoBehaviour
         _ant = GetComponentInParent<BaseAnt>();
 
         _obstacleScanner = GetComponentInChildren<AntScannerObstacles>();
-        _pheromoneScanner = GetComponentInChildren<AntScannerPheromones>();
-        _collectableScanner = GetComponentInChildren<AntScannerCollectables>();
-    }
-
-    private void Update()
-    {
-        if (!initialyzed)
-            return;
-
-        _scanTimer -= Time.deltaTime;
-        if (_scanTimer < 0)
-        {
-            _scanTimer += _scanInterval;
-            Scan();
-        }
-        if (_updateinputs)
-            InputsUpdate();
-    }
-
-
-    public void InitialyzeScanners(Dictionary<int, Brain> brains)
-    {
-        var subdiv = _ant.Stats.ScannerSubdivisions;
-        _obstacleScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
-        _pheromoneScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
-        _collectableScanner.Initialyze(_ant, subdiv, GlobalParameters.BaseScannerRate);
-        _inputs = new NeuralNetworkInputs(subdiv, brains);
-        _portionInfos = new string[subdiv];
-        initialyzed = true;
-    }
-
-    public void UpdateAntInputs(bool carryFood)
-    {
-        _inputs.CarryFood = carryFood;
+        _scannerBlock = GetComponentInChildren<AntScannerBlock>();
     }
 
     public List<float> GetInputs()
@@ -78,35 +39,53 @@ public class AntScannerManager : MonoBehaviour
         return _inputs.GetAllInputs();
     }
 
-    private void Scan()
+    public void InitialyzeScanners(Dictionary<int, Brain> brains)
     {
-        _obstacleScanner.Scan();
-        _pheromoneScanner.Scan();
-        _collectableScanner.Scan();
-        _updateinputs = true;
+        var subdiv = _ant.Stats.ScannerSubdivisions;
+        _obstacleScanner.Initialyze(_ant, subdiv);
+        _scannerBlock.Initialyze(_ant, subdiv);
+        _inputs = new NeuralNetworkInputs(subdiv, brains);
+        _portionInfos = new string[subdiv];
+
+        initialyzed = true;
     }
 
-    private void InputsUpdate()
+    public void ScanAll(bool carryFood)
+    {
+        if (!initialyzed)
+            return;
+
+        ScanWithAllScanners();
+        PortionInputsUpdate();
+        _inputs.CarryFood = carryFood;
+    }
+
+    private void ScanWithAllScanners()
+    {
+        _obstacleScanner.Scan();
+        _scannerBlock.Scan();
+    }
+
+    private void PortionInputsUpdate()
     {
         for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
             _inputs.UpdatePortion(i, GetPortionInputs(i));
-        _updateinputs = false;
     }
 
     private PortionInputs GetPortionInputs(int portionIndex)
     {
-        var pheroW = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
-        var pheroC = _pheromoneScanner.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
+        var pheroW = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
+        var pheroC = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
 
         var portioninputs = new PortionInputs
         {
             PheroW = pheroW.averageDensity,
             PheroC = pheroC.averageDensity,
             WallDist = _obstacleScanner.GetPortionValue(portionIndex),
-            FoodToken = _collectableScanner.GetFoodToken(portionIndex),
-            IsNestInSight = _collectableScanner.IsNestInSight(portionIndex, _ant.NestName).isIt
+            FoodToken = _scannerBlock.IsThereFood(portionIndex),
+            IsNestInSight = _scannerBlock.IsNestInSight(portionIndex)
         };
-        portioninputs.ActivateTriggerObject = _collectableScanner.IsPortionActive(portionIndex);
+        portioninputs.ActivateTriggerObject = _scannerBlock.IsPortionInVisionField(portionIndex);
 
         //if (_ant.name == "Worker_0")
         //{

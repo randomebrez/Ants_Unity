@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using static mew.ScriptablePheromoneBase;
 
 public class AntColony : MonoBehaviour
 {
@@ -19,9 +20,6 @@ public class AntColony : MonoBehaviour
     private List<(BaseAnt ant, float score)> _bestBrains = new List<(BaseAnt ant, float score)>();
 
     private int _generationId = 0;
-    private bool _startCooldown = false;
-    private string _firstBrainsFilePath = "";
-    private float _currentGenerationLifeTime;
     private bool _initialyzed = false;
     private int _numberMaxToSelect = 0;
 
@@ -32,46 +30,32 @@ public class AntColony : MonoBehaviour
         _block = GetComponentInChildren<BlockBase>();
 
         _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
-        _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * 2 * GlobalParameters.ColonyMaxPopulation);
+        _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * GlobalParameters.ColonyMaxPopulation);
     }
 
-    void Update()
+    public void Update()
     {
-        if (_initialyzed == false)
-            return;
-        if (!_startCooldown)
-        {
-            GenerateNewGeneration();
-            _startCooldown = true;
-        }
-        else
-        {
-            _currentGenerationLifeTime -= Time.deltaTime;
-            if (_currentGenerationLifeTime < 0)
-            {
-                _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
-                GenerateNewGeneration();
-            }
-        }
+        if (_generationId == 0 && _initialyzed && _population.Count <= 0)
+            GenerateNewGeneration(GlobalParameters.FirstBrainsFilePath);
     }
 
 
     // Public methods
-    public void Initialyze(string name, string firstBrainsFilePath = "")
+    public void Initialyze(string name)
     {
         transform.name = name;
 
         _neuralNetworkGateway = new NeuralNetworkGateway();
-
         _population = new List<BaseAnt>();
 
-        _currentGenerationLifeTime = GlobalParameters.GenerationLifeTime;
-
-        _firstBrainsFilePath = firstBrainsFilePath;
+        var blocksUnderneath = EnvironmentManager.Instance.GroundBlockWithinCircle(transform.position, 2 * GlobalParameters.NodeRadius);
+        foreach (var block in blocksUnderneath)
+            block.IsUnderNest = true;
 
         StatisticsManager.Instance.InitializeViewAsync(new List<StatisticEnum>
         {
             //StatisticEnum.Score,
+            StatisticEnum.Age,
             StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
@@ -80,26 +64,51 @@ public class AntColony : MonoBehaviour
         _initialyzed = true;
     }
 
+    public void MoveAllAnts()
+    {
+        if (_initialyzed == false)
+            return;
+
+        for (int i = 0; i < _population.Count; i++)
+            _population[i].Move();
+    }
+
+    public void RenewPopulation()
+    {
+        SelectBestUnits();
+        GetStatistics();
+        DestroyPreviousGeneration();
+
+        GenerateNewGeneration();
+    }
+
+    public Dictionary<PheromoneTypeEnum, List<Block>> GetAllAntPositions()
+    {
+        if (_initialyzed == false)
+            return new Dictionary<PheromoneTypeEnum, List<Block>>();
+        var result = new Dictionary<PheromoneTypeEnum, List<Block>>();
+        result.Add(PheromoneTypeEnum.Wander, new List<Block>());
+        result.Add(PheromoneTypeEnum.CarryFood, new List<Block>());
+
+        for (int i = 0; i < _population.Count; i++)
+        {
+            var ant = _population[i];
+            result[ant.GetPheroType()].Add(ant.CurrentPos.Block);
+        }
+
+        return result;
+    }
+
 
     // Private methods
-    private void GenerateNewGeneration()
+    private void GenerateNewGeneration(string filePath = null)
     {
         AntSceneManager.Instance.SetNewGenerationId(_generationId);
 
-        if (_population.Count != 0)
-        {
-            SelectBestUnits();
-            GetStatistics();
-            CleanPheromoneContainer();
-            RepopFood();
-            DestroyPreviousGeneration();
-            
-        }
-
         List<AntBrains> brainsToGive;
         // Get as many brain as ants we want to pop
-        if (_generationId == 0 && string.IsNullOrEmpty(_firstBrainsFilePath) == false)
-            brainsToGive = GetBrainsFromFile(_firstBrainsFilePath);
+        if (string.IsNullOrEmpty(filePath) == false)
+            brainsToGive = GetBrainsFromFile(filePath);
         else
             brainsToGive = GenerateBrainsAndUnits();
 
@@ -111,7 +120,6 @@ public class AntColony : MonoBehaviour
     {
         var antBrains = _bestBrains.Select(t => t.ant.GetBrain());
         var mainBrains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, antBrains.Select(t => t.MainBrain).ToList());
-        var childBrains = mainBrains.Where(t => t.ParentA != new System.Guid());
         var brainsToGive = new List<AntBrains>();
         for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
         {
@@ -161,18 +169,18 @@ public class AntColony : MonoBehaviour
         for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + 1;
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + GlobalParameters.MeanChildNumberByBrains / 2;
             else if (i < _numberMaxToSelect - index1)
                 _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains;
             else
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - 1;
+                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - GlobalParameters.MeanChildNumberByBrains / 2;
         }
         _bestBrains = _currentSelection;
     }
 
     private void GetStatistics()
     {
-        StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _bestBrains.Select(t => t.ant).ToList()).GetAwaiter().GetResult();
+        StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _population).GetAwaiter().GetResult();
     }
 
     private void DestroyPreviousGeneration()
@@ -181,29 +189,5 @@ public class AntColony : MonoBehaviour
             Destroy(ant.gameObject);
 
         _population.Clear();
-    }
-
-    private void RepopFood()
-    {
-        var foodContainer = EnvironmentManager.Instance.GetFoodContainer();
-        for (int i = foodContainer.childCount; i > 0; i--)
-            Destroy(foodContainer.GetChild(i - 1).gameObject);
-
-        if (_bestBrains.Count >= _numberMaxToSelect && _generationId % 15 > 10)
-        {
-            EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);
-            EnvironmentManager.Instance.SpawnFoodPaquet(GlobalParameters.InitialFoodTokenNumber / 2);
-        }
-        else
-        {
-            var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
-            for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
-                EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
-        }
-    }
-
-    private void CleanPheromoneContainer()
-    {
-        _spawner.CleanPheromones();
     }
 }

@@ -21,7 +21,7 @@ namespace Assets._Scripts.Utilities
             InputNumber = 25,
             OutputNumber = 6,
             NeutralNumbers = new List<int> { 6, 6 },
-            WeighBytesNumber = 4
+            WeighBytesNumber = 2
         };
         public static NetworkCaracteristics PortionNetworkCaracteristics = new NetworkCaracteristics
         {
@@ -34,8 +34,9 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationLifeTime = 20;
-        public static int MeanChildNumberByBrains = 2;
+        public static float GenerationFrameCount = 400;
+        //This number should be >= 2/PercentToSelectAmongstBest to have a complete MaxColonyNumber generation generated only from selected brains
+        public static int MeanChildNumberByBrains = 3;
         public static float PercentToSelectAmongstBest = 0.35f;
 
         //
@@ -45,5 +46,8 @@ namespace Assets._Scripts.Utilities
         public static int StoreFrequency = 20;
         public static string SqlFilePath = @".\Database\NeuralNetworkDatabase.txt";
         public static string SqlFolderPath = ".\\Database";
+
+        // Local brain file
+        public static string FirstBrainsFilePath = @"D:\Codes\Test\1.txt";
     }
 }

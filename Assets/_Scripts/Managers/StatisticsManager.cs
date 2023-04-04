@@ -37,6 +37,7 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         var sumFoodCollected = 0f;
         var sumFoodGrabbed = 0f;
         var comeBackMean = 0f;
+        var ageMean = 0f;
         var bestScore = Mathf.NegativeInfinity;
         var count2 = 0f;
         foreach (var ant in ants)
@@ -48,14 +49,16 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 
             if (antStatistics[StatisticEnum.ComeBackMean] < int.MaxValue)
             {
-                comeBackMean += antStatistics[StatisticEnum.ComeBackMean];
+                comeBackMean += 1f / antStatistics[StatisticEnum.ComeBackMean];
                 count2++;
             }
             sumFoodCollected += antStatistics[StatisticEnum.FoodCollected];
             sumFoodGrabbed += antStatistics[StatisticEnum.FoodGrabbed];
+            ageMean += antStatistics[StatisticEnum.Age];
         }
 
         comeBackMean = count2 > 0 ? comeBackMean / count2 : 0;
+        ageMean /= ants.Count;
 
         var xPoint = generationId * Vector2.right;
         var currentHighScore = new Dictionary<StatisticEnum, Vector2>
@@ -63,7 +66,8 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
             { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },            
             { StatisticEnum.ComeBackMean, xPoint + (float)Math.Round(comeBackMean, 2) * Vector2.up },
             { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up },
-            { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up }
+            { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
+            { StatisticEnum.Age, xPoint + ageMean * Vector2.up }
         };
 
         if (_globalHighScore.Count == 0)

@@ -17,6 +17,7 @@ internal class SceneManager : BaseManager<SceneManager>
     public Action<SceneState> AfterStateChanged;
 
     private bool _stateChanged = false;
+    private int _frameCount = 0;
 
     public void Start()
     {
@@ -25,10 +26,8 @@ internal class SceneManager : BaseManager<SceneManager>
 
     private void Update()
     {
-        if (!_stateChanged)
-            return;
+        _frameCount++;
 
-        _stateChanged = false;
         switch (_sceneState)
         {
             case SceneState.SpawnContext:
@@ -40,6 +39,7 @@ internal class SceneManager : BaseManager<SceneManager>
                 ChangeState();
                 break;
             case SceneState.Running:
+                RunLife();
                 break;
         }
     }
@@ -73,11 +73,27 @@ internal class SceneManager : BaseManager<SceneManager>
     private void InstantiateContextObjects()
     {
         // Spawn food
-        var deltaTheta = 360f / (GlobalParameters.InitialFoodTokenNumber / 10);
-        for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
-            EnvironmentManager.Instance.SpawnFood(i * deltaTheta);
+        EnvironmentManager.Instance.SpawnFood();
 
         // Spawn ants
         UnitManager.Instance.CreateNewColony();
+    }
+
+    private void RunLife()
+    {
+        if (_frameCount < GlobalParameters.GenerationFrameCount)
+        {
+            UnitManager.Instance.MoveAllUnits();
+            EnvironmentManager.Instance.DropPheromones();
+            EnvironmentManager.Instance.ApplyTimeEffect();
+        }
+        else
+        {
+            EnvironmentManager.Instance.RenewEnvironment();
+            UnitManager.Instance.RenewColonies();
+            _frameCount = -1;
+        }
+
+        _frameCount++;
     }
 }
