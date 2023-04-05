@@ -30,12 +30,10 @@ public class GameViewsManager : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (_pauseMenu.gameObject.activeInHierarchy)
-                _pauseMenu.gameObject.SetActive(false);
-            else
-                _pauseMenu.gameObject.SetActive(true);
-        }
+            HandlePauseMenu();
+
+        if (_pauseMenu.gameObject.activeInHierarchy)
+            return;
 
         var temp = Math.Round(Time.deltaTime, 3).ToString().Split(',');
         _genereationElapsedTime += new TimeSpan(0, 0, 0, int.Parse(temp[0]), int.Parse(temp[1]));
@@ -69,5 +67,15 @@ public class GameViewsManager : MonoBehaviour
     public void UpdateHighScores(string text)
     {
         _sidePanels.UpdateHighScore(text);
+    }
+
+
+    private void HandlePauseMenu()
+    {
+        if (_pauseMenu.gameObject.activeInHierarchy == false)
+        {
+            _pauseMenu.gameObject.SetActive(true);
+            SceneManager.Instance.SimulationPaused = true;
+        }
     }
 }

@@ -71,7 +71,14 @@ internal class UnitManager : BaseManager<UnitManager>
     {
         for (int i = 0; i < _colonies.Count; i++)
             _colonies[i].RenewPopulation();
+    }
 
+    public void ClearColonies()
+    {
+        for (int i = _colonies.Count; i > 0; i--)
+            Destroy(_colonies[i - 1].gameObject);
+
+        _colonies.Clear();
     }
 
     public void AntClick(BaseAnt ant)

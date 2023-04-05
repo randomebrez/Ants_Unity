@@ -10,7 +10,8 @@ internal class SceneManager : BaseManager<SceneManager>
         CreateFolders,
         SpawnContext,
         SpawnContextObjects,
-        Running
+        Running,
+        Restart
     }
 
     private SceneState _sceneState = SceneState.Initialyze;
@@ -19,6 +20,7 @@ internal class SceneManager : BaseManager<SceneManager>
     public Action<SceneState> AfterStateChanged;
 
     private int _frameCount = 0;
+    public bool SimulationPaused = false;
 
     public void Start()
     {
@@ -27,6 +29,9 @@ internal class SceneManager : BaseManager<SceneManager>
 
     private void Update()
     {
+        if (SimulationPaused)
+            return;
+
         switch (_sceneState)
         {
             case SceneState.CreateFolders:
@@ -43,6 +48,10 @@ internal class SceneManager : BaseManager<SceneManager>
                 break;
             case SceneState.Running:
                 RunLife();
+                break;
+            case SceneState.Restart:
+                RestartSimulation();
+                ChangeState();
                 break;
         }
     }
@@ -63,6 +72,9 @@ internal class SceneManager : BaseManager<SceneManager>
                 _sceneState = SceneState.SpawnContextObjects;
                 break;
             case SceneState.SpawnContextObjects:
+                _sceneState = SceneState.Running;
+                break;
+            case SceneState.Restart:
                 _sceneState = SceneState.Running;
                 break;
         }
@@ -107,5 +119,19 @@ internal class SceneManager : BaseManager<SceneManager>
         }
 
         _frameCount++;
+    }
+
+    public void Restart()
+    {
+        _sceneState = SceneState.Restart;
+    }
+
+    private void RestartSimulation()
+    {
+        UnitManager.Instance.ClearColonies();
+        EnvironmentManager.Instance.RenewEnvironment();
+        UnitManager.Instance.CreateNewColony();
+        _frameCount = 0;
+        SimulationPaused = false;
     }
 }

@@ -16,7 +16,7 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 {
     private GameViewsManager _gameViewManager;
     private IStorage _dbGateway;
-    private Dictionary<StatisticEnum, int> _statisticsDisplayZoneIndexes = new Dictionary<StatisticEnum, int>();
+    private Dictionary<StatisticEnum, int> _statisticsDisplayZoneIndexes;
     private Dictionary<StatisticEnum, Vector2> _globalHighScore = new Dictionary<StatisticEnum, Vector2>();
 
     public void SetGameViewManager(GameViewsManager gameViewManager)
@@ -24,11 +24,13 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         _gameViewManager = gameViewManager;
     }
 
-    public async Task InitializeViewAsync(List<StatisticEnum> statisticsToDisplay)
+    public void InitializeView(List<StatisticEnum> statisticsToDisplay)
     {
         _dbGateway = new FileStorageGateway(GlobalParameters.SqlFolderPath);
         _gameViewManager.Initialyze(statisticsToDisplay.Select(t => t.ToString()).ToList());
-        for(int i = 0; i < statisticsToDisplay.Count; i++)
+
+        _statisticsDisplayZoneIndexes = new Dictionary<StatisticEnum, int>();
+        for (int i = 0; i < statisticsToDisplay.Count; i++)
             _statisticsDisplayZoneIndexes.Add(statisticsToDisplay[i], i);
     }
 
