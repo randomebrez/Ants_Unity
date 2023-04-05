@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using sm = UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
@@ -28,7 +27,7 @@ public class PauseMenu : MonoBehaviour
 
     public void OnExitToMenuClick()
     {
-        //Close the scene and launch MainMenu scene
+        sm.SceneManager.LoadSceneAsync(0);
     }
 
     public void OnExitToDesktopClick()

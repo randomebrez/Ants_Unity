@@ -85,7 +85,7 @@
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
     <Compile Include="Assets\_Scripts\Managers\EnvironmentManager.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
-    <Compile Include="Assets\_Scripts\UI\PauseMenu\PauseMenu.cs" />
+    <Compile Include="Assets\_Scripts\UI\Menus\PauseMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\SpawnerAnt.cs" />
     <Compile Include="Assets\_Scripts\Managers\UnitManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BasePheromone.cs" />
@@ -94,6 +94,7 @@
     <Compile Include="Assets\_Scripts\UI\SidePanels.cs" />
     <Compile Include="Assets\_Scripts\Managers\StatisticsManager.cs" />
     <Compile Include="Assets\_Scripts\Managers\GameViewsManager.cs" />
+    <Compile Include="Assets\_Scripts\UI\Menus\MainMenu.cs" />
     <Compile Include="Assets\Abstractions\IStorage.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerBase.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerObstacles.cs" />
@@ -108,6 +109,9 @@
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerManager.cs" />
+    <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
+    <Compile Include="Assets\_Scripts\UI\Menus\InputParameterField.cs" />
+    <Compile Include="Assets\_Scripts\Managers\InitialScreenManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
