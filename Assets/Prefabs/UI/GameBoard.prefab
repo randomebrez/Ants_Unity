@@ -178,7 +178,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 50
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -744,19 +744,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4175608167947403026, guid: 867f386b1a98a914298ecd2c3b4ec3ce, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: 4175608167947403026, guid: 867f386b1a98a914298ecd2c3b4ec3ce, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0.99
       objectReference: {fileID: 0}
     - target: {fileID: 4175608167947403026, guid: 867f386b1a98a914298ecd2c3b4ec3ce, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4175608167947403026, guid: 867f386b1a98a914298ecd2c3b4ec3ce, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 4175608167947403026, guid: 867f386b1a98a914298ecd2c3b4ec3ce, type: 3}
       propertyPath: m_SizeDelta.x
