@@ -66,7 +66,7 @@
     <Compile Include="Assets\_Scripts\Managers\AntSceneManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\AntColony.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptableUnitBase.cs" />
-    <Compile Include="Assets\_Scripts\UI\Axis.cs" />
+    <Compile Include="Assets\_Scripts\UI\Graphics\Axis.cs" />
     <Compile Include="Assets\_Scripts\Environment\FoodToken.cs" />
     <Compile Include="Assets\_Scripts\Environment\BlockBase.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptablePheromoneBase.cs" />
@@ -85,10 +85,11 @@
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
     <Compile Include="Assets\_Scripts\Managers\EnvironmentManager.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
+    <Compile Include="Assets\_Scripts\UI\PauseMenu\PauseMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\SpawnerAnt.cs" />
     <Compile Include="Assets\_Scripts\Managers\UnitManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BasePheromone.cs" />
-    <Compile Include="Assets\_Scripts\UI\Curve.cs" />
+    <Compile Include="Assets\_Scripts\UI\Graphics\Curve.cs" />
     <Compile Include="Assets\Abstractions\IManager.cs" />
     <Compile Include="Assets\_Scripts\UI\SidePanels.cs" />
     <Compile Include="Assets\_Scripts\Managers\StatisticsManager.cs" />
@@ -97,7 +98,7 @@
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerBase.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerObstacles.cs" />
     <Compile Include="Assets\_Scripts\Managers\PheromoneManager.cs" />
-    <Compile Include="Assets\_Scripts\UI\AxisIndexes.cs" />
+    <Compile Include="Assets\_Scripts\UI\Graphics\AxisIndexes.cs" />
     <Compile Include="Assets\_Scripts\Managers\SceneManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />
     <Compile Include="Assets\Dtos\NeuralNetworkInputs.cs" />

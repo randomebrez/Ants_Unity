@@ -3,16 +3,18 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Food
+  - Block
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Unit
   - Water
   - UI
-  - Unwalkables
-  - 
+  - Unwalkable
+  - Walkable
   - 
   - 
   - 
@@ -38,6 +40,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BackGround
+    uniqueID: 1937066473
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: FrontGround
+    uniqueID: 43469751
     locked: 0

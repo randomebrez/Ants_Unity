@@ -8,6 +8,7 @@ public class GameViewsManager : MonoBehaviour
     private SidePanels _sidePanels;
     public Transform MainView { get; private set; }
     private TextMeshProUGUI _headerText;
+    private Transform _pauseMenu;
 
     private int _generationId;
     private TimeSpan _genereationElapsedTime;
@@ -20,12 +21,21 @@ public class GameViewsManager : MonoBehaviour
         MainView = transform.GetChild(0);
         _sidePanels = transform.GetChild(1).GetComponent<SidePanels>();
         _headerText = MainView.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>();
+        _pauseMenu = transform.GetChild(2);
     }
 
     private void Update()
     {
         if (_simulationStarted == false)
             return;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (_pauseMenu.gameObject.activeInHierarchy)
+                _pauseMenu.gameObject.SetActive(false);
+            else
+                _pauseMenu.gameObject.SetActive(true);
+        }
 
         var temp = Math.Round(Time.deltaTime, 3).ToString().Split(',');
         _genereationElapsedTime += new TimeSpan(0, 0, 0, int.Parse(temp[0]), int.Parse(temp[1]));
