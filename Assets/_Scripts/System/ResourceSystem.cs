@@ -28,4 +28,19 @@ public class ResourceSystem : Singleton<ResourceSystem>
     public ScriptableAntBase AntOfTypeGet(ScriptableAntBase.AntTypeEnum type) => _antsDict[type];
 
     public ScriptablePheromoneBase PheromoneOfTypeGet(ScriptablePheromoneBase.PheromoneTypeEnum type) => _pheromonesDict[type];
+
+    public void ModifyVisionRadius(ScriptableAntBase.AntTypeEnum antType, int newValue)
+    {
+        _antsDict[antType].BaseStats.VisionRadius = newValue;
+    }
+
+    public void ModifyVisionAngle(ScriptableAntBase.AntTypeEnum antType, int newValue)
+    {
+        _antsDict[antType].BaseStats.VisionAngle = newValue;
+    }
+
+    public void ModifyPheromoneDuration(ScriptablePheromoneBase.PheromoneTypeEnum pheroType,int newValue)
+    {
+        _pheromonesDict[pheroType].BaseCaracteristics.Duration = newValue;
+    }
 }

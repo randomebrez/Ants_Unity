@@ -17,10 +17,10 @@ namespace mew
         }
 
         [System.Serializable]
-        public struct Caracteristics
+        public class Caracteristics
         {
             public PheromoneTypeEnum PheromoneType;
-            public int Duration;
+            public int Duration { get; set; } = 100;
             public Color Color;
         }
     }

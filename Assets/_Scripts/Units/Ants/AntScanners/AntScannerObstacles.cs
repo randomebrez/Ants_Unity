@@ -66,18 +66,44 @@ public class AntScannerObstacles : AntScannerBase
 
     #endregion
 
-    /*private void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
-        foreach (var obstacle in ObjectsFlattenList)
+        if (_ant.name != "Worker_0")
+            return;
+    
+        // Draw scanner with portions
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(_positionAtScanTime, _scannerRadius);
+        float deltaTheta = 360 / _scannerSubdivision;
+        // start at the back of the ant for the 'ToDictionary' method that uses the fact that indexes are increasing
+        var current = -180 - deltaTheta / 2f;
+        for (int i = 0; i < _scannerSubdivision; i++)
         {
-            Gizmos.DrawWireCube(obstacle.transform.position, Vector3.one);
+            Gizmos.DrawLine(_positionAtScanTime, _positionAtScanTime + Quaternion.Euler(0, current, 0) * _directionAtScanTime * _scannerRadius);
+            current += deltaTheta;
         }
-
-        if (_mesh != null)
+    
+        // Print scanned obj
+        var portionColors = new Color[] { Color.yellow, Color.red, Color.blue, Color.green, Color.cyan,  Color.white };
+        for (int i = 0; i < _scannerSubdivision; i++)
         {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawMesh(_mesh, transform.position, transform.rotation);
+            Gizmos.color = portionColors[i];
+            foreach (var obstacle in Objects[i])
+            {
+                Gizmos.DrawWireCube(obstacle.transform.position, Vector3.one);
+            }
         }
-    }*/
+    
+        // Print ground detected
+        //var colliders = new Collider[70];
+        //Physics.OverlapSphereNonAlloc(_positionAtScanTime, _scannerRadius, colliders, LayerMask.GetMask(Layer.Walkable.ToString()));
+        //Gizmos.color = Color.magenta;
+        //foreach (var collider in colliders)
+        //    Gizmos.DrawWireCube(collider.transform.position, Vector3.one);
+    
+        // Vision Field
+        //Gizmos.color = Color.red;
+        //Gizmos.DrawLine(_positionAtScanTime, _positionAtScanTime + Quaternion.Euler(0, -_scannerAngle / 2f, 0) * _directionAtScanTime * _scannerRadius);
+        //Gizmos.DrawLine(_positionAtScanTime, _positionAtScanTime + Quaternion.Euler(0, _scannerAngle / 2f, 0) * _directionAtScanTime * _scannerRadius);
+    }
 }

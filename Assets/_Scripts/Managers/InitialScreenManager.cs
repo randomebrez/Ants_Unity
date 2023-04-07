@@ -8,6 +8,7 @@ public class InitialScreenManager : MonoBehaviour
     private MainMenu _mainMenu;
     private ParametersMenu _parametersMenu;
 
+    private bool _parameterMenuOpenOnce = false;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +24,11 @@ public class InitialScreenManager : MonoBehaviour
     {
         if (_mainMenu.gameObject.activeInHierarchy)
         {
+            if (_parameterMenuOpenOnce == false)
+            {
+                _parametersMenu.Initialyze();
+                _parameterMenuOpenOnce = true;
+            }
             _mainMenu.gameObject.SetActive(false);
             _parametersMenu.gameObject.SetActive(true);
         }

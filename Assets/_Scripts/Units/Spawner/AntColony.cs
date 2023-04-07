@@ -30,7 +30,7 @@ public class AntColony : MonoBehaviour
         _block = GetComponentInChildren<BlockBase>();
 
         _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
-        _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * GlobalParameters.ColonyMaxPopulation);
+        _numberMaxToSelect = (int)((GlobalParameters.PercentToSelectAmongstBest / 100) * GlobalParameters.ColonyMaxPopulation);
     }
 
     public void Update()

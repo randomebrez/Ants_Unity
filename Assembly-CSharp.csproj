@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_Scripts\Units\Ants\StatisticEnum.cs" />
+    <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\WorkerAnt.cs" />
     <Compile Include="Assets\_Scripts\UI\GraphicManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Ground.cs" />
@@ -72,9 +73,11 @@
     <Compile Include="Assets\_Scripts\Scriptable\ScriptablePheromoneBase.cs" />
     <Compile Include="Assets\_Scripts\Utilities\StaticHelper.cs" />
     <Compile Include="Assets\_Scripts\Gateways\FileStorageGateway.cs" />
+    <Compile Include="Assets\Dtos\InputParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
     <Compile Include="Assets\Dtos\Pheromone.cs" />
     <Compile Include="Assets\_Scripts\System\ResourceSystem.cs" />
+    <Compile Include="Assets\_Scripts\UI\Menus\InputParameterField.cs" />
     <Compile Include="Assets\_Scripts\Environment\GroundBlock.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BaseAnt.cs" />
     <Compile Include="Assets\Dtos\PheromoneType.cs" />
@@ -93,13 +96,16 @@
     <Compile Include="Assets\Abstractions\IManager.cs" />
     <Compile Include="Assets\_Scripts\UI\SidePanels.cs" />
     <Compile Include="Assets\_Scripts\Managers\StatisticsManager.cs" />
+    <Compile Include="Assets\_Scripts\Managers\ParametersManager.cs" />
     <Compile Include="Assets\_Scripts\Managers\GameViewsManager.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\MainMenu.cs" />
     <Compile Include="Assets\Abstractions\IStorage.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerBase.cs" />
+    <Compile Include="Assets\_Scripts\Managers\InitialScreenManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerObstacles.cs" />
     <Compile Include="Assets\_Scripts\Managers\PheromoneManager.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\AxisIndexes.cs" />
+    <Compile Include="Assets\Dtos\ParametersEnum.cs" />
     <Compile Include="Assets\_Scripts\Managers\SceneManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />
     <Compile Include="Assets\Dtos\NeuralNetworkInputs.cs" />
@@ -109,9 +115,6 @@
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerManager.cs" />
-    <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
-    <Compile Include="Assets\_Scripts\UI\Menus\InputParameterField.cs" />
-    <Compile Include="Assets\_Scripts\Managers\InitialScreenManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -20,7 +20,7 @@ namespace Assets._Scripts.Utilities
             GeneNumber = 300,
             InputNumber = 25,
             OutputNumber = 6,
-            NeutralNumbers = new List<int> { 6, 6 },
+            NeutralNumbers = new List<int> { 4, 3 },
             WeighBytesNumber = 2
         };
         public static NetworkCaracteristics PortionNetworkCaracteristics = new NetworkCaracteristics
@@ -34,10 +34,10 @@ namespace Assets._Scripts.Utilities
 
 
         //AntColony
-        public static float GenerationFrameCount = 150;
+        public static float GenerationFrameCount = 300;
         //This number should be >= 2/PercentToSelectAmongstBest to have a complete MaxColonyNumber generation generated only from selected brains
-        public static int MeanChildNumberByBrains = 3;
-        public static float PercentToSelectAmongstBest = 0.35f;
+        public static int MeanChildNumberByBrains = 7;
+        public static float PercentToSelectAmongstBest = 30f;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";
