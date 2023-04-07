@@ -154,7 +154,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
                     if (i == GlobalParameters.NetworkCaracteristics.NeutralNumbers.Count - 1)
                         result.Append($"{GlobalParameters.NetworkCaracteristics.NeutralNumbers[i]}");
                     else
-                        result.Append($"{GlobalParameters.NetworkCaracteristics.NeutralNumbers[i]}; ");
+                        result.Append($"{GlobalParameters.NetworkCaracteristics.NeutralNumbers[i]};");
                 }
                 return result.ToString();
             case NeuralNetworkParameterTypeEnum.GeneWeightBitNumber:
@@ -195,7 +195,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
                 var result = new List<int>();
                 var values = value.Split(';');
                 for (int i = 0; i < values.Where(t => string.IsNullOrEmpty(t) == false).Count(); i++)
-                    result.Append(int.Parse(values[i]));
+                    result.Add(int.Parse(values[i]));
                 GlobalParameters.NetworkCaracteristics.NeutralNumbers = result;
                 break;
             case NeuralNetworkParameterTypeEnum.GeneWeightBitNumber:

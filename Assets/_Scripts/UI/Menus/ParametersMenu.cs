@@ -57,12 +57,19 @@ public class ParametersMenu : MonoBehaviour
         var yAnchor = 1f;
         foreach (var pair in parameters)
         {
-            var item = Instantiate(InputParameterPrefab, SimulationPanel);            
-            item.GetComponent<RectTransform>().anchorMin = new Vector2(0, yAnchor - itemSize);
-            item.GetComponent<RectTransform>().anchorMax = new Vector2(1, yAnchor);
-            item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
-            yAnchor -= itemSize;
-            _simulationParameters.Add(pair.Key, item);
+            if (_simulationParameters.TryGetValue(pair.Key, out var item))
+            {
+                item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
+            }
+            else
+            {
+                item = Instantiate(InputParameterPrefab, SimulationPanel);
+                item.GetComponent<RectTransform>().anchorMin = new Vector2(0, yAnchor - itemSize);
+                item.GetComponent<RectTransform>().anchorMax = new Vector2(1, yAnchor);
+                item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
+                yAnchor -= itemSize;
+                _simulationParameters.Add(pair.Key, item);
+            }
         }
     }
 
@@ -81,12 +88,19 @@ public class ParametersMenu : MonoBehaviour
         var yAnchor = 1f;
         foreach (var pair in parameters)
         {
-            var item = Instantiate(InputParameterPrefab, NeuralNetworkPanel);            
-            item.GetComponent<RectTransform>().anchorMin = new Vector2(0, yAnchor - itemSize);
-            item.GetComponent<RectTransform>().anchorMax = new Vector2(1, yAnchor);
-            item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
-            yAnchor -= itemSize;
-            _neuralNetworkParameters.Add(pair.Key, item);
+            if (_neuralNetworkParameters.TryGetValue(pair.Key, out var item))
+            {
+                item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
+            }
+            else
+            {
+                item = Instantiate(InputParameterPrefab, NeuralNetworkPanel);
+                item.GetComponent<RectTransform>().anchorMin = new Vector2(0, yAnchor - itemSize);
+                item.GetComponent<RectTransform>().anchorMax = new Vector2(1, yAnchor);
+                item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
+                yAnchor -= itemSize;
+                _neuralNetworkParameters.Add(pair.Key, item);
+            }
         }
     }
 
@@ -105,12 +119,19 @@ public class ParametersMenu : MonoBehaviour
         var yAnchor = 1f;
         foreach (var pair in parameters)
         {
-            var item = Instantiate(InputParameterPrefab, AntCaracteristicsPanel);
-            item.GetComponent<RectTransform>().anchorMin = new Vector2(0, yAnchor - itemSize);
-            item.GetComponent<RectTransform>().anchorMax = new Vector2(1, yAnchor);
-            item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
-            yAnchor -= itemSize;
-            _antCaracteristicsParameters.Add(pair.Key, item);
+            if (_antCaracteristicsParameters.TryGetValue(pair.Key, out var item))
+            {
+                item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
+            }
+            else
+            {
+                item = Instantiate(InputParameterPrefab, AntCaracteristicsPanel);
+                item.GetComponent<RectTransform>().anchorMin = new Vector2(0, yAnchor - itemSize);
+                item.GetComponent<RectTransform>().anchorMax = new Vector2(1, yAnchor);
+                item.Initialyze(pair.Key.ToString(), pair.Value.value, pair.Value.valueConstraint);
+                yAnchor -= itemSize;
+                _antCaracteristicsParameters.Add(pair.Key, item);
+            }
         }
     }
 
