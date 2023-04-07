@@ -11,7 +11,7 @@ public class SidePanels : MonoBehaviour
     private Transform _highScoreZone;
     private RectTransform _rightPanel;
     private RectTransform _leftPanel;
-    private Dictionary<int, PanelZone> _canvasZones = new Dictionary<int, PanelZone>();
+    private Dictionary<int, PanelZone> _canvasZones;
     private float _highScoreZoneHeight;
 
 
@@ -25,6 +25,8 @@ public class SidePanels : MonoBehaviour
 
     public void SplitZone(List<string> titles)
     {
+        CleanZones();
+
         var zoneNumber = titles.Count;
         _highScoreZoneHeight = (int)_rightPanel.rect.height * 0.33f;
         var zoneHeight = (int)((2 * _rightPanel.rect.height - _highScoreZoneHeight)/ zoneNumber);
@@ -64,6 +66,16 @@ public class SidePanels : MonoBehaviour
 
             offSet += zoneHeight;
         }
+    }
+
+    public void CleanZones()
+    {
+        if (_canvasZones != null)
+        {
+            for (int i = _canvasZones.Count; i > 0; i--)
+                Destroy(_canvasZones[i - 1].gameObject);
+        }
+        _canvasZones = new Dictionary<int, PanelZone>();
     }
 
     public void AddCurveValue(int graphicIndex, Vector2  point)

@@ -79,9 +79,9 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingLayerID: 43469751
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_Positions: []
   m_Parameters:
     serializedVersion: 3
@@ -265,9 +265,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
+  m_SortingLayerID: -2084542519
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &972431643
 MonoBehaviour:
@@ -443,6 +443,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6017814309494255828}
   - component: {fileID: 6883219451852551596}
+  - component: {fileID: -7289868150486546427}
   m_Layer: 0
   m_Name: Graphic
   m_TagString: Untagged
@@ -485,6 +486,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c958c74edc6acd45b0d8e6b28722e39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!210 &-7289868150486546427
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2048514219386657831}
+  m_Enabled: 1
+  m_SortingLayerID: 43469751
+  m_SortingLayer: 1
+  m_SortingOrder: 2
 --- !u!1 &3996754347405454969
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,9 +574,9 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingLayerID: 43469751
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_Positions: []
   m_Parameters:
     serializedVersion: 3
@@ -709,9 +721,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
+  m_SortingLayerID: -2084542519
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &7560873498195792919
 MonoBehaviour:
@@ -971,9 +983,9 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingLayerID: 43469751
+  m_SortingLayer: 1
+  m_SortingOrder: 1
   m_Positions: []
   m_Parameters:
     serializedVersion: 3
@@ -1168,12 +1180,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
       propertyPath: m_SortingOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
       propertyPath: m_ReceiveShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 43469751
       objectReference: {fileID: 0}
     - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -1378,12 +1398,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
       propertyPath: m_SortingOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
       propertyPath: m_ReceiveShadows
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 43469751
       objectReference: {fileID: 0}
     - target: {fileID: 1879413946185719189, guid: e849aefb672679c4695795c029130ff4, type: 3}
       propertyPath: m_Materials.Array.data[0]

@@ -8,6 +8,7 @@ public class GameViewsManager : MonoBehaviour
     private SidePanels _sidePanels;
     public Transform MainView { get; private set; }
     private TextMeshProUGUI _headerText;
+    private Transform _pauseMenu;
 
     private int _generationId;
     private TimeSpan _genereationElapsedTime;
@@ -20,11 +21,18 @@ public class GameViewsManager : MonoBehaviour
         MainView = transform.GetChild(0);
         _sidePanels = transform.GetChild(1).GetComponent<SidePanels>();
         _headerText = MainView.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>();
+        _pauseMenu = transform.GetChild(2);
     }
 
     private void Update()
     {
         if (_simulationStarted == false)
+            return;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            HandlePauseMenu();
+
+        if (_pauseMenu.gameObject.activeInHierarchy)
             return;
 
         var temp = Math.Round(Time.deltaTime, 3).ToString().Split(',');
@@ -59,5 +67,15 @@ public class GameViewsManager : MonoBehaviour
     public void UpdateHighScores(string text)
     {
         _sidePanels.UpdateHighScore(text);
+    }
+
+
+    private void HandlePauseMenu()
+    {
+        if (_pauseMenu.gameObject.activeInHierarchy == false)
+        {
+            _pauseMenu.gameObject.SetActive(true);
+            SceneManager.Instance.SimulationPaused = true;
+        }
     }
 }

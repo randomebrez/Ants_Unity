@@ -30,7 +30,7 @@ public class AntColony : MonoBehaviour
         _block = GetComponentInChildren<BlockBase>();
 
         _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
-        _numberMaxToSelect = (int)(GlobalParameters.PercentToSelectAmongstBest * GlobalParameters.ColonyMaxPopulation);
+        _numberMaxToSelect = (int)((GlobalParameters.PercentToSelectAmongstBest / 100) * GlobalParameters.ColonyMaxPopulation);
     }
 
     public void Update()
@@ -52,14 +52,14 @@ public class AntColony : MonoBehaviour
         foreach (var block in blocksUnderneath)
             block.IsUnderNest = true;
 
-        StatisticsManager.Instance.InitializeViewAsync(new List<StatisticEnum>
+        StatisticsManager.Instance.InitializeView(new List<StatisticEnum>
         {
             //StatisticEnum.Score,
             StatisticEnum.Age,
             StatisticEnum.ComeBackMean,
             StatisticEnum.FoodCollected,
             StatisticEnum.FoodGrabbed
-        }).GetAwaiter().GetResult();
+        });
 
         _initialyzed = true;
     }
@@ -77,7 +77,7 @@ public class AntColony : MonoBehaviour
     {
         SelectBestUnits();
         GetStatistics();
-        DestroyPreviousGeneration();
+        DestroyAllUnits();
 
         GenerateNewGeneration();
     }
@@ -197,7 +197,7 @@ public class AntColony : MonoBehaviour
         StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _population).GetAwaiter().GetResult();
     }
 
-    private void DestroyPreviousGeneration()
+    private void DestroyAllUnits()
     {
         foreach (var ant in _population)
             Destroy(ant.gameObject);

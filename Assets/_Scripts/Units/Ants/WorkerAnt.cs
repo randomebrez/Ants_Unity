@@ -152,7 +152,7 @@ namespace mew
             //if (overloadedOutputs.Count > 0)
             //    outputOverloadMalus /= overloadedOutputs.Count;
 
-            var result = _score + bonusGrab + bonusCollected  - outputOverloadMalus - randomMoveMalus;
+            var result = _score + bonusGrab + bonusCollected  - outputOverloadMalus - randomMoveMalus - wrongFoodMalus;
             return result;
         }
 
