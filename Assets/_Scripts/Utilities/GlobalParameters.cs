@@ -20,7 +20,7 @@ namespace Assets._Scripts.Utilities
             GeneNumber = 300,
             InputNumber = 25,
             OutputNumber = 6,
-            NeutralNumbers = new List<int> { 4, 3 },
+            NeutralNumbers = new List<int> { 12 },
             WeighBytesNumber = 2
         };
         public static NetworkCaracteristics PortionNetworkCaracteristics = new NetworkCaracteristics

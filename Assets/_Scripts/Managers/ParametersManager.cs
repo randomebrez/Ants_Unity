@@ -93,7 +93,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
                 constraint.MaxValue = 10;
                 break;
             case SimulationParameterTypeEnum.StorageFrequency:
-                constraint.MinValue = 5;
+                constraint.MinValue = 1;
                 constraint.MaxValue = 1000;
                 break;
         }
