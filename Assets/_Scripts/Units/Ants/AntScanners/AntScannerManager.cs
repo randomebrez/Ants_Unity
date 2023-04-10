@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
-using NeuralNetwork.Interfaces.Model;
 using Assets._Scripts.Units.Ants.AntScanners;
 
 public class AntScannerManager : MonoBehaviour

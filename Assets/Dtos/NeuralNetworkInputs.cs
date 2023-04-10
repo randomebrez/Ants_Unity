@@ -1,5 +1,4 @@
-﻿using NeuralNetwork.Interfaces.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Assets.Dtos
 {

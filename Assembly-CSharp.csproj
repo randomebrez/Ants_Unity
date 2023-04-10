@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{7C9635DD-60D3-BDDA-0401-AF4508BF87E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -103,15 +104,12 @@
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerBase.cs" />
     <Compile Include="Assets\_Scripts\Managers\InitialScreenManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerObstacles.cs" />
-    <Compile Include="Assets\_Scripts\Managers\PheromoneManager.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\AxisIndexes.cs" />
     <Compile Include="Assets\Dtos\ParametersEnum.cs" />
     <Compile Include="Assets\_Scripts\Managers\SceneManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />
     <Compile Include="Assets\Dtos\NeuralNetworkInputs.cs" />
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
-    <Compile Include="Assets\Dtos\AntBrains.cs" />
-    <Compile Include="Assets\_Scripts\Units\Ants\ProbaScreenManager.cs" />
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerManager.cs" />

@@ -1,5 +1,4 @@
-﻿using Assets.Dtos;
-using NeuralNetwork.Interfaces.Model;
+﻿using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;
 using UnityEngine;
 

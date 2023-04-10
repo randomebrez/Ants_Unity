@@ -1,5 +1,4 @@
 using Assets._Scripts.Utilities;
-using Assets.Dtos;
 using mew;
 using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;

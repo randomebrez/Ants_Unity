@@ -1,7 +1,6 @@
 using Assets._Scripts.Utilities;
 using System;
 using System.IO;
-using System.Linq;
 
 internal class SceneManager : BaseManager<SceneManager>
 {

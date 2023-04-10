@@ -1,11 +1,9 @@
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using mew;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 internal  class ParametersManager : BaseManager<ParametersManager>
 {
