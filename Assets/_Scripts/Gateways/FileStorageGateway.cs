@@ -25,19 +25,19 @@ namespace Assets._Scripts.Gateways
                 File.Create(_filePath).Close();
         }
 
-        public async Task StoreBrainsAsync(int generationId, List<Brain> brains)
+        public async Task StoreBrainsAsync(int generationId, List<Unit> units)
         {
-            var stringBrains = new StringBuilder();
-            for (int i = 0; i < brains.Count; i++)
-                stringBrains.AppendLine(ToSaveFormat(generationId, brains[i]));
-            stringBrains.AppendLine();
-
-            using (var stream = File.AppendText(_filePath))
-            {
-                var bytes = new UTF8Encoding().GetBytes(stringBrains.ToString());
-                await stream.WriteAsync(stringBrains.ToString()).ConfigureAwait(false);
-                await stream.FlushAsync().ConfigureAwait(false);
-            }
+            //var stringBrains = new StringBuilder();
+            //for (int i = 0; i < brains.Count; i++)
+            //    stringBrains.AppendLine(ToSaveFormat(generationId, brains[i]));
+            //stringBrains.AppendLine();
+            //
+            //using (var stream = File.AppendText(_filePath))
+            //{
+            //    var bytes = new UTF8Encoding().GetBytes(stringBrains.ToString());
+            //    await stream.WriteAsync(stringBrains.ToString()).ConfigureAwait(false);
+            //    await stream.FlushAsync().ConfigureAwait(false);
+            //}
         }
 
         private int GetLastSimulationId()
@@ -47,11 +47,11 @@ namespace Assets._Scripts.Gateways
             return simulationIds.Any() ? simulationIds.First() : 0;
         }
 
-        private string ToSaveFormat(int generationId, Brain brain)
+        private string ToSaveFormat(int generationId, Unit brain)
         {
             var result = new StringBuilder();
 
-            result.Append($"{generationId};{brain.UniqueIdentifier};{brain.ParentA};{brain.ParentB};{brain.Score};{brain.Genome}");
+            //result.Append($"{generationId};{brain.UniqueIdentifier};{brain.ParentA};{brain.ParentB};{brain.Score};{brain.Genome}");
 
             return result.ToString();
         }

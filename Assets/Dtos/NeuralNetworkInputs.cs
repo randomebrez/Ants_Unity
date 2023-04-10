@@ -42,7 +42,7 @@ namespace Assets.Dtos
         private int _portionNumber { get; set; }
         private Dictionary<int, PortionInputs> _portionInputs { get; set; }
 
-        public NeuralNetworkInputs(int portionNumber, Dictionary<int, Brain> brains)
+        public NeuralNetworkInputs(int portionNumber)
         {
             _portionNumber = portionNumber;
             _portionInputs = new Dictionary<int, PortionInputs>();

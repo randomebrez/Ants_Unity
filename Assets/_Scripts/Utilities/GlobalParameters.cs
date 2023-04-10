@@ -1,4 +1,5 @@
-﻿using NeuralNetwork.Interfaces.Model;
+﻿using Assets.Dtos;
+using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ namespace Assets._Scripts.Utilities
         // AntParameters
         public static int ColonyMaxPopulation = 42;
         public static int BaseScannerRate = 100;
-        public static NetworkCaracteristics NetworkCaracteristics = new NetworkCaracteristics
+        public static BrainCaracteristics NetworkCaracteristics = new BrainCaracteristics("Main")
         {
             GeneNumber = 300,
             InputNumber = 25,
@@ -24,7 +25,7 @@ namespace Assets._Scripts.Utilities
             NeutralNumbers = new List<int> { 12 },
             WeighBytesNumber = 3
         };
-        public static NetworkCaracteristics PortionNetworkCaracteristics = new NetworkCaracteristics
+        public static BrainCaracteristics PortionNetworkCaracteristics = new BrainCaracteristics("Secondary")
         {
             GeneNumber = 10,
             InputNumber = 5,
@@ -33,12 +34,18 @@ namespace Assets._Scripts.Utilities
             WeighBytesNumber = 4
         };
 
+        public static List<BrainCaracteristics> AntBrains = new List<BrainCaracteristics> { NetworkCaracteristics };
+
 
         //AntColony
         public static float GenerationFrameCount = 300;
         //This number should be >= 2/PercentToSelectAmongstBest to have a complete MaxColonyNumber generation generated only from selected brains
         public static int MeanChildNumberByBrains = 4;
         public static float PercentToSelectAmongstBest = 50f;
+
+        //Reproduction parameters
+        public static int CrossOverNumber = 2;
+        public static float MutationRate = 0.01f;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";

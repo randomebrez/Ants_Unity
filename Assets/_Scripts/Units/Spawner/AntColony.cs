@@ -3,6 +3,7 @@ using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using Assets.Gateways;
 using mew;
+using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -114,8 +115,8 @@ public class AntColony : MonoBehaviour
     {
         if (File.Exists(filePath))
         {
-            var brainsToGive = GetBrainsFromFile(filePath);
-            _population = _spawner.InstantiateUnits(brainsToGive, ScriptableAntBase.AntTypeEnum.Worker);
+            var fileUnits = GetUnitsFromFile(filePath);
+            _population = _spawner.InstantiateUnits(fileUnits.ToArray(), ScriptableAntBase.AntTypeEnum.Worker);
             _generationId++;
         }
         else
@@ -129,45 +130,27 @@ public class AntColony : MonoBehaviour
         AntSceneManager.Instance.SetNewGenerationId(_generationId);
 
         
-         var brainsToGive = GenerateBrainsAndUnits();
+         var units = GenerateUnits();
 
-        _population = _spawner.InstantiateUnits(brainsToGive, ScriptableAntBase.AntTypeEnum.Worker);
+        _population = _spawner.InstantiateUnits(units, ScriptableAntBase.AntTypeEnum.Worker);
         _generationId++;
     }
 
-    private List<AntBrains> GenerateBrainsAndUnits()
+    private Unit[] GenerateUnits()
     {
-        var antBrains = _bestBrains.Select(t => t.ant.GetBrain());
-        var mainBrains = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, antBrains.Select(t => t.MainBrain).ToList());
-        var brainsToGive = new List<AntBrains>();
-        for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
-        {
-            brainsToGive.Add(new AntBrains
-            {
-                MainBrain = mainBrains[i]
-            });
-        }
-        return brainsToGive;
+        var units = _bestBrains.Select(t => t.ant.GetUnit);
+        var newUnits = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, units.ToList());
+        return newUnits;
     }
 
-    private List<AntBrains> GetBrainsFromFile(string fileName)
+    private List<Unit> GetUnitsFromFile(string fileName)
     {
         var lines = File.ReadAllLines(fileName);
-        var brains = _neuralNetworkGateway.GetBrainsFromString(lines.ToList());
-        var brainNumberToGenerate = GlobalParameters.ColonyMaxPopulation - brains.Count;
-        var otherBrains = _neuralNetworkGateway.GenerateNextGeneration(brainNumberToGenerate, brains);
-        brains.AddRange(otherBrains);
-
-        var result = new List<AntBrains>();
-        for (int i = 0; i < GlobalParameters.ColonyMaxPopulation; i++)
-        {
-            result.Add(new AntBrains
-            {
-                MainBrain = brains[i]
-            });
-        }
-
-        return result;
+        var units = _neuralNetworkGateway.GetBrainsFromString(lines.ToList());
+        var unitNumberToGenerate = GlobalParameters.ColonyMaxPopulation - units.Count;
+        var otherUnits = _neuralNetworkGateway.GenerateNextGeneration(unitNumberToGenerate, units);
+        units.AddRange(otherUnits);
+        return units;
     }
 
     private void SelectBestUnits()
@@ -188,11 +171,11 @@ public class AntColony : MonoBehaviour
         for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + GlobalParameters.MeanChildNumberByBrains / 2;
+                _currentSelection[i].ant.GetUnit.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + GlobalParameters.MeanChildNumberByBrains / 2;
             else if (i < _numberMaxToSelect - index1)
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains;
+                _currentSelection[i].ant.GetUnit.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains;
             else
-                _currentSelection[i].ant.GetBrain().MainBrain.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - GlobalParameters.MeanChildNumberByBrains / 2;
+                _currentSelection[i].ant.GetUnit.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - GlobalParameters.MeanChildNumberByBrains / 2;
         }
         _bestBrains = _currentSelection;
     }

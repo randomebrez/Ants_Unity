@@ -16,9 +16,10 @@ namespace Assets._Scripts.Gateways
             _gateway = new NeuralNetwork.Implementations.DatabaseGateway(GlobalParameters.SqlFolderPath);
         }
 
-        public async Task StoreBrainsAsync(int generationId, List<Brain> brains)
+        public async Task StoreBrainsAsync(int generationId, List<Unit> units)
         {
-            await _gateway.StoreBrainsAsync(GetLastSimulationId(), generationId, brains).ConfigureAwait(false);
+            throw new System.NotImplementedException();
+            //await _gateway.StoreBrainsAsync(GetLastSimulationId(), generationId, units).ConfigureAwait(false);
         }
 
         public async Task<int> AddNewSimulationAsync()

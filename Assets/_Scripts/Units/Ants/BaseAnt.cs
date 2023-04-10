@@ -1,10 +1,10 @@
-using Assets.Dtos;
 using System;
 using UnityEngine;
-using NeuralNetwork.Managers;
+using NnUnitManager = NeuralNetwork.Managers.UnitManager;
 using Assets._Scripts.Utilities;
 using System.Collections.Generic;
 using Assets._Scripts.Units.Ants;
+using NeuralNetwork.Interfaces.Model;
 
 namespace mew
 {
@@ -19,13 +19,13 @@ namespace mew
         protected GroundBlock _nextPos;
 
         //Managers
-        protected BrainManager _brainManager;
+        protected NnUnitManager _unitManager;
+        protected Unit _unit;
         protected AntScannerManager _scannerManager;
 
         // Private fields
         private Transform _body;
         private Transform _head;
-        private Transform _nest;
 
         protected bool _initialyzed = false;
         protected int _age = 0;
@@ -36,15 +36,7 @@ namespace mew
         public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
         public string[] PortionInfos => _scannerManager.PortionInfos;
-        public string NestName => _nest.name;
-
-        public AntBrains GetBrain()
-        {
-            return new AntBrains
-            {
-                MainBrain = _brainManager.GetBrain()
-            };
-        }
+        public Unit GetUnit => _unit;
 
 
         // Unity methods
@@ -82,13 +74,13 @@ namespace mew
 
 
         // Override methods
-        public void Initialyze(Transform nest, ScriptableUnitBase.Stats stats, AntBrains brains, GroundBlock block)
+        public void Initialyze(ScriptableUnitBase.Stats stats, Unit unit, GroundBlock block)
         {
-            _nest = nest;
+            _unit = unit;
             Stats = stats;
             CurrentPos = block;
-            _brainManager = new BrainManager(brains.MainBrain);
-            _scannerManager.InitialyzeScanners(brains.ScannerBrains);
+            _unitManager = new NnUnitManager(_unit);
+            _scannerManager.InitialyzeScanners();
             SetHeadColor(_colors[0]);
             SetBodyColor(_colors[0]);
             _initialyzed = true;

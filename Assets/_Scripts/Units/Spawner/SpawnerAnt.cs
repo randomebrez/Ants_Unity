@@ -1,6 +1,7 @@
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using mew;
+using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,12 +14,12 @@ public class SpawnerAnt : MonoBehaviour
         _unitContainer = transform.GetChild(1);
     }
 
-    public List<BaseAnt> InstantiateUnits(List<AntBrains> brains, ScriptableAntBase.AntTypeEnum antType)
+    public List<BaseAnt> InstantiateUnits(Unit[] units, ScriptableAntBase.AntTypeEnum antType)
     {
         var result = new List<BaseAnt>();
         var scriptableObject = ResourceSystem.Instance.AntOfTypeGet(antType);
 
-        for (int i = 0; i < brains.Count; i++)
+        for (int i = 0; i < units.Length; i++)
         {
             // Calculate random position and rotation to get out of the nest
             var randomPoint = Random.value * 2 * Mathf.PI;
@@ -34,7 +35,7 @@ public class SpawnerAnt : MonoBehaviour
             spawnedAnt.name = $"{antType}_{i}";
 
             //Set statistics according to scriptable object
-            spawnedAnt.Initialyze(transform.parent, scriptableObject.BaseStats, brains[i], startingBlock);
+            spawnedAnt.Initialyze(scriptableObject.BaseStats, units[i], startingBlock);
             spawnedAnt.Clicked += UnitManager.Instance.AntClick;
             result.Add(spawnedAnt);
         }

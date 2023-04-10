@@ -37,9 +37,10 @@ namespace mew
 
             // Compute output using brain
             var scanneroutputs = _scannerManager.GetInputs();
-            var output = _brainManager.ComputeOutput(scanneroutputs);
+            _unitManager.ComputeBrain("Main", scanneroutputs);
 
             // Select next pos : Interpret output
+            var output = _unitManager.GetBestOutput("Main");
             InterpretOutput(output.ouputId);
 
             base.Move();

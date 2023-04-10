@@ -126,6 +126,6 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 
     private async Task SaveWinnersAsync(int generationId, List<BaseAnt> ants, float foodCollected)
     {
-        await _dbGateway.StoreBrainsAsync(generationId, ants.Select(t => t.GetBrain().MainBrain).ToList()).ConfigureAwait(false);
+        await _dbGateway.StoreBrainsAsync(generationId, ants.Select(t => t.GetUnit).ToList()).ConfigureAwait(false);
     }
 }

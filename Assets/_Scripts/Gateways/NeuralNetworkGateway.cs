@@ -9,28 +9,28 @@ namespace Assets.Gateways
 {
     public class NeuralNetworkGateway
     {
-        private readonly IPopulation _populationManager;
+        private readonly IPopulationManager _populationManager;
 
         public NeuralNetworkGateway()
         {
-            _populationManager = new PopulationManager(GlobalParameters.NetworkCaracteristics);
+            _populationManager = new PopulationManager();
         }
 
 
-        public Brain[] GenerateNextGeneration(int childNumber, List<Brain> selectedBrains)
+        public Unit[] GenerateNextGeneration(int childNumber, List<Unit> selectedBrains)
         {
-            Brain[] brains;
+            Unit[] units;
             if (selectedBrains.Any())
-                brains = _populationManager.GenerateNewGeneration(childNumber, selectedBrains);
+                units = _populationManager.GenerateNewGeneration(childNumber, selectedBrains, GlobalParameters.AntBrains, GlobalParameters.CrossOverNumber, GlobalParameters.MutationRate);
             else
-                brains = _populationManager.GenerateFirstGeneration(childNumber);
-            return brains;
+                units = _populationManager.GenerateFirstGeneration(childNumber, GlobalParameters.AntBrains);
+            return units;
         }
 
-        public List<Brain> GetBrainsFromString(List<string> stringBrains)
+        public List<Unit> GetBrainsFromString(List<string> stringBrains)
         {
             var stringGenomes = stringBrains.Where(t => t != string.Empty).Select(t => t.Split(";")[5]).ToList();
-            return _populationManager.GetBrainFromGenomes(stringGenomes).ToList();
+            return _populationManager.GetUnitFromGenomes(GlobalParameters.NetworkCaracteristics, stringGenomes).ToList();
         }
     }
 }

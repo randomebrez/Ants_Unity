@@ -39,12 +39,12 @@ public class AntScannerManager : MonoBehaviour
         return _inputs.GetAllInputs();
     }
 
-    public void InitialyzeScanners(Dictionary<int, Brain> brains)
+    public void InitialyzeScanners()
     {
         var subdiv = _ant.Stats.ScannerSubdivisions;
         _obstacleScanner.Initialyze(_ant, subdiv);
         _scannerBlock.Initialyze(_ant, subdiv);
-        _inputs = new NeuralNetworkInputs(subdiv, brains);
+        _inputs = new NeuralNetworkInputs(subdiv);
         _portionInfos = new string[subdiv];
 
         initialyzed = true;
