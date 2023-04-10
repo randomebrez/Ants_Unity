@@ -58,7 +58,7 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
         }
     }
 
-    public void SpawnFoodPaquet(int tokenNumber)
+    public void SpawnFoodPaquet()
     {
         var randomXpos = Random.Range(GlobalParameters.GroundSize.x / 6f, GlobalParameters.GroundSize.x /3f);
         if (Random.Range(0, 2) == 1)
@@ -67,7 +67,7 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
         if (Random.Range(0, 2) == 1)
             randomZpos = -randomZpos;
 
-        for (int i = 0; i < tokenNumber; i++)
+        for (int i = 0; i < GlobalParameters.InitialFoodTokenNumber; i++)
         {
             var randomXShift = Random.Range(-GlobalParameters.GroundSize.x / 7f, GlobalParameters.GroundSize.x / 7f);
             var randomZShift = Random.Range(-GlobalParameters.GroundSize.z / 7f, GlobalParameters.GroundSize.z / 7f);
@@ -95,12 +95,15 @@ internal class EnvironmentManager : BaseManager<EnvironmentManager>
     }
 
 
-    public void RenewEnvironment()
+    public void RenewEnvironment(bool withRandomPosition)
     {
         _ground.CleanAllPheromones();
         _ground.CleanAllFoodToken();
 
-        SpawnFood();
+        if (withRandomPosition)
+            SpawnFoodPaquet();
+        else
+            SpawnFood();
     }
 
 

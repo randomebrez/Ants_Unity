@@ -81,6 +81,11 @@ internal class UnitManager : BaseManager<UnitManager>
         _colonies.Clear();
     }
 
+    public int GetColoniesSurvivorNumber(int index)
+    {
+        return _colonies[index].GetBestBrainCount();
+    }
+
     public void AntClick(BaseAnt ant)
     {
         if (_lastClicked != null)

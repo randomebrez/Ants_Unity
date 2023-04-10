@@ -10,6 +10,7 @@ namespace Assets._Scripts.Utilities
         public static Vector3 GroundSize = new(125, 0, 75);
         public static float NodeRadius = 1f;
         public static int InitialFoodTokenNumber = 100;
+        public static int SpawnRandomFoodFreq = 10;
 
 
         // AntParameters
@@ -21,7 +22,7 @@ namespace Assets._Scripts.Utilities
             InputNumber = 25,
             OutputNumber = 6,
             NeutralNumbers = new List<int> { 12 },
-            WeighBytesNumber = 2
+            WeighBytesNumber = 3
         };
         public static NetworkCaracteristics PortionNetworkCaracteristics = new NetworkCaracteristics
         {
@@ -36,8 +37,8 @@ namespace Assets._Scripts.Utilities
         //AntColony
         public static float GenerationFrameCount = 300;
         //This number should be >= 2/PercentToSelectAmongstBest to have a complete MaxColonyNumber generation generated only from selected brains
-        public static int MeanChildNumberByBrains = 7;
-        public static float PercentToSelectAmongstBest = 30f;
+        public static int MeanChildNumberByBrains = 4;
+        public static float PercentToSelectAmongstBest = 50f;
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";

@@ -20,7 +20,7 @@ namespace mew
         public class Caracteristics
         {
             public PheromoneTypeEnum PheromoneType;
-            public int Duration { get; set; } = 100;
+            public int Duration { get; set; } = 80;
             public Color Color;
         }
     }

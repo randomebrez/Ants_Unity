@@ -82,6 +82,11 @@ public class AntColony : MonoBehaviour
         GenerateNewGeneration();
     }
 
+    public int GetBestBrainCount()
+    {
+        return _bestBrains.Count;
+    }
+
     public Dictionary<PheromoneTypeEnum, List<Block>> GetAllAntPositions()
     {
         if (_initialyzed == false)

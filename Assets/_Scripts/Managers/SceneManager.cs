@@ -1,6 +1,7 @@
 using Assets._Scripts.Utilities;
 using System;
 using System.IO;
+using System.Linq;
 
 internal class SceneManager : BaseManager<SceneManager>
 {
@@ -20,6 +21,7 @@ internal class SceneManager : BaseManager<SceneManager>
     public Action<SceneState> AfterStateChanged;
 
     private int _frameCount = 0;
+    private int _generationId = 0;
     public bool SimulationPaused = false;
 
     public void Start()
@@ -113,9 +115,15 @@ internal class SceneManager : BaseManager<SceneManager>
         }
         else
         {
-            EnvironmentManager.Instance.RenewEnvironment();
+            var selectedNumber = UnitManager.Instance.GetColoniesSurvivorNumber(0);
+            if (selectedNumber >= (int)((GlobalParameters.PercentToSelectAmongstBest / 100) * GlobalParameters.ColonyMaxPopulation) && _generationId % GlobalParameters.SpawnRandomFoodFreq == 0)
+                EnvironmentManager.Instance.RenewEnvironment(true);
+            else
+                EnvironmentManager.Instance.RenewEnvironment(false);
+
             UnitManager.Instance.RenewColonies();
             _frameCount = -1;
+            _generationId++;
         }
 
         _frameCount++;
@@ -129,7 +137,7 @@ internal class SceneManager : BaseManager<SceneManager>
     private void RestartSimulation()
     {
         UnitManager.Instance.ClearColonies();
-        EnvironmentManager.Instance.RenewEnvironment();
+        EnvironmentManager.Instance.RenewEnvironment(false);
         UnitManager.Instance.CreateNewColony();
         _frameCount = 0;
         SimulationPaused = false;
