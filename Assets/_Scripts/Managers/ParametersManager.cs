@@ -59,9 +59,9 @@ internal  class ParametersManager : BaseManager<ParametersManager>
             case SimulationParameterTypeEnum.LifeTime:
                 return GlobalParameters.GenerationFrameCount.ToString();
             case SimulationParameterTypeEnum.SelectPercent:
-                return GlobalParameters.PercentToSelectAmongstBest.ToString();
+                return GlobalParameters.ReproductionCaracteristics.PercentToSelect.ToString();
             case SimulationParameterTypeEnum.ChildMean:
-                return GlobalParameters.MeanChildNumberByBrains.ToString();
+                return GlobalParameters.ReproductionCaracteristics.MeanChildNumberByUnit.ToString();
             case SimulationParameterTypeEnum.StorageFrequency:
                 return GlobalParameters.StoreFrequency.ToString();
             default:
@@ -110,10 +110,10 @@ internal  class ParametersManager : BaseManager<ParametersManager>
                 GlobalParameters.GenerationFrameCount = int.Parse(value);
                 break;
             case SimulationParameterTypeEnum.SelectPercent:
-                GlobalParameters.PercentToSelectAmongstBest = int.Parse(value);
+                GlobalParameters.ReproductionCaracteristics.PercentToSelect = int.Parse(value);
                 break;
             case SimulationParameterTypeEnum.ChildMean:
-                GlobalParameters.MeanChildNumberByBrains = int.Parse(value);
+                GlobalParameters.ReproductionCaracteristics.MeanChildNumberByUnit = int.Parse(value);
                 break;
             case SimulationParameterTypeEnum.StorageFrequency:
                 GlobalParameters.StoreFrequency = int.Parse(value);
@@ -143,25 +143,26 @@ internal  class ParametersManager : BaseManager<ParametersManager>
 
     private string NeuralNetworkParameterValueGet(NeuralNetworkParameterTypeEnum type)
     {
-        switch (type)
-        {
-            case NeuralNetworkParameterTypeEnum.NeutralLayers:
-                var result = new StringBuilder();
-                for (int i = 0; i < GlobalParameters.NetworkCaracteristics.NeutralNumbers.Count; i ++)
-                {
-                    if (i == GlobalParameters.NetworkCaracteristics.NeutralNumbers.Count - 1)
-                        result.Append($"{GlobalParameters.NetworkCaracteristics.NeutralNumbers[i]}");
-                    else
-                        result.Append($"{GlobalParameters.NetworkCaracteristics.NeutralNumbers[i]};");
-                }
-                return result.ToString();
-            case NeuralNetworkParameterTypeEnum.GeneWeightBitNumber:
-                return GlobalParameters.NetworkCaracteristics.WeighBytesNumber.ToString();
-            case NeuralNetworkParameterTypeEnum.GeneNumber:
-                return GlobalParameters.NetworkCaracteristics.GeneNumber.ToString();
-            default:
-                return string.Empty;
-        }
+        return string.Empty;
+        //switch (type)
+        //{
+        //    case NeuralNetworkParameterTypeEnum.NeutralLayers:
+        //        var result = new StringBuilder();
+        //        for (int i = 0; i < GlobalParameters.BrainCaracteristics.NeutralNumbers.Count; i ++)
+        //        {
+        //            if (i == GlobalParameters.NetworkCaracteristics.NeutralNumbers.Count - 1)
+        //                result.Append($"{GlobalParameters.NetworkCaracteristics.NeutralNumbers[i]}");
+        //            else
+        //                result.Append($"{GlobalParameters.NetworkCaracteristics.NeutralNumbers[i]};");
+        //        }
+        //        return result.ToString();
+        //    case NeuralNetworkParameterTypeEnum.GeneWeightBitNumber:
+        //        return GlobalParameters.NetworkCaracteristics.WeighBytesNumber.ToString();
+        //    case NeuralNetworkParameterTypeEnum.GeneNumber:
+        //        return GlobalParameters.NetworkCaracteristics.GeneNumber.ToString();
+        //    default:
+        //        return string.Empty;
+        //}
     }
 
     private InputParameterConstraint NeuralNetworkParameterConstraintGet(NeuralNetworkParameterTypeEnum type)
@@ -187,22 +188,22 @@ internal  class ParametersManager : BaseManager<ParametersManager>
 
     private void NeuralNetworkParameterValueSet(NeuralNetworkParameterTypeEnum type, string value)
     {
-        switch (type)
-        {
-            case NeuralNetworkParameterTypeEnum.NeutralLayers:
-                var result = new List<int>();
-                var values = value.Split(';');
-                for (int i = 0; i < values.Where(t => string.IsNullOrEmpty(t) == false).Count(); i++)
-                    result.Add(int.Parse(values[i]));
-                GlobalParameters.NetworkCaracteristics.NeutralNumbers = result;
-                break;
-            case NeuralNetworkParameterTypeEnum.GeneWeightBitNumber:
-                GlobalParameters.NetworkCaracteristics.WeighBytesNumber = int.Parse(value);
-                break;
-            case NeuralNetworkParameterTypeEnum.GeneNumber:
-                GlobalParameters.NetworkCaracteristics.GeneNumber = int.Parse(value);
-                break;
-        }
+        //switch (type)
+        //{
+        //    case NeuralNetworkParameterTypeEnum.NeutralLayers:
+        //        var result = new List<int>();
+        //        var values = value.Split(';');
+        //        for (int i = 0; i < values.Where(t => string.IsNullOrEmpty(t) == false).Count(); i++)
+        //            result.Add(int.Parse(values[i]));
+        //        GlobalParameters.NetworkCaracteristics.NeutralNumbers = result;
+        //        break;
+        //    case NeuralNetworkParameterTypeEnum.GeneWeightBitNumber:
+        //        GlobalParameters.NetworkCaracteristics.WeighBytesNumber = int.Parse(value);
+        //        break;
+        //    case NeuralNetworkParameterTypeEnum.GeneNumber:
+        //        GlobalParameters.NetworkCaracteristics.GeneNumber = int.Parse(value);
+        //        break;
+        //}
     }
 
 

@@ -115,7 +115,7 @@ internal class SceneManager : BaseManager<SceneManager>
         else
         {
             var selectedNumber = UnitManager.Instance.GetColoniesSurvivorNumber(0);
-            if (selectedNumber >= (int)((GlobalParameters.PercentToSelectAmongstBest / 100) * GlobalParameters.ColonyMaxPopulation) && _generationId % GlobalParameters.SpawnRandomFoodFreq == 0)
+            if (selectedNumber >= (int)((GlobalParameters.ReproductionCaracteristics.PercentToSelect / 100) * GlobalParameters.ColonyMaxPopulation) && _generationId % GlobalParameters.SpawnRandomFoodFreq == 0)
                 EnvironmentManager.Instance.RenewEnvironment(true);
             else
                 EnvironmentManager.Instance.RenewEnvironment(false);

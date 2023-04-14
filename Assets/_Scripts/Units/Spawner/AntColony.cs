@@ -31,7 +31,7 @@ public class AntColony : MonoBehaviour
         _block = GetComponentInChildren<BlockBase>();
 
         _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
-        _numberMaxToSelect = (int)((GlobalParameters.PercentToSelectAmongstBest / 100) * GlobalParameters.ColonyMaxPopulation);
+        _numberMaxToSelect = (int)((GlobalParameters.ReproductionCaracteristics.PercentToSelect / 100) * GlobalParameters.ColonyMaxPopulation);
     }
 
     public void Update()
@@ -168,14 +168,15 @@ public class AntColony : MonoBehaviour
 
         var selectedNumber = Mathf.Min(_numberMaxToSelect, _currentSelection.Count);
         var index1 = selectedNumber / 3;
+        var meanChildnumber = GlobalParameters.ReproductionCaracteristics.MeanChildNumberByUnit;
         for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
-                _currentSelection[i].ant.GetUnit.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains + GlobalParameters.MeanChildNumberByBrains / 2;
+                _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber + meanChildnumber / 2;
             else if (i < _numberMaxToSelect - index1)
-                _currentSelection[i].ant.GetUnit.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains;
+                _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber;
             else
-                _currentSelection[i].ant.GetUnit.MaxChildNumber = GlobalParameters.MeanChildNumberByBrains - GlobalParameters.MeanChildNumberByBrains / 2;
+                _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber - meanChildnumber / 2;
         }
         _bestBrains = _currentSelection;
     }

@@ -1,4 +1,5 @@
 ﻿using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Interfaces.Model.Etc;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,39 +13,72 @@ namespace Assets._Scripts.Utilities
         public static int InitialFoodTokenNumber = 100;
         public static int SpawnRandomFoodFreq = 10;
 
+        // Reproduction parameters
+        public static ReproductionCaracteristics ReproductionCaracteristics = new ReproductionCaracteristics
+        {
+            PercentToSelect = 40,
+            MeanChildNumberByUnit = 5,
+            CrossOverNumber = 2,
+            MutationRate = 0.001f
+        };
 
         // AntParameters
         public static int ColonyMaxPopulation = 42;
-        public static int BaseScannerRate = 100;
-        public static BrainCaracteristics NetworkCaracteristics = new BrainCaracteristics("Main")
-        {
-            GeneNumber = 300,
-            InputNumber = 25,
-            OutputNumber = 6,
-            NeutralNumbers = new List<int> { 12 },
-            WeighBytesNumber = 3
-        };
-        public static BrainCaracteristics PortionNetworkCaracteristics = new BrainCaracteristics("Secondary")
-        {
-            GeneNumber = 10,
-            InputNumber = 5,
-            OutputNumber = 2,
-            NeutralNumbers = new List<int> { 1 },
-            WeighBytesNumber = 4
-        };
 
-        public static List<BrainCaracteristics> AntBrains = new List<BrainCaracteristics> { NetworkCaracteristics };
-
-
-        //AntColony
+        // AntColony
         public static float GenerationFrameCount = 300;
-        //This number should be >= 2/PercentToSelectAmongstBest to have a complete MaxColonyNumber generation generated only from selected brains
-        public static int MeanChildNumberByBrains = 4;
-        public static float PercentToSelectAmongstBest = 50f;
 
-        //Reproduction parameters
-        public static int CrossOverNumber = 2;
-        public static float MutationRate = 0.01f;
+        // Brain caracteristics
+        public static BrainCaracteristics MainBrain = new BrainCaracteristics("Main")
+        {
+            InputLayer = new LayerCaracteristics(LayerTypeEnum.Input, 0, 6, ActivationFunctionEnum.Identity, 0),
+            OutputLayer = new LayerCaracteristics(LayerTypeEnum.Output, 2, 6, ActivationFunctionEnum.Sigmoid, 3),
+            NeutralLayers = new List<LayerCaracteristics>
+                {
+                    new LayerCaracteristics(LayerTypeEnum.Neutral, 1, 4, ActivationFunctionEnum.Tanh, 2)
+                },
+            GenomeCaracteristics = new GenomeCaracteristics
+            {
+                GeneNumber = 60,
+                WeighBytesNumber = 3
+            }
+        };
+        public static BrainCaracteristics VisionBrain = new BrainCaracteristics("VisionPortion")
+        {
+            InputLayer = new LayerCaracteristics(LayerTypeEnum.Input, 0, 6, ActivationFunctionEnum.Identity, 0),
+            OutputLayer = new LayerCaracteristics(LayerTypeEnum.Output, 2, 1, ActivationFunctionEnum.Sigmoid, 3),
+            NeutralLayers = new List<LayerCaracteristics>
+                {
+                    new LayerCaracteristics(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 2)
+                },
+            GenomeCaracteristics = new GenomeCaracteristics
+            {
+                GeneNumber = 15,
+                WeighBytesNumber = 3
+            }
+        };
+        public static BrainCaracteristics NoVisionBrain = new BrainCaracteristics("NoVisionPortion")
+        {
+            InputLayer = new LayerCaracteristics(LayerTypeEnum.Input, 0, 3, ActivationFunctionEnum.Identity, 0),
+            OutputLayer = new LayerCaracteristics(LayerTypeEnum.Output, 2, 1, ActivationFunctionEnum.Sigmoid, 3),
+            NeutralLayers = new List<LayerCaracteristics>
+                {
+                    new LayerCaracteristics(LayerTypeEnum.Neutral, 1, 1, ActivationFunctionEnum.Tanh, 1)
+                },
+            GenomeCaracteristics = new GenomeCaracteristics
+            {
+                GeneNumber = 7,
+                WeighBytesNumber = 3
+            }
+        };
+        public static List<BrainCaracteristics> BrainCaracteristics = new List<BrainCaracteristics>
+        {
+            MainBrain,
+            VisionBrain,
+            NoVisionBrain
+        };
+
+        
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets._Scripts.Utilities;
 using NeuralNetwork.Interfaces;
@@ -17,20 +18,22 @@ namespace Assets.Gateways
         }
 
 
-        public Unit[] GenerateNextGeneration(int childNumber, List<Unit> selectedBrains)
+        public Unit[] GenerateNextGeneration(int childNumber, List<Unit> selectedUnits)
         {
             Unit[] units;
-            if (selectedBrains.Any())
-                units = _populationManager.GenerateNewGeneration(childNumber, selectedBrains, GlobalParameters.AntBrains, GlobalParameters.CrossOverNumber, GlobalParameters.MutationRate);
+            if (selectedUnits.Any())
+                units = _populationManager.GenerateNewGeneration(childNumber, selectedUnits, GlobalParameters.BrainCaracteristics, GlobalParameters.ReproductionCaracteristics);
             else
-                units = _populationManager.GenerateFirstGeneration(childNumber, GlobalParameters.AntBrains);
+                units = _populationManager.GenerateFirstGeneration(childNumber, GlobalParameters.BrainCaracteristics);
             return units;
         }
 
         public List<Unit> GetBrainsFromString(List<string> stringBrains)
         {
-            var stringGenomes = stringBrains.Where(t => t != string.Empty).Select(t => t.Split(";")[5]).ToList();
-            return _populationManager.GetUnitFromGenomes(GlobalParameters.NetworkCaracteristics, stringGenomes).ToList();
+
+            throw new NotImplementedException();
+            //var stringGenomes = stringBrains.Where(t => t != string.Empty).Select(t => t.Split(";")[5]).ToList();
+            //return _populationManager.GetUnitFromGenomes(GlobalParameters.NetworkCaracteristics, stringGenomes).ToList();
         }
     }
 }
