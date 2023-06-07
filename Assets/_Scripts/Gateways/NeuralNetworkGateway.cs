@@ -1,39 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Assets._Scripts.Utilities;
+﻿using System.Collections.Generic;
+using NeuralNetwork.Implementations;
 using NeuralNetwork.Interfaces;
 using NeuralNetwork.Interfaces.Model;
-using NeuralNetwork.Managers;
 
 namespace Assets.Gateways
 {
     public class NeuralNetworkGateway
     {
-        private readonly IPopulationManager _populationManager;
+        private readonly IGenomeManager _genomeManager;
 
         public NeuralNetworkGateway()
         {
-            _populationManager = new PopulationManager();
+            _genomeManager = new GenomeManager();
         }
 
-
-        public Unit[] GenerateNextGeneration(int childNumber, List<Unit> selectedUnits)
+        public List<Genome> GetGenomes(int number, BrainCaracteristics caracteristics)
         {
-            Unit[] units;
-            if (selectedUnits.Any())
-                units = _populationManager.GenerateNewGeneration(childNumber, selectedUnits, GlobalParameters.BrainCaracteristics, GlobalParameters.ReproductionCaracteristics);
-            else
-                units = _populationManager.GenerateFirstGeneration(childNumber, GlobalParameters.BrainCaracteristics);
-            return units;
+            return _genomeManager.GetGenomes(number, caracteristics);
         }
 
-        public List<Unit> GetBrainsFromString(List<string> stringBrains)
+        public Unit[] GetUnits(List<GenomeGraph> graphs)
         {
+            return _genomeManager.GetUnitFromGenomeGraphs(graphs);
+        }
 
-            throw new NotImplementedException();
-            //var stringGenomes = stringBrains.Where(t => t != string.Empty).Select(t => t.Split(";")[5]).ToList();
-            //return _populationManager.GetUnitFromGenomes(GlobalParameters.NetworkCaracteristics, stringGenomes).ToList();
+        public Genome GetMixedGenome(Genome parentA, Genome parentB, BrainCaracteristics caracteristics, int crossOverNumber, float mutationRate)
+        {
+            return _genomeManager.GetMixedGenome(parentA, parentB, caracteristics, crossOverNumber, mutationRate);
         }
     }
 }

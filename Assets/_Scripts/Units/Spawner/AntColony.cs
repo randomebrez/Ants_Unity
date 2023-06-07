@@ -22,7 +22,6 @@ public class AntColony : MonoBehaviour
 
     private int _generationId = 0;
     private bool _initialyzed = false;
-    private int _numberMaxToSelect = 0;
 
     // Unity methods
     void Start()
@@ -31,13 +30,6 @@ public class AntColony : MonoBehaviour
         _block = GetComponentInChildren<BlockBase>();
 
         _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
-        _numberMaxToSelect = (int)((GlobalParameters.ReproductionCaracteristics.PercentToSelect / 100) * GlobalParameters.ColonyMaxPopulation);
-    }
-
-    public void Update()
-    {
-        if (_generationId == 0 && _initialyzed)
-            GenerateFirstGeneration(GlobalParameters.FirstBrainsFilePath);
     }
 
 
@@ -74,15 +66,6 @@ public class AntColony : MonoBehaviour
             _population[i].Move();
     }
 
-    public void RenewPopulation()
-    {
-        SelectBestUnits();
-        GetStatistics();
-        DestroyAllUnits();
-
-        GenerateNewGeneration();
-    }
-
     public int GetBestBrainCount()
     {
         return _bestBrains.Count;
@@ -108,55 +91,17 @@ public class AntColony : MonoBehaviour
         return result;
     }
 
-
-    // Private methods
-
-    private void GenerateFirstGeneration(string filePath)
+    public void InstantiateUnits(UnitWrapper[] units)
     {
-        if (File.Exists(filePath))
-        {
-            var fileUnits = GetUnitsFromFile(filePath);
-            _population = _spawner.InstantiateUnits(fileUnits.ToArray(), ScriptableAntBase.AntTypeEnum.Worker);
-            _generationId++;
-        }
-        else
-        {
-            GenerateNewGeneration();
-        }
-    }
-
-    private void GenerateNewGeneration()
-    {
-        AntSceneManager.Instance.SetNewGenerationId(_generationId);
-
-        
-         var units = GenerateUnits();
-
         _population = _spawner.InstantiateUnits(units, ScriptableAntBase.AntTypeEnum.Worker);
         _generationId++;
+        AntSceneManager.Instance.SetNewGenerationId(_generationId);
     }
 
-    private Unit[] GenerateUnits()
-    {
-        var units = _bestBrains.Select(t => t.ant.GetUnit);
-        var newUnits = _neuralNetworkGateway.GenerateNextGeneration(GlobalParameters.ColonyMaxPopulation, units.ToList());
-        return newUnits;
-    }
-
-    private List<Unit> GetUnitsFromFile(string fileName)
-    {
-        var lines = File.ReadAllLines(fileName);
-        var units = _neuralNetworkGateway.GetBrainsFromString(lines.ToList());
-        var unitNumberToGenerate = GlobalParameters.ColonyMaxPopulation - units.Count;
-        var otherUnits = _neuralNetworkGateway.GenerateNextGeneration(unitNumberToGenerate, units);
-        units.AddRange(otherUnits);
-        return units;
-    }
-
-    private void SelectBestUnits()
+    public List<BaseAnt> SelectBestUnits()
     {
         if (_population.Count == 0)
-            return;
+            return new List<BaseAnt>();
 
         _currentSelection.Clear();
         // Get all scores
@@ -164,29 +109,30 @@ public class AntColony : MonoBehaviour
             _currentSelection.Add((ant, ant.GetUnitScore()));
 
         // Filter best ones
-        _currentSelection = _currentSelection.Where(t => t.score > 0).OrderByDescending(t => t.score).Take(_numberMaxToSelect).ToList();
+        _currentSelection = _currentSelection.Where(t => t.score > 0).OrderByDescending(t => t.score).Take(GlobalParameters.UnitNumberToSelect).ToList();
 
-        var selectedNumber = Mathf.Min(_numberMaxToSelect, _currentSelection.Count);
+        var selectedNumber = Mathf.Min(GlobalParameters.UnitNumberToSelect, _currentSelection.Count);
         var index1 = selectedNumber / 3;
         var meanChildnumber = GlobalParameters.ReproductionCaracteristics.MeanChildNumberByUnit;
         for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
                 _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber + meanChildnumber / 2;
-            else if (i < _numberMaxToSelect - index1)
+            else if (i < GlobalParameters.UnitNumberToSelect - index1)
                 _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber;
             else
                 _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber - meanChildnumber / 2;
         }
         _bestBrains = _currentSelection;
+        return _bestBrains.Select(t => t.ant).ToList();
     }
 
-    private void GetStatistics()
+    public void SetStatistics()
     {
         StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _population).GetAwaiter().GetResult();
     }
 
-    private void DestroyAllUnits()
+    public void DestroyAllUnits()
     {
         foreach (var ant in _population)
             Destroy(ant.gameObject);

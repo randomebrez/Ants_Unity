@@ -96,10 +96,10 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         AddStatisticsToCurve(currentHighScore);
         UpdateStatisticsText(currentHighScore, _globalHighScore);
 
-        if (generationId % GlobalParameters.StoreFrequency == 0)
-            await SaveWinnersAsync(generationId, ants, sumFoodCollected).ConfigureAwait(false);
-        else if (sumFoodCollected >= 99)
-            await SaveWinnersAsync(generationId, ants, sumFoodCollected).ConfigureAwait(false);
+        //if (generationId % GlobalParameters.StoreFrequency == 0)
+        //    await SaveWinnersAsync(generationId, ants, sumFoodCollected).ConfigureAwait(false);
+        //else if (sumFoodCollected >= 99)
+        //    await SaveWinnersAsync(generationId, ants, sumFoodCollected).ConfigureAwait(false);
 
         Debug.Log($"Generation : {generationId}\nHighest score : {bestScore} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodCollected}");
     }

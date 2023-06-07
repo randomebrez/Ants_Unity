@@ -13,56 +13,51 @@ namespace Assets.Dtos
         public bool FoodToken { get; set; }
 
         public bool IsNestInSight { get; set; }
-
-        public bool ActivateTriggerObject = true;
-
-        public List<float> ToList() 
-        {
-            var result = new List<float>
-            {
-                PheroW,
-                PheroC,
-                WallDist
-            };
-            if (ActivateTriggerObject)
-            {
-                result.Add(FoodToken ? 1 : 0);
-                result.Add(IsNestInSight ? 1 : 0);
-            }
-            return result;
-        }
     }
 
     public class NeuralNetworkInputs
     {
         public bool CarryFood { get; set; }
 
-
-        private int _portionNumber { get; set; }
-        private Dictionary<int, PortionInputs> _portionInputs { get; set; }
+        public Dictionary<int, PortionInputs> PortionInputs { get; set; }
 
         public NeuralNetworkInputs(int portionNumber)
         {
-            _portionNumber = portionNumber;
-            _portionInputs = new Dictionary<int, PortionInputs>();
+            PortionInputs = new Dictionary<int, PortionInputs>();
             for (int i = 0; i < portionNumber; i++)
+                PortionInputs.Add(i, new PortionInputs());
+        }
+
+        public Dictionary<int, List<float>> RestrictedInputListGet(HashSet<UnityInputTypeEnum> requiredTypes)
+        {
+            var result = new Dictionary<int, List<float>>();
+            for (int i = 0; i < PortionInputs.Count; i++)
+                result.Add(i, new List<float>());
+
+            foreach (var inputType in requiredTypes)
             {
-                _portionInputs.Add(i, new PortionInputs());
+                for(int i = 0; i < PortionInputs.Count; i++)
+                {
+                    switch(inputType)
+                    {
+                        case UnityInputTypeEnum.PheromoneW:
+                            result[i].Add(PortionInputs[i].PheroW);
+                            break;
+                        case UnityInputTypeEnum.PheromoneC:
+                            result[i].Add(PortionInputs[i].PheroC);
+                            break;
+                        case UnityInputTypeEnum.Food:
+                            result[i].Add(PortionInputs[i].FoodToken ? 1 : 0);
+                            break;
+                        case UnityInputTypeEnum.Nest:
+                            result[i].Add(PortionInputs[i].IsNestInSight ? 1 : 0);
+                            break;
+                        case UnityInputTypeEnum.Walls:
+                            result[i].Add(PortionInputs[i].WallDist);
+                            break;
+                    }
+                }
             }
-        }
-
-        public void UpdatePortion(int portionIndex, PortionInputs inputs)
-        {
-            _portionInputs[portionIndex] = inputs;
-        }
-
-        public List<float> GetAllInputs()
-        {
-            var result = new List<float>();
-            for(int i = 0; i < _portionNumber; i++)
-                result.AddRange(_portionInputs[i].ToList());
-
-            result.Add(CarryFood ? 1 : 0);
 
             return result;
         }

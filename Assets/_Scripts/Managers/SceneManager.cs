@@ -1,6 +1,7 @@
 using Assets._Scripts.Utilities;
 using System;
 using System.IO;
+using UnityEngine;
 
 internal class SceneManager : BaseManager<SceneManager>
 {
@@ -106,26 +107,33 @@ internal class SceneManager : BaseManager<SceneManager>
 
     private void RunLife()
     {
-        if (_frameCount < GlobalParameters.GenerationFrameCount)
+        try
         {
-            UnitManager.Instance.MoveAllUnits();
-            EnvironmentManager.Instance.DropPheromones();
-            EnvironmentManager.Instance.ApplyTimeEffect();
-        }
-        else
-        {
-            var selectedNumber = UnitManager.Instance.GetColoniesSurvivorNumber(0);
-            if (selectedNumber >= (int)((GlobalParameters.ReproductionCaracteristics.PercentToSelect / 100) * GlobalParameters.ColonyMaxPopulation) && _generationId % GlobalParameters.SpawnRandomFoodFreq == 0)
-                EnvironmentManager.Instance.RenewEnvironment(true);
+            if (_frameCount < GlobalParameters.LifeTimeFrame)
+            {
+                UnitManager.Instance.MoveAllUnits();
+                EnvironmentManager.Instance.DropPheromones();
+                EnvironmentManager.Instance.ApplyTimeEffect();
+            }
             else
-                EnvironmentManager.Instance.RenewEnvironment(false);
+            {
+                var selectedNumber = UnitManager.Instance.GetColoniesSurvivorNumber(0);
+                if (selectedNumber >= GlobalParameters.UnitNumberToSelect && _generationId % GlobalParameters.SpawnRandomFoodFreq == 0)
+                    EnvironmentManager.Instance.RenewEnvironment(true);
+                else
+                    EnvironmentManager.Instance.RenewEnvironment(false);
 
-            UnitManager.Instance.RenewColonies();
-            _frameCount = -1;
-            _generationId++;
+                UnitManager.Instance.RenewColonies();
+                _frameCount = -1;
+                _generationId++;
+            }
+
+            _frameCount++;
         }
-
-        _frameCount++;
+        catch(Exception ex)
+        {
+            Debug.Log(ex.Message);
+        }
     }
 
     public void Restart()

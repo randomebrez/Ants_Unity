@@ -1,4 +1,6 @@
 using Assets._Scripts.Utilities;
+using Assets.Dtos;
+using Assets.Gateways;
 using mew;
 using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;
@@ -13,7 +15,7 @@ public class SpawnerAnt : MonoBehaviour
         _unitContainer = transform.GetChild(1);
     }
 
-    public List<BaseAnt> InstantiateUnits(Unit[] units, ScriptableAntBase.AntTypeEnum antType)
+    public List<BaseAnt> InstantiateUnits(UnitWrapper[] units, ScriptableAntBase.AntTypeEnum antType)
     {
         var result = new List<BaseAnt>();
         var scriptableObject = ResourceSystem.Instance.AntOfTypeGet(antType);

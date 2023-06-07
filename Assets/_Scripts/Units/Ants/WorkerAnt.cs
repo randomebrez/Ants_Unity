@@ -1,6 +1,7 @@
 using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -36,16 +37,72 @@ namespace mew
             UpdateStatistics();
 
             // Compute output using brain
-            var scanneroutputs = _scannerManager.GetInputs();
-            _unitManager.ComputeBrain("Main", scanneroutputs);
+            var outputIndex = ComputeAndGetOutput();
 
             // Select next pos : Interpret output
-            var output = _unitManager.GetBestOutput("Main");
-            InterpretOutput(output.ouputId);
+            InterpretOutput(outputIndex);
 
             base.Move();
         }
 
+        private int ComputeAndGetOutput()
+        {
+            var inputs = GetBrainInputs();
+            _brainComputer.ComputeBrainGraph(GetUnit.BrainGraph, inputs);
+            return GetBestOutput();
+        }
+
+        private int GetBestOutput()
+        {
+            var decisionBrain = GetUnit.BrainGraph.DecisionBrain;
+            var outputs = decisionBrain.Neurons.Outputs;
+            (int bestOutputIndex, float bestOutputValue) = (-1, 0);
+            for(int i = 0; i < outputs.Count; i++)
+            {
+                if (outputs[i].Value > bestOutputValue)
+                    (bestOutputIndex, bestOutputValue) = (outputs[i].Id, outputs[i].Value);
+            }
+            return bestOutputIndex;
+        }
+
+        private Dictionary<string, List<float>> GetBrainInputs()
+        {
+            var result = new Dictionary<string, List<float>>();
+
+            // Get brut object NeuralNetworkInputs (bool carryFood + List<Valeurs sur chaque portion>)
+            var allInputs = _scannerManager.GetInputs;
+
+            // Pour chaque template
+            foreach (var template in _unit.BrainCaracteristicsGraph.UnityInputsUsingTemplates)
+            {
+                // On filtre les inputs pour garder que ceux dont a besoin le tp pour chaque portion
+
+                // ToDo : améliorer ça
+                var requiredInputs = new List<UnityInputTypeEnum>();
+                var portions = template.Value.InputsTypes.Where(t => t.InputType == InputTypeEnum.Portion).Select(t => (t as InputTypePortion).UnityInputTypes);
+                foreach (var portion in portions)
+                    requiredInputs.AddRange(portion);
+
+                var tpInputs = allInputs.RestrictedInputListGet(requiredInputs.ToHashSet());
+
+                // On récupère toutes les instances utilisant ce tp
+                var instanceBrains = _unit.BrainCaracteristicsGraph.InstanceByTemplate[template.Key];
+                foreach (var brain in instanceBrains)
+                {
+                    // pour chaque on construit sa liste d'input
+                    var brainInputs = new List<float>();
+                    foreach (var portionIndex in brain.PortionIndexes)
+                        brainInputs.AddRange(tpInputs[portionIndex]);
+
+                    if (template.Value.InputsTypes.Any(t => t.InputType == InputTypeEnum.CarryFood))
+                        brainInputs.Add(allInputs.CarryFood ? 1 : 0);
+
+                    result.Add(brain.BrainName, brainInputs);
+                }
+            }
+
+            return result;
+        }
 
         // Abstract method implementations
 

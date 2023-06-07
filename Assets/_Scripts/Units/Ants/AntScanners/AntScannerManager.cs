@@ -22,7 +22,7 @@ public class AntScannerManager : MonoBehaviour
     private AntScannerBlock _scannerBlock;
     private AntScannerObstacles _obstacleScanner;
     public string[] PortionInfos => _portionInfos;
-
+    public NeuralNetworkInputs GetInputs => _inputs;
     bool initialyzed = false;
     
     private void Awake()
@@ -33,9 +33,12 @@ public class AntScannerManager : MonoBehaviour
         _scannerBlock = GetComponentInChildren<AntScannerBlock>();
     }
 
-    public List<float> GetInputs()
+    public Dictionary<int, PortionInputs> GetPortionInputs(List<int> portionIndexes)
     {
-        return _inputs.GetAllInputs();
+        var result = new Dictionary<int, PortionInputs>();
+        foreach (var index in portionIndexes)
+            result.Add(index, _inputs.PortionInputs[index]);
+        return result;
     }
 
     public void InitialyzeScanners()
@@ -54,8 +57,14 @@ public class AntScannerManager : MonoBehaviour
         if (!initialyzed)
             return;
 
+        // Update scanner objects lists
         ScanWithAllScanners();
-        PortionInputsUpdate();
+
+        // Update PortionInput values
+        for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
+            SinglePortionInputUpdate(i);
+
+        // Othe UnityInputs
         _inputs.CarryFood = carryFood;
     }
 
@@ -65,26 +74,13 @@ public class AntScannerManager : MonoBehaviour
         _scannerBlock.Scan();
     }
 
-    private void PortionInputsUpdate()
+    private void SinglePortionInputUpdate(int portionIndex)
     {
-        for (int i = 0; i < _ant.Stats.ScannerSubdivisions; i++)
-            _inputs.UpdatePortion(i, GetPortionInputs(i));
-    }
-
-    private PortionInputs GetPortionInputs(int portionIndex)
-    {
-        var pheroW = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander);
-        var pheroC = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood);
-
-        var portioninputs = new PortionInputs
-        {
-            PheroW = pheroW.averageDensity,
-            PheroC = pheroC.averageDensity,
-            WallDist = _obstacleScanner.GetPortionValue(portionIndex),
-            FoodToken = _scannerBlock.IsThereFood(portionIndex),
-            IsNestInSight = _scannerBlock.IsNestInSight(portionIndex)
-        };
-        portioninputs.ActivateTriggerObject = _scannerBlock.IsPortionInVisionField(portionIndex);
+        _inputs.PortionInputs[portionIndex].PheroW = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.Wander).averageDensity;
+        _inputs.PortionInputs[portionIndex].PheroC = _scannerBlock.GetPheromonesOfType(portionIndex, PheromoneTypeEnum.CarryFood).averageDensity;
+        _inputs.PortionInputs[portionIndex].WallDist = _obstacleScanner.GetPortionValue(portionIndex);
+        _inputs.PortionInputs[portionIndex].FoodToken = _scannerBlock.IsThereFood(portionIndex);
+        _inputs.PortionInputs[portionIndex].IsNestInSight = _scannerBlock.IsNestInSight(portionIndex);
 
         //if (_ant.name == "Worker_0")
         //{
@@ -95,7 +91,5 @@ public class AntScannerManager : MonoBehaviour
         //
         //    Debug.Log(outputValue.ToString());
         //}
-
-        return portioninputs;
     }
 }

@@ -5,14 +5,31 @@ using Assets._Scripts.Utilities;
 using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
 using System.Linq;
+using Assets.Gateways;
+using NeuralNetwork.Interfaces.Model;
+using Assets._Scripts.Managers;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 internal class UnitManager : BaseManager<UnitManager>
 {
     public AntColony AntColonyPrefab;
 
+    private NeuralNetworkGateway _neuralNetworkGateway;
     private Vector3 GetGroundSize => GlobalParameters.GroundSize;
     private List<AntColony> _colonies = new List<AntColony>();
     private BaseAnt _lastClicked;
+    private BrainBuilder _brainGraphBuilder;
+
+    private BrainCaracteristicGraph _simulationCaracteristicGraph;
+    private List<BrainCaracteristicsTemplate> _distinctTemplates;
+    private Dictionary<string, BrainCaracteristics> _templateBrainCaracteristics;
+
+    protected override void Awake()
+    {
+        _neuralNetworkGateway = new NeuralNetworkGateway();
+        _brainGraphBuilder = new BrainBuilder();
+        base.Awake();
+    }
 
     private void Update()
     {
@@ -23,6 +40,7 @@ internal class UnitManager : BaseManager<UnitManager>
             CreateNewColony();
     }
 
+    // Colonies management
     public void CreateNewColony()
     {
         GameObject spawned = null;
@@ -41,10 +59,41 @@ internal class UnitManager : BaseManager<UnitManager>
 
         var id = _colonies.Count + 1;
         var colony = spawned.GetComponent<AntColony>();
+        var units = GetRandomUnits(GlobalParameters.ColonyMaxPopulation);
         colony.Initialyze($"Colony_{id}");
+        colony.InstantiateUnits(units);
         _colonies.Add(colony);
     }
+    public void RenewColonies()
+    {
+        for (int i = 0; i < _colonies.Count; i++)
+        {
+            var bestUnits = _colonies[i].SelectBestUnits();
+            _colonies[i].SetStatistics();
+            _colonies[i].DestroyAllUnits();
+            var units = GenerateNewUnits(bestUnits);
+            _colonies[i].InstantiateUnits(units);
+        }
+    }
+    public void ClearColonies()
+    {
+        for (int i = _colonies.Count; i > 0; i--)
+            Destroy(_colonies[i - 1].gameObject);
 
+        _colonies.Clear();
+    }
+    public int GetColoniesSurvivorNumber(int index)
+    {
+        return _colonies[index].GetBestBrainCount();
+    }
+
+
+    // Units management
+    public void MoveAllUnits()
+    {
+        for (int i = 0; i < _colonies.Count; i++)
+            _colonies[i].MoveAllAnts();
+    }
     public Dictionary<PheromoneTypeEnum, List<Block>> GetUnitPositions()
     {
         if (_colonies.Any() == false)
@@ -54,38 +103,12 @@ internal class UnitManager : BaseManager<UnitManager>
         for (int i = 1; i < _colonies.Count; i++)
         {
             var temp = _colonies[i].GetAllAntPositions();
-            foreach(var pair in temp)
+            foreach (var pair in temp)
                 result[pair.Key].AddRange(pair.Value);
         }
 
         return result;
     }
-
-    public void MoveAllUnits()
-    {
-        for (int i = 0; i < _colonies.Count; i++)
-            _colonies[i].MoveAllAnts();
-    }
-
-    public void RenewColonies()
-    {
-        for (int i = 0; i < _colonies.Count; i++)
-            _colonies[i].RenewPopulation();
-    }
-
-    public void ClearColonies()
-    {
-        for (int i = _colonies.Count; i > 0; i--)
-            Destroy(_colonies[i - 1].gameObject);
-
-        _colonies.Clear();
-    }
-
-    public int GetColoniesSurvivorNumber(int index)
-    {
-        return _colonies[index].GetBestBrainCount();
-    }
-
     public void AntClick(BaseAnt ant)
     {
         if (_lastClicked != null)
@@ -93,5 +116,201 @@ internal class UnitManager : BaseManager<UnitManager>
 
         ant.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.yellow;
         _lastClicked = ant;
+    }
+
+
+
+
+    // Set a brain graph as the one to use to generate units
+    public void SimulationInstanceGraphSet(string graphName)
+    {
+        // Get the graph with all template instanciated, and portions attributed
+        _simulationCaracteristicGraph = _brainGraphBuilder.UserSelectionInstanceGraphGet(graphName);
+
+        // For practicity : save distinct template used by the graph
+        _distinctTemplates = new List<BrainCaracteristicsTemplate>();
+        var distinctTemplates = _simulationCaracteristicGraph.CaracteristicNodes.GroupBy(t => t.Value.Template.Name);
+        foreach (var templateCount in distinctTemplates)
+            _distinctTemplates.Add(templateCount.First().Value.Template);
+
+        // Map once the brain caracteristics of the distinct template. (Object that is understood by the nuget)
+        _templateBrainCaracteristics = new Dictionary<string, BrainCaracteristics>();
+        foreach (var template in _distinctTemplates)
+            _templateBrainCaracteristics.Add(template.Name, ToBrainCarac(template));
+    }
+
+    //Given genomes grouped by template & following instance graph structure, Build a genome graph for each unit (i-th position in all dictionary's list correspond to the i-th unit)
+    private List<GenomeGraph> GenomeGraphListBuild(BrainCaracteristicGraph instanceGraph, Dictionary<string, List<Genome>> genomes)
+    {
+        var graphs = new List<GenomeGraph>();
+        var number = genomes.First().Value.Count();
+
+        for (int i = 0; i < number; i++)
+        {
+            var graph = new GenomeGraph();
+            foreach (var node in instanceGraph.CaracteristicNodes)
+            {
+                graph.GenomeNodes.Add(new BrainGenomePair
+                {
+                    Caracteristics = ToBrainCarac(node.Value),
+                    Genome = genomes[node.Value.Template.Name][i]
+                });
+            }
+            foreach (var edge in instanceGraph.CaracteristicEdges)
+            {
+                var result = new HashSet<string>();
+                foreach (var origin in edge.Value)
+                    result.Add(instanceGraph.CaracteristicNodes[origin].BrainName);
+
+                graph.GenomeEdges.Add(edge.Key, result.ToList());
+            }
+
+            graphs.Add(graph);
+        }
+
+        return graphs;
+    }
+
+
+    // Unit generation
+    private UnitWrapper[] GetRandomUnits(int unitNumber)
+    {
+        if (unitNumber <= 0)
+            return new UnitWrapper[0];
+
+        var randomGenomes = GenerateRandomGenomes(unitNumber, _distinctTemplates);
+        var genomeGraphs = GenomeGraphListBuild(_simulationCaracteristicGraph, randomGenomes);
+
+        var nugetUnits = _neuralNetworkGateway.GetUnits(genomeGraphs);
+
+        var result = new UnitWrapper[unitNumber];
+        for(int i = 0; i < unitNumber; i++)
+        {
+            result[i] = new UnitWrapper
+            {
+                NugetUnit = nugetUnits[i],
+                BrainCaracteristicsGraph = _simulationCaracteristicGraph
+            };
+        }
+
+        return result;
+    }
+    private UnitWrapper[] GenerateNewUnits(List<BaseAnt> bestUnits)
+    {
+        var result = new UnitWrapper[GlobalParameters.ColonyMaxPopulation];
+
+        // Generate as many children as possible from best units
+        var genomes = GenerateMixedGenomes(_distinctTemplates, bestUnits);
+        var childrenGenomeGraphs = GenomeGraphListBuild(_simulationCaracteristicGraph, genomes);
+        var children = _neuralNetworkGateway.GetUnits(childrenGenomeGraphs);
+
+        for (int i = 0; i < children.Length; i++)
+        {
+            result[i] = new UnitWrapper
+            {
+                NugetUnit = children[i],
+                BrainCaracteristicsGraph = _simulationCaracteristicGraph
+            };
+        }
+            
+        // Generate random units to reach ColonyMaxPopulation treshold
+        var randomUnitToGenerate = GlobalParameters.ColonyMaxPopulation - genomes.First().Value.Count();
+        var randomUnits = GetRandomUnits(randomUnitToGenerate);
+
+        for (int i = children.Length; i < GlobalParameters.ColonyMaxPopulation; i++)
+            result[i] = randomUnits[i];
+
+        return result;
+    }
+
+
+    // Genome Generation
+    private Dictionary<string, List<Genome>> GenerateRandomGenomes(int genomeNumber, List<BrainCaracteristicsTemplate> distinctTemplates)
+    {
+        var result = new Dictionary<string, List<Genome>>();
+        foreach (var template in distinctTemplates)
+        {
+            var genomes = _neuralNetworkGateway.GetGenomes(genomeNumber, _templateBrainCaracteristics[template.Name]);
+            result.Add(template.Name, genomes);
+        }
+
+        return result;
+    }
+    private Dictionary<string, List<Genome>> GenerateMixedGenomes(List<BrainCaracteristicsTemplate> distinctTemplates, List<BaseAnt> bestUnits)
+    {
+        var result = new Dictionary<string, List<Genome>>();
+        var couples = CreateCouples(bestUnits);
+
+        foreach (var template in distinctTemplates)
+            result.Add(template.Name, new List<Genome>());
+
+        var childrenGenomeGraphs = new List<GenomeGraph>();
+        foreach(var couple in couples)
+        {
+            // Since each unit needs same template as everyone else, this work.
+            // i-th position in all list of the dictionary, are genomes of the i-th couple
+            foreach(var template in distinctTemplates)
+            {
+                var genomeA = couple.parentA.GetUnit.GenomeGraph.DistinctGenomes[template.Name];
+                var genomeB = couple.parentB.GetUnit.GenomeGraph.DistinctGenomes[template.Name];
+                var mixedGenome = _neuralNetworkGateway.GetMixedGenome(genomeA, genomeB, _templateBrainCaracteristics[template.Name], 1, 0.01f);
+
+                result[template.Name].Add(mixedGenome);
+            }            
+        }
+        return result;
+    }
+
+
+    // Mapping & tooling
+    private (BaseAnt parentA, BaseAnt parentB)[] CreateCouples(List<BaseAnt> bestUnits)
+    {
+        ;
+        var result = new (BaseAnt parentA, BaseAnt parentB)[GlobalParameters.ColonyMaxPopulation];
+        var index = 0;
+        while (bestUnits.Count > 1)
+        {
+            var firstindex = Random.Range(0, bestUnits.Count);
+            var parentA = bestUnits[firstindex];
+            var secondIndex = firstindex;
+            while (secondIndex == firstindex)
+                secondIndex = Random.Range(0, bestUnits.Count);
+            var parentB = bestUnits[secondIndex];
+            result[index] = (parentA, parentB);
+            parentA.GetUnit.UseForChildCounter++;
+            parentB.GetUnit.UseForChildCounter++;
+            bestUnits = bestUnits.Where(t => t.GetUnit.UseForChildCounter < t.GetUnit.MaxChildNumber).ToList();
+        }
+
+        return result;
+    }
+    private BrainCaracteristics ToBrainCarac(BrainCaracteristicsTemplate template)
+    {
+        return new BrainCaracteristics(template.Name)
+        {
+            TemplateName = template.Name,
+            InputLayer = template.InputLayer,
+            NeutralLayers = template.NeutralLayers,
+            OutputLayer = template.OutputLayer,
+            IsDecisionBrain = template.IsDecisionBrain,
+            GenomeCaracteristics = ToGenomeCarac(template, template.GenomeCaracteristics)
+        };
+    }
+    private BrainCaracteristics ToBrainCarac(BrainCaracteristicsInstance instance)
+    {
+        var result = ToBrainCarac(instance.Template);
+        result.BrainName = instance.BrainName;
+        return result;
+    }
+    private GenomeCaracteristics ToGenomeCarac(BrainCaracteristicsTemplate template, GenomeParameters parameters)
+    {
+        var maxEdgeNumber = template.MaxEdgeNumberGet();
+        var geneNumber = (int)(parameters.NetworkCoverage * maxEdgeNumber / 100f);
+
+        return new GenomeCaracteristics
+        {
+            GeneNumber = geneNumber,
+            WeighBytesNumber = parameters.WeightBitNumber
+        };
     }
 }

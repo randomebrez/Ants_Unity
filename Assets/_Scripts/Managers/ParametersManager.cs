@@ -57,7 +57,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
             case SimulationParameterTypeEnum.MaxPopulation:
                 return GlobalParameters.ColonyMaxPopulation.ToString();                
             case SimulationParameterTypeEnum.LifeTime:
-                return GlobalParameters.GenerationFrameCount.ToString();
+                return GlobalParameters.LifeTimeFrame.ToString();
             case SimulationParameterTypeEnum.SelectPercent:
                 return GlobalParameters.ReproductionCaracteristics.PercentToSelect.ToString();
             case SimulationParameterTypeEnum.ChildMean:
@@ -107,7 +107,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
                 GlobalParameters.ColonyMaxPopulation = int.Parse(value);
                 break;
             case SimulationParameterTypeEnum.LifeTime:
-                GlobalParameters.GenerationFrameCount = int.Parse(value);
+                GlobalParameters.LifeTimeFrame = int.Parse(value);
                 break;
             case SimulationParameterTypeEnum.SelectPercent:
                 GlobalParameters.ReproductionCaracteristics.PercentToSelect = int.Parse(value);

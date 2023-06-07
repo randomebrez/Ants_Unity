@@ -5,6 +5,10 @@ using Assets._Scripts.Utilities;
 using System.Collections.Generic;
 using Assets._Scripts.Units.Ants;
 using NeuralNetwork.Interfaces.Model;
+using System.Linq;
+using Assets.Dtos;
+using NeuralNetwork.Interfaces;
+using NeuralNetwork.Implementations;
 
 namespace mew
 {
@@ -19,8 +23,9 @@ namespace mew
         protected GroundBlock _nextPos;
 
         //Managers
-        protected NnUnitManager _unitManager;
-        protected Unit _unit;
+        protected IBrain _brainComputer;
+        protected UnitWrapper _unit;
+        protected Dictionary<int, (string initialKey, string indexedKey)> _firstRowBrains = new Dictionary<int, (string, string)>();
         protected AntScannerManager _scannerManager;
 
         // Private fields
@@ -36,7 +41,7 @@ namespace mew
         public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
         public string[] PortionInfos => _scannerManager.PortionInfos;
-        public Unit GetUnit => _unit;
+        public Unit GetUnit => _unit.NugetUnit;
 
 
         // Unity methods
@@ -74,18 +79,17 @@ namespace mew
 
 
         // Override methods
-        public void Initialyze(ScriptableUnitBase.Stats stats, Unit unit, GroundBlock block)
+        public void Initialyze(ScriptableUnitBase.Stats stats, UnitWrapper unit, GroundBlock initalPosition)
         {
             _unit = unit;
             Stats = stats;
-            CurrentPos = block;
-            _unitManager = new NnUnitManager(_unit);
+            CurrentPos = initalPosition;
+            _brainComputer = new BrainCompute();
             _scannerManager.InitialyzeScanners();
             SetHeadColor(_colors[0]);
             SetBodyColor(_colors[0]);
             _initialyzed = true;
         }
-
 
         // Virtual Methods
         public virtual void Move()
@@ -112,7 +116,6 @@ namespace mew
 
             CheckCollectableCollisions();
         }
-
 
         // Events
         private void OnMouseDown()
