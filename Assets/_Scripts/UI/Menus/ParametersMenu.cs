@@ -72,7 +72,6 @@ public class ParametersMenu : MonoBehaviour
             }
         }
     }
-
     private void SimulationParametersSave()
     {
         var valueDict = new Dictionary<SimulationParameterTypeEnum, string>();
@@ -103,7 +102,6 @@ public class ParametersMenu : MonoBehaviour
             }
         }
     }
-
     private void NeuralNetworkParametersSave()
     {
         var valueDict = new Dictionary<NeuralNetworkParameterTypeEnum, string>();
@@ -134,7 +132,6 @@ public class ParametersMenu : MonoBehaviour
             }
         }
     }
-
     private void AntCaracteristicsParametersSave()
     {
         var valueDict = new Dictionary<AntCaracteristicsParameterTypeEnum, string>();

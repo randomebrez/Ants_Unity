@@ -1,6 +1,6 @@
 ﻿namespace Assets.Dtos
 {
-    public enum Layer
+    public enum UnityLayerEnum
     {
         Default = 0,
         TransparentFX = 1,

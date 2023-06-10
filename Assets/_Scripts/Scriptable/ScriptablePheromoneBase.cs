@@ -8,7 +8,7 @@ namespace mew
         [SerializeField] private Caracteristics _caracteristics;
         public Caracteristics BaseCaracteristics => _caracteristics;
 
-        public BasePheromone PheromonePrefab;
+        public PheromoneToken PheromonePrefab;
 
         public enum PheromoneTypeEnum
         {

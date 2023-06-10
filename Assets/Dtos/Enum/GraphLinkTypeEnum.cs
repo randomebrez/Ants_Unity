@@ -1,6 +1,6 @@
 ﻿namespace Assets.Dtos
 {
-    public enum TemplateLinkTypeEnum
+    public enum GraphLinkTypeEnum
     {
         Default,
         AllPortions,

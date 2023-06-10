@@ -3,7 +3,7 @@ using Assets.Dtos;
 using UnityEngine;
 using mew;
 
-public class BasePheromone : MonoBehaviour
+public class PheromoneToken : MonoBehaviour
 {
     public ScriptablePheromoneBase.Caracteristics Caracteristics { get; private set; }
     public Pheromone Pheromone;
@@ -28,6 +28,7 @@ public class BasePheromone : MonoBehaviour
         _renderer.material.color = color;
     }
 
+
     public virtual void Initialyze(ScriptablePheromoneBase.Caracteristics caracteristics)
     {
         Caracteristics = caracteristics;
@@ -41,6 +42,8 @@ public class BasePheromone : MonoBehaviour
         _initialyzed = true;
     }
 
+
+    // Method that is called at each iteration to apply time effect on block
     public void ApplyTimeEffect()
     {
         Pheromone.RemainingTime --;

@@ -1,11 +1,9 @@
 using System;
 using UnityEngine;
-using NnUnitManager = NeuralNetwork.Managers.UnitManager;
 using Assets._Scripts.Utilities;
 using System.Collections.Generic;
 using Assets._Scripts.Units.Ants;
 using NeuralNetwork.Interfaces.Model;
-using System.Linq;
 using Assets.Dtos;
 using NeuralNetwork.Interfaces;
 using NeuralNetwork.Implementations;
@@ -25,8 +23,7 @@ namespace mew
         //Managers
         protected IBrain _brainComputer;
         protected UnitWrapper _unit;
-        protected Dictionary<int, (string initialKey, string indexedKey)> _firstRowBrains = new Dictionary<int, (string, string)>();
-        protected AntScannerManager _scannerManager;
+        protected UnitScannerManager _scannerManager;
 
         // Private fields
         private Transform _body;
@@ -34,13 +31,10 @@ namespace mew
 
         protected bool _initialyzed = false;
         protected int _age = 0;
-        protected float _roundNumber = 0f;
-        protected float _totalRotation = 0f;
 
         // Public methods
         public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
-        public string[] PortionInfos => _scannerManager.PortionInfos;
         public Unit GetUnit => _unit.NugetUnit;
 
 
@@ -50,7 +44,7 @@ namespace mew
             _body = transform.GetChild(0);
             _head = transform.GetChild(1);
 
-            _scannerManager = GetComponentInChildren<AntScannerManager>();
+            _scannerManager = GetComponentInChildren<UnitScannerManager>();
         }
 
 
@@ -59,9 +53,9 @@ namespace mew
 
         public abstract float GetUnitScore();
 
-        public abstract Dictionary<StatisticEnum, float> GetStatistics();
+        public abstract Dictionary<UnitStatististicsEnum, float> GetStatistics();
 
-        protected abstract HashSet<StatisticEnum> RequiredStatistics();
+        protected abstract HashSet<UnitStatististicsEnum> RequiredStatistics();
 
         public abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
 
@@ -104,12 +98,6 @@ namespace mew
             }
 
             var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.Block.WorldPosition - CurrentPos.Block.WorldPosition, Vector3.up);
-            _totalRotation += rotation;
-            if (Mathf.Abs(_totalRotation) >= 360)
-            {
-                _totalRotation = 0f;
-                _roundNumber++;
-            }
 
             CurrentPos = _nextPos;
             transform.SetPositionAndRotation(CurrentPos.Block.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));

@@ -106,38 +106,38 @@ namespace mew
 
         // Abstract method implementations
 
-        protected override HashSet<StatisticEnum> RequiredStatistics() => new HashSet<StatisticEnum>
+        protected override HashSet<UnitStatististicsEnum> RequiredStatistics() => new HashSet<UnitStatististicsEnum>
         { 
-            StatisticEnum.Score,
-            StatisticEnum.Age,
-            StatisticEnum.ComeBackMean,
-            StatisticEnum.FoodCollected,
-            StatisticEnum.FoodGrabbed
+            UnitStatististicsEnum.Score,
+            UnitStatististicsEnum.Age,
+            UnitStatististicsEnum.ComeBackMean,
+            UnitStatististicsEnum.FoodCollected,
+            UnitStatististicsEnum.FoodGrabbed
         };
 
-        public override Dictionary<StatisticEnum, float> GetStatistics()
+        public override Dictionary<UnitStatististicsEnum, float> GetStatistics()
         {
-            var stats = new Dictionary<StatisticEnum, float>();
+            var stats = new Dictionary<UnitStatististicsEnum, float>();
             foreach (var statType in RequiredStatistics())
             {
                 switch(statType)
                 {
-                    case StatisticEnum.Score:
+                    case UnitStatististicsEnum.Score:
                         stats.Add(statType, GetUnitScore());
                         break;
-                    case StatisticEnum.BestFoodReachStepNumber:
+                    case UnitStatististicsEnum.BestFoodReachStepNumber:
                         stats.Add(statType, _bestFindFoodStepNumber);
                         break;
-                    case StatisticEnum.ComeBackMean:
+                    case UnitStatististicsEnum.ComeBackMean:
                         stats.Add(statType, _bestComeBackStepNumber);
                         break;
-                    case StatisticEnum.FoodCollected:
+                    case UnitStatististicsEnum.FoodCollected:
                         stats.Add(statType, FoodCollected);
                         break;
-                    case StatisticEnum.FoodGrabbed:
+                    case UnitStatististicsEnum.FoodGrabbed:
                         stats.Add(statType, FoodGrabbed);
                         break;
-                    case StatisticEnum.Age:
+                    case UnitStatististicsEnum.Age:
                         stats.Add(statType, _age);
                         break;
                 }
@@ -196,7 +196,6 @@ namespace mew
 
             var bonusGrab = Mathf.Min(1, FoodGrabbed);
             var bonusCollected = Mathf.Min(0, FoodCollected);
-            var roundMalus = _roundNumber / maxRound;
             var randomMoveMalus = RandomMoveCount / _age;
             var wrongFoodMalus = Mathf.Pow(WrongFoodCollision / _age, 2);
             var overloadedOutputs = _outputs.Where(t => t > 0.4 * _age).ToList();
@@ -251,7 +250,7 @@ namespace mew
                 case 4:
                 case 5:
                     direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
-                    if (Physics.Raycast(CurrentPos.Block.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(Layer.Walkable.ToString())))
+                    if (Physics.Raycast(CurrentPos.Block.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(UnityLayerEnum.Walkable.ToString())))
                         _nextPos = hit.collider.GetComponentInParent<GroundBlock>();
                     else
                     {

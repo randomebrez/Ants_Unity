@@ -1,12 +1,9 @@
 ﻿using Assets._Scripts.Utilities;
 using Assets.Dtos;
-using mew;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using NeuralNetwork.Interfaces.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static UnityEngine.UI.Image;
 
 namespace Assets._Scripts.Managers
 {
@@ -101,27 +98,27 @@ namespace Assets._Scripts.Managers
 
             switch (link.LinkTypeEnum)
             {
-                case TemplateLinkTypeEnum.Default:
+                case GraphLinkTypeEnum.Default:
                     result.Add(BrainCaracteristicBuild(link.Origin, new List<int>()));
                     break;
-                case TemplateLinkTypeEnum.AllPortions:
+                case GraphLinkTypeEnum.AllPortions:
                     result.Add(BrainCaracteristicBuild(link.Origin, _portions.Select(t => t.Id).ToList()));
                     break;
-                case TemplateLinkTypeEnum.VisionPortions:
+                case GraphLinkTypeEnum.VisionPortions:
                     result.Add(BrainCaracteristicBuild(link.Origin, visionPortions.Select(t => t.Id).ToList()));
                     break;
-                case TemplateLinkTypeEnum.NoVisionPortions:
+                case GraphLinkTypeEnum.NoVisionPortions:
                     result.Add(BrainCaracteristicBuild(link.Origin, noVisionPortions.Select(t => t.Id).ToList()));
                     break;
-                case TemplateLinkTypeEnum.SingleAllPortions:
+                case GraphLinkTypeEnum.SingleAllPortions:
                     foreach (var portion in _portions)
                         result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
                     break;
-                case TemplateLinkTypeEnum.SingleVisionPortions:
+                case GraphLinkTypeEnum.SingleVisionPortions:
                     foreach (var portion in visionPortions)
                         result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
                     break;
-                case TemplateLinkTypeEnum.SingleNoVisionPortions:
+                case GraphLinkTypeEnum.SingleNoVisionPortions:
                     foreach (var portion in noVisionPortions)
                         result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
                     break;
@@ -334,7 +331,7 @@ namespace Assets._Scripts.Managers
             return new LayerCaracteristics(layerType, layerId, neuronNumber, activationFunction, caracteristicValue);
         }
 
-        private GraphLink TemplateGraphLinkGet(BrainCaracteristicsTemplate target, BrainCaracteristicsTemplate origin, TemplateLinkTypeEnum linkType)
+        private GraphLink TemplateGraphLinkGet(BrainCaracteristicsTemplate target, BrainCaracteristicsTemplate origin, GraphLinkTypeEnum linkType)
         {
             return new GraphLink
             {
@@ -371,8 +368,8 @@ namespace Assets._Scripts.Managers
             result.Nodes.Add(visionTp.Name, visionTp);
             result.Nodes.Add(noVisionTp.Name, noVisionTp);
 
-            var linkVision = TemplateGraphLinkGet(result.DecisionBrain, visionTp, TemplateLinkTypeEnum.SingleVisionPortions);
-            var linkNoVision = TemplateGraphLinkGet(result.DecisionBrain, noVisionTp, TemplateLinkTypeEnum.SingleNoVisionPortions);
+            var linkVision = TemplateGraphLinkGet(result.DecisionBrain, visionTp, GraphLinkTypeEnum.SingleVisionPortions);
+            var linkNoVision = TemplateGraphLinkGet(result.DecisionBrain, noVisionTp, GraphLinkTypeEnum.SingleNoVisionPortions);
 
             result.Edges.Add(result.DecisionBrain.Name, new List<GraphLink> { linkVision, linkNoVision });
 

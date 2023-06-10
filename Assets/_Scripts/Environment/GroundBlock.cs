@@ -14,7 +14,7 @@ public class GroundBlock : MonoBehaviour
     public Material UnwalkableMaterial;
 
     private Dictionary<PheromoneTypeEnum, Vector3> _pheromoneTokenPositions;
-    private Dictionary<PheromoneTypeEnum, BasePheromone> _pheromoneTokens;
+    private Dictionary<PheromoneTypeEnum, PheromoneToken> _pheromoneTokens;
 
     private Vector3 _foodTokenPosition;
     private FoodToken _foodToken;
@@ -30,21 +30,41 @@ public class GroundBlock : MonoBehaviour
     {
         _renderer = GetComponentInChildren<MeshRenderer>();
         SetPheromoneTokenPositions();
-    }    
-
-    public float GetPheromoneDensity(PheromoneTypeEnum pheroType)
-    {
-        if (_pheromoneTokens[pheroType] != null)
-            return _pheromoneTokens[pheroType].Pheromone.Density;
-
-        return 0;
     }
 
+    public void SetWalkable()
+    {
+        _renderer.material = WalkableMaterial;
+        transform.GetChild(0).gameObject.layer = (int)UnityLayerEnum.Walkable;
+    }
+
+    public void SetUnwalkable()
+    {
+        _renderer.material = UnwalkableMaterial;
+        gameObject.layer = (int)UnityLayerEnum.Unwalkable;
+    }
+
+    // Method that is called at each iteration to apply time effect on block
+    public void ApplyTimeEffect()
+    {
+        var activePheromones = _pheromoneTokens.Values.Where(t => t != null);
+
+        if (activePheromones.Count() == 0)
+            return;
+
+        foreach (var pheromoneToken in activePheromones)
+            pheromoneToken.ApplyTimeEffect();
+
+        HasAnyActivePheromoneToken = activePheromones.Count() > 0;
+    }
+
+
+    // Pheromones
     public void AddOrCreatePheromoneOnBlock(PheromoneTypeEnum pheroType)
     {
         var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(pheroType);
         var pheromoneToHandle = _pheromoneTokens[pheroType];
-        
+
         if (pheromoneToHandle != null)
             pheromoneToHandle.MergePheromones(scriptablePheromone.BaseCaracteristics.Duration);
         else
@@ -60,12 +80,22 @@ public class GroundBlock : MonoBehaviour
         }
     }
 
+    public float GetPheromoneDensity(PheromoneTypeEnum pheroType)
+    {
+        if (_pheromoneTokens[pheroType] != null)
+            return _pheromoneTokens[pheroType].Pheromone.Density;
+
+        return 0;
+    }
+
     public void CleanPheromones()
     {
         foreach (var pheromone in _pheromoneTokens.Values.Where(t => t!= null))
             Destroy(pheromone.gameObject);
     }
 
+
+    // Food token
     public void AddOrCreateFoodTookenOnBlock(FoodToken foodToken)
     {
         if (_foodToken == null)
@@ -93,31 +123,6 @@ public class GroundBlock : MonoBehaviour
             _foodToken.gameObject.SetActive(false);
     }
 
-    public void ApplyTimeEffect()
-    {
-        var activePheromones = _pheromoneTokens.Values.Where(t => t != null);
-
-        if (activePheromones.Count() == 0)
-            return;
-
-        foreach (var pheromoneToken in activePheromones)
-            pheromoneToken.ApplyTimeEffect();
-
-        HasAnyActivePheromoneToken = activePheromones.Count() > 0;
-    }
-
-    public void SetWalkable()
-    {
-        _renderer.material = WalkableMaterial;
-        transform.GetChild(0).gameObject.layer = (int) Layer.Walkable;
-    }
-
-    public void SetUnwalkable()
-    {
-        _renderer.material = UnwalkableMaterial;
-        gameObject.layer = (int) Layer.Unwalkable;
-    }
-
 
     private void SetPheromoneTokenPositions()
     {
@@ -127,7 +132,7 @@ public class GroundBlock : MonoBehaviour
             { PheromoneTypeEnum.CarryFood, - 0.5f * GlobalParameters.NodeRadius * Vector3.right }
         };
 
-        _pheromoneTokens = new Dictionary<PheromoneTypeEnum, BasePheromone>
+        _pheromoneTokens = new Dictionary<PheromoneTypeEnum, PheromoneToken>
         {
             { PheromoneTypeEnum.Wander, null },
             { PheromoneTypeEnum.CarryFood, null }

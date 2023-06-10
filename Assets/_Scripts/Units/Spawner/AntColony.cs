@@ -1,19 +1,14 @@
-using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using Assets.Gateways;
 using mew;
-using NeuralNetwork.Interfaces.Model;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 using static mew.ScriptablePheromoneBase;
 
 public class AntColony : MonoBehaviour
 {
-    private NeuralNetworkGateway _neuralNetworkGateway;
-
     private SpawnerAnt _spawner;
     private BlockBase _block;
     private List<BaseAnt> _population;
@@ -45,13 +40,13 @@ public class AntColony : MonoBehaviour
         foreach (var block in blocksUnderneath)
             block.IsUnderNest = true;
 
-        StatisticsManager.Instance.InitializeView(new List<StatisticEnum>
+        StatisticsManager.Instance.InitializeView(new List<UnitStatististicsEnum>
         {
             //StatisticEnum.Score,
-            StatisticEnum.Age,
-            StatisticEnum.ComeBackMean,
-            StatisticEnum.FoodCollected,
-            StatisticEnum.FoodGrabbed
+            UnitStatististicsEnum.Age,
+            UnitStatististicsEnum.ComeBackMean,
+            UnitStatististicsEnum.FoodCollected,
+            UnitStatististicsEnum.FoodGrabbed
         });
 
         _initialyzed = true;

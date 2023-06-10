@@ -1,6 +1,6 @@
 ﻿namespace Assets.Dtos
 {
-    public enum StatisticEnum
+    public enum UnitStatististicsEnum
     {
         Score,
         BestFoodReachStepNumber,

@@ -1,7 +1,7 @@
 using Assets._Scripts.Gateways;
-using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
 using Assets.Abstractions;
+using Assets.Dtos;
 using mew;
 using System;
 using System.Collections.Generic;
@@ -14,20 +14,20 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
 {
     private GameViewsManager _gameViewManager;
     private IStorage _dbGateway;
-    private Dictionary<StatisticEnum, int> _statisticsDisplayZoneIndexes;
-    private Dictionary<StatisticEnum, Vector2> _globalHighScore = new Dictionary<StatisticEnum, Vector2>();
+    private Dictionary<UnitStatististicsEnum, int> _statisticsDisplayZoneIndexes;
+    private Dictionary<UnitStatististicsEnum, Vector2> _globalHighScore = new Dictionary<UnitStatististicsEnum, Vector2>();
 
     public void SetGameViewManager(GameViewsManager gameViewManager)
     {
         _gameViewManager = gameViewManager;
     }
 
-    public void InitializeView(List<StatisticEnum> statisticsToDisplay)
+    public void InitializeView(List<UnitStatististicsEnum> statisticsToDisplay)
     {
         _dbGateway = new FileStorageGateway(GlobalParameters.SqlFolderPath);
         _gameViewManager.Initialyze(statisticsToDisplay.Select(t => t.ToString()).ToList());
 
-        _statisticsDisplayZoneIndexes = new Dictionary<StatisticEnum, int>();
+        _statisticsDisplayZoneIndexes = new Dictionary<UnitStatististicsEnum, int>();
         for (int i = 0; i < statisticsToDisplay.Count; i++)
             _statisticsDisplayZoneIndexes.Add(statisticsToDisplay[i], i);
     }
@@ -44,51 +44,51 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         {
             var antStatistics = ant.GetStatistics();
 
-            if (antStatistics[StatisticEnum.Score] > bestScore)
-                bestScore = antStatistics[StatisticEnum.Score];
+            if (antStatistics[UnitStatististicsEnum.Score] > bestScore)
+                bestScore = antStatistics[UnitStatististicsEnum.Score];
 
-            if (antStatistics[StatisticEnum.ComeBackMean] < int.MaxValue)
+            if (antStatistics[UnitStatististicsEnum.ComeBackMean] < int.MaxValue)
             {
-                comeBackMean += 1f / antStatistics[StatisticEnum.ComeBackMean];
+                comeBackMean += 1f / antStatistics[UnitStatististicsEnum.ComeBackMean];
                 count2++;
             }
-            sumFoodCollected += antStatistics[StatisticEnum.FoodCollected];
-            sumFoodGrabbed += antStatistics[StatisticEnum.FoodGrabbed];
-            ageMean += antStatistics[StatisticEnum.Age];
+            sumFoodCollected += antStatistics[UnitStatististicsEnum.FoodCollected];
+            sumFoodGrabbed += antStatistics[UnitStatististicsEnum.FoodGrabbed];
+            ageMean += antStatistics[UnitStatististicsEnum.Age];
         }
 
         comeBackMean = count2 > 0 ? comeBackMean / count2 : 0;
         ageMean /= ants.Count;
 
         var xPoint = generationId * Vector2.right;
-        var currentHighScore = new Dictionary<StatisticEnum, Vector2>
+        var currentHighScore = new Dictionary<UnitStatististicsEnum, Vector2>
         {
-            { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },            
-            { StatisticEnum.ComeBackMean, xPoint + (float)Math.Round(comeBackMean, 2) * Vector2.up },
-            { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up },
-            { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
-            { StatisticEnum.Age, xPoint + ageMean * Vector2.up }
+            { UnitStatististicsEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },            
+            { UnitStatististicsEnum.ComeBackMean, xPoint + (float)Math.Round(comeBackMean, 2) * Vector2.up },
+            { UnitStatististicsEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up },
+            { UnitStatististicsEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up },
+            { UnitStatististicsEnum.Age, xPoint + ageMean * Vector2.up }
         };
 
         if (_globalHighScore.Count == 0)
         {
-            _globalHighScore = new Dictionary<StatisticEnum, Vector2>
+            _globalHighScore = new Dictionary<UnitStatististicsEnum, Vector2>
             {
-                { StatisticEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },                
-                { StatisticEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up },
-                { StatisticEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up }
+                { UnitStatististicsEnum.Score, xPoint + (float)Math.Round(bestScore, 2) * Vector2.up },                
+                { UnitStatististicsEnum.FoodGrabbed, xPoint + sumFoodGrabbed * Vector2.up },
+                { UnitStatististicsEnum.FoodCollected, xPoint + sumFoodCollected * Vector2.up }
             };
         }
         else
         {
-            if (bestScore > _globalHighScore[StatisticEnum.Score].y)
-                _globalHighScore[StatisticEnum.Score] = new Vector2(generationId, bestScore);
+            if (bestScore > _globalHighScore[UnitStatististicsEnum.Score].y)
+                _globalHighScore[UnitStatististicsEnum.Score] = new Vector2(generationId, bestScore);
 
-            if (sumFoodCollected > _globalHighScore[StatisticEnum.FoodCollected].y)
-                _globalHighScore[StatisticEnum.FoodCollected] = new Vector2(generationId, sumFoodCollected);
+            if (sumFoodCollected > _globalHighScore[UnitStatististicsEnum.FoodCollected].y)
+                _globalHighScore[UnitStatististicsEnum.FoodCollected] = new Vector2(generationId, sumFoodCollected);
 
-            if (sumFoodGrabbed > _globalHighScore[StatisticEnum.FoodGrabbed].y)
-                _globalHighScore[StatisticEnum.FoodGrabbed] = new Vector2(generationId, sumFoodGrabbed);
+            if (sumFoodGrabbed > _globalHighScore[UnitStatististicsEnum.FoodGrabbed].y)
+                _globalHighScore[UnitStatististicsEnum.FoodGrabbed] = new Vector2(generationId, sumFoodGrabbed);
         }
 
        
@@ -104,14 +104,14 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         Debug.Log($"Generation : {generationId}\nHighest score : {bestScore} - Food Grabbed : {sumFoodGrabbed} - Food Gathered : {sumFoodCollected}");
     }
 
-    public void AddStatisticsToCurve(Dictionary<StatisticEnum, Vector2> values)
+    public void AddStatisticsToCurve(Dictionary<UnitStatististicsEnum, Vector2> values)
     {
         foreach(var value in values)
             if (_statisticsDisplayZoneIndexes.ContainsKey(value.Key))
                 _gameViewManager.AddCurveValue(_statisticsDisplayZoneIndexes[value.Key], value.Value);
     }
 
-    public void UpdateStatisticsText(Dictionary<StatisticEnum, Vector2> currentGenerationScore, Dictionary<StatisticEnum, Vector2> globalHighScores)
+    public void UpdateStatisticsText(Dictionary<UnitStatististicsEnum, Vector2> currentGenerationScore, Dictionary<UnitStatististicsEnum, Vector2> globalHighScores)
     {
         var text = new StringBuilder("HighScore :\n");
         foreach (var pair in globalHighScores)
@@ -120,10 +120,5 @@ internal class StatisticsManager : BaseManager<StatisticsManager>
         foreach (var pair in currentGenerationScore)
             text.AppendLine($"{pair.Key} : {pair.Value.y}");
         _gameViewManager.UpdateHighScores(text.ToString());
-    }
-
-    private async Task SaveWinnersAsync(int generationId, List<BaseAnt> ants, float foodCollected)
-    {
-        await _dbGateway.StoreBrainsAsync(generationId, ants.Select(t => t.GetUnit).ToList()).ConfigureAwait(false);
     }
 }

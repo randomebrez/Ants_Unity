@@ -66,7 +66,7 @@ public abstract class AntScannerBase : MonoBehaviour
 
         // Compute number of tile within scanner range
         var colliders = new Collider[70];
-        Physics.OverlapSphereNonAlloc(transform.position, _scannerRadius, colliders, LayerMask.GetMask(Layer.Walkable.ToString()));
+        Physics.OverlapSphereNonAlloc(transform.position, _scannerRadius, colliders, LayerMask.GetMask(UnityLayerEnum.Walkable.ToString()));
         var blockCount = colliders.Where(t => t != null).Count();
         _scannerSurface = (blockCount - 1)/ _scannerSubdivision;
 

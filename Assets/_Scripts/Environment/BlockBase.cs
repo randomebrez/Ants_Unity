@@ -23,7 +23,7 @@ public class BlockBase : MonoBehaviour
         Vertices = _mesh.vertices;
     }
 
-    public Mesh CreateMesh(int sideNumber = 6)
+    private Mesh CreateMesh(int sideNumber = 6)
     {
         var mesh = new Mesh();
         var numTriangles = 4 * sideNumber;
@@ -78,14 +78,4 @@ public class BlockBase : MonoBehaviour
 
         return mesh;
     }
-
-    /*
-    private void OnDrawGizmos()
-    {
-        if (_mesh == null)
-            return;
-
-        //Gizmos.color = Color.green;
-        //Gizmos.DrawMesh(_mesh);
-    }*/
 }

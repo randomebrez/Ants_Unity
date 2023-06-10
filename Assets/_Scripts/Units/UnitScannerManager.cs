@@ -5,15 +5,8 @@ using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
 using Assets._Scripts.Units.Ants.AntScanners;
 
-public class AntScannerManager : MonoBehaviour
+public class UnitScannerManager : MonoBehaviour
 {
-    public enum ScannerTypeEnum
-    {
-        Obstacles,
-        Food,
-        Pheromones
-    }
-
     private UnitScanningResult _inputs;
     private string[] _portionInfos;
 

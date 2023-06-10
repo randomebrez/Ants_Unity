@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+// Singleton whose role is to communicate with the static class GlobalParameters.
+// It should remain the only one able to set simulation parameters.
+// Therefore it should have the connection to the database I guess
 internal  class ParametersManager : BaseManager<ParametersManager>
 {
     private List<SimulationParameterTypeEnum> _simulationParameters = new List<SimulationParameterTypeEnum>
@@ -205,6 +208,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
         //        break;
         //}
     }
+
 
 
     // AntCaracteristics parameters

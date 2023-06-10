@@ -10,6 +10,6 @@ namespace Assets.Dtos
 
         public BrainCaracteristicsTemplate Origin { get; set; }
 
-        public TemplateLinkTypeEnum LinkTypeEnum { get; set; }
+        public GraphLinkTypeEnum LinkTypeEnum { get; set; }
     }
 }

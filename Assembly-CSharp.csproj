@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Dtos\UnitPortionInputValues.cs" />
-    <Compile Include="Assets\_Scripts\Units\Ants\StatisticEnum.cs" />
+    <Compile Include="Assets\Dtos\Enum\UnitStatististicsEnum.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\WorkerAnt.cs" />
     <Compile Include="Assets\_Scripts\UI\GraphicManager.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="Assets\_Scripts\Gateways\NeuralNetworkGateway.cs" />
     <Compile Include="Assets\Dtos\UnitWrapper.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptableAntBase.cs" />
-    <Compile Include="Assets\_Scripts\Managers\AntSceneManager.cs" />
+    <Compile Include="Assets\_Scripts\Managers\Singleton\AntSceneManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\AntColony.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptableUnitBase.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypeCarryFood.cs" />
@@ -86,48 +86,47 @@
     <Compile Include="Assets\_Scripts\System\ResourceSystem.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\GraphInstance.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\InputParameterField.cs" />
-    <Compile Include="Assets\Dtos\Enum\TemplateLinkTypeEnum.cs" />
+    <Compile Include="Assets\Dtos\Enum\GraphLinkTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Environment\GroundBlock.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\GraphLink.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BaseAnt.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypeBase.cs" />
-    <Compile Include="Assets\Dtos\Enum\Layer.cs" />
+    <Compile Include="Assets\Dtos\Enum\UnityLayerEnum.cs" />
     <Compile Include="Assets\_Scripts\Utilities\GlobalParameters.cs" />
-    <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerBlock.cs" />
-    <Compile Include="Assets\_Scripts\Utilities\StaticCompute.cs" />
+    <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBlock.cs" />
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
-    <Compile Include="Assets\_Scripts\Managers\EnvironmentManager.cs" />
+    <Compile Include="Assets\_Scripts\Managers\Singleton\EnvironmentManager.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\GraphTemplate.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\BrainCaracteristicsTemplate.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\PauseMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\SpawnerAnt.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\BrainCaracteristicInstance.cs" />
-    <Compile Include="Assets\_Scripts\Managers\UnitManager.cs" />
-    <Compile Include="Assets\_Scripts\Units\Ants\BasePheromone.cs" />
+    <Compile Include="Assets\_Scripts\Managers\Singleton\UnitManager.cs" />
+    <Compile Include="Assets\_Scripts\Environment\PheromoneToken.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\Curve.cs" />
     <Compile Include="Assets\Abstractions\IManager.cs" />
     <Compile Include="Assets\_Scripts\UI\SidePanels.cs" />
-    <Compile Include="Assets\_Scripts\Managers\StatisticsManager.cs" />
-    <Compile Include="Assets\_Scripts\Managers\ParametersManager.cs" />
-    <Compile Include="Assets\_Scripts\Managers\GameViewsManager.cs" />
+    <Compile Include="Assets\_Scripts\Managers\Singleton\StatisticsManager.cs" />
+    <Compile Include="Assets\_Scripts\Managers\Singleton\ParametersManager.cs" />
+    <Compile Include="Assets\_Scripts\Managers\UI\GameViewsManager.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\MainMenu.cs" />
     <Compile Include="Assets\Abstractions\IStorage.cs" />
-    <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerBase.cs" />
-    <Compile Include="Assets\_Scripts\Managers\InitialScreenManager.cs" />
+    <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBase.cs" />
+    <Compile Include="Assets\_Scripts\Managers\UI\InitialScreenManager.cs" />
     <Compile Include="Assets\_Scripts\Managers\BrainBuilder.cs" />
-    <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerObstacles.cs" />
+    <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerObstacles.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\AxisIndexes.cs" />
-    <Compile Include="Assets\Dtos\Enum\ParametersEnum.cs" />
+    <Compile Include="Assets\Dtos\Enum\SimulationParametersEnum.cs" />
     <Compile Include="Assets\Dtos\Enum\InputTypeEnum.cs" />
-    <Compile Include="Assets\_Scripts\Managers\SceneManager.cs" />
+    <Compile Include="Assets\_Scripts\Managers\Singleton\SceneManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />
     <Compile Include="Assets\Dtos\UnitPortionCaracteristics.cs" />
     <Compile Include="Assets\Dtos\UnitScanningResult.cs" />
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
-    <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerManager.cs" />
+    <Compile Include="Assets\_Scripts\Units\UnitScannerManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -931,8 +930,7 @@
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
