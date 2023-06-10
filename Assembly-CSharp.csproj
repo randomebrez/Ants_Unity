@@ -419,14 +419,11 @@
     <Reference Include="System.Text.Encodings.Web">
       <HintPath>Assets\Plugins\System.Text.Encodings.Web.dll</HintPath>
     </Reference>
-    <Reference Include="NeuralNetwork.Abstraction">
-      <HintPath>Assets\Plugins\NeuralNetwork.Abstraction.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore">
       <HintPath>Assets\Plugins\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
-      <HintPath>Assets\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    <Reference Include="NeuralNetwork.Abstraction">
+      <HintPath>Assets\Plugins\NeuralNetwork.Abstraction.dll</HintPath>
     </Reference>
     <Reference Include="System.Text.Json">
       <HintPath>Assets\Plugins\System.Text.Json.dll</HintPath>
@@ -436,6 +433,9 @@
     </Reference>
     <Reference Include="SQLitePCLRaw.core">
       <HintPath>Assets\Plugins\SQLitePCLRaw.core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <HintPath>Assets\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces">
       <HintPath>Assets\Plugins\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -452,11 +452,11 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@3.0.2\Runtime\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NeuralNetwork">
-      <HintPath>Assets\Plugins\NeuralNetwork.dll</HintPath>
-    </Reference>
     <Reference Include="DataBase.Abstraction">
       <HintPath>Assets\Plugins\DataBase.Abstraction.dll</HintPath>
+    </Reference>
+    <Reference Include="NeuralNetwork">
+      <HintPath>Assets\Plugins\NeuralNetwork.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyModel">
       <HintPath>Assets\Plugins\Microsoft.Extensions.DependencyModel.dll</HintPath>
