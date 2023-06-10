@@ -12,10 +12,10 @@ namespace Assets._Scripts.Managers
 {
     public class BrainBuilder
     {
-        private List<UnitScanablePortion> _portions = new List<UnitScanablePortion>();
+        private List<UnitPortionCaracteristics> _portions = new List<UnitPortionCaracteristics>();
 
         // Ask to retrieve a TemplateGraph by its name
-        public BrainCaracteristicGraph UserSelectionInstanceGraphGet(string templateGraphName)
+        public GraphInstance UserSelectionInstanceGraphGet(string templateGraphName)
         {
             // Retrieve the TemplateGraph from DataSource
             var templateGraph = TemplateGraphGetFromDataSource(templateGraphName);
@@ -25,17 +25,17 @@ namespace Assets._Scripts.Managers
         }
 
         // Get the TemplateGraph from the dataSource by its name
-        private TemplateGraph TemplateGraphGetFromDataSource(string templateGraphName)
+        private GraphTemplate TemplateGraphGetFromDataSource(string templateGraphName)
         {
             if (templateGraphName == "Splitted")
                 return GenerateSplittedGraph();
 
-            return new TemplateGraph();
+            return new GraphTemplate();
         }
 
 
         // Transform a TemplateGraph in a InstanceGraph using simulation parameters
-        private BrainCaracteristicGraph InstanceGraphGet(TemplateGraph templateGraph)
+        private GraphInstance InstanceGraphGet(GraphTemplate templateGraph)
         {
             // Calculate Unit ScannerPortion using GlobalParameters
             _portions = TypePortionIndexesGet(GlobalParameters.ScannerSubdivision, GlobalParameters.VisionAngle);
@@ -45,7 +45,7 @@ namespace Assets._Scripts.Managers
             var edges = BrainCaracteristicsEdgesBuild(templateGraph, nodes);
 
             var unityInputUsingTemplates = templateGraph.Nodes.Where(t => t.Value.NeedUnityInpus).ToDictionary(t => t.Key, t => t.Value);
-            var result = new BrainCaracteristicGraph
+            var result = new GraphInstance
             {
                 CaracteristicNodes = ToDictionary(nodes),
                 CaracteristicEdges = edges,
@@ -92,7 +92,7 @@ namespace Assets._Scripts.Managers
         // Ex :
         // 1. If we have a link with SingleVisionPortion info => create one CaracteristicInstance for each VisionPortion
         // 2. If we have a link with VisionPortion info => create one CaracteristicInstance using inputs from all VisionPortions
-        private List<BrainCaracteristicsInstance> EdgeOriginCaracteristicInstancesBuild(TemplateGraphLink link)
+        private List<BrainCaracteristicsInstance> EdgeOriginCaracteristicInstancesBuild(GraphLink link)
         {
             var result = new List<BrainCaracteristicsInstance>();
 
@@ -133,9 +133,9 @@ namespace Assets._Scripts.Managers
         
         // Return the list of portions of a unit
         // Portion is a couple (minAngle, MaxAngle) with Id and a boolean that is equal to 'true' if the portion intersects the unit VisionField
-        private List<UnitScanablePortion> TypePortionIndexesGet(int portionNumber, float visionAngle)
+        private List<UnitPortionCaracteristics> TypePortionIndexesGet(int portionNumber, float visionAngle)
         {
-            var result = new List<UnitScanablePortion>();
+            var result = new List<UnitPortionCaracteristics>();
 
             var deltaTheta = 360f / portionNumber;
             var currentMin = -180 - deltaTheta / 2f;
@@ -147,7 +147,7 @@ namespace Assets._Scripts.Managers
                 var currentMax = currentMin + deltaTheta;
                 var inVisionField = (currentMax > minVisionAngle) && (currentMin < maxVisionAngle);
 
-                var portion = new UnitScanablePortion
+                var portion = new UnitPortionCaracteristics
                 {
                     MinAngle = currentMin,
                     MaxAngle = currentMax,
@@ -163,7 +163,7 @@ namespace Assets._Scripts.Managers
 
 
         // Reading the TemplateGraph from it's DecisionBrain recursively build all CaracteristicInstance (Nodes) of the graph. (WITHOUT EDGES)
-        private List<BrainCaracteristicsInstance> BrainGraphNodesRecBuild(TemplateGraph graph, BrainCaracteristicsTemplate targetTemplate)
+        private List<BrainCaracteristicsInstance> BrainGraphNodesRecBuild(GraphTemplate graph, BrainCaracteristicsTemplate targetTemplate)
         {
             var result = new List<BrainCaracteristicsInstance>();
             // Only add decisionBrain "manually"
@@ -200,7 +200,7 @@ namespace Assets._Scripts.Managers
         }
 
         // Reading the TemplateGraph edges, build edges for the InstanceGraph
-        private Dictionary<string, List<string>> BrainCaracteristicsEdgesBuild(TemplateGraph tpGraph, List<BrainCaracteristicsInstance> instanceNodes)
+        private Dictionary<string, List<string>> BrainCaracteristicsEdgesBuild(GraphTemplate tpGraph, List<BrainCaracteristicsInstance> instanceNodes)
         {
             var result = new Dictionary<string, List<string>>();
             foreach(var targetLinks in tpGraph.Edges)
@@ -228,7 +228,7 @@ namespace Assets._Scripts.Managers
         
         // Count CaracteristicInstance input number
         // Requires the InstanceGraph to be set for 'BrainOutput' input type
-        private int GetInputNumber(BrainCaracteristicGraph graph, BrainCaracteristicsInstance caracteristics)
+        private int GetInputNumber(GraphInstance graph, BrainCaracteristicsInstance caracteristics)
         {
             // ToDo : Can be améliorer : On le fait sur chaque InstanceCaracteristic de l'instance graph. peut etre possible de le faire que sur les templates ?
             var result = 0;
@@ -268,7 +268,7 @@ namespace Assets._Scripts.Managers
             if (string.IsNullOrEmpty(instanceName))
                 instanceName = Guid.NewGuid().ToString();
 
-            var needUnityInputs = portionIndex.Count > 0 && caracTemplate.InputsTypes.Any(t => GlobalBrainParameters.UnityInputTypes.Contains(t.InputType));
+            var needUnityInputs = portionIndex.Count > 0 && caracTemplate.InputsTypes.Any(t => GlobalParameters.UnityInputTypes.Contains(t.InputType));
 
             var result = new BrainCaracteristicsInstance(caracTemplate)
             {
@@ -334,9 +334,9 @@ namespace Assets._Scripts.Managers
             return new LayerCaracteristics(layerType, layerId, neuronNumber, activationFunction, caracteristicValue);
         }
 
-        private TemplateGraphLink TemplateGraphLinkGet(BrainCaracteristicsTemplate target, BrainCaracteristicsTemplate origin, TemplateLinkTypeEnum linkType)
+        private GraphLink TemplateGraphLinkGet(BrainCaracteristicsTemplate target, BrainCaracteristicsTemplate origin, TemplateLinkTypeEnum linkType)
         {
-            return new TemplateGraphLink
+            return new GraphLink
             {
                 Target = target,
                 Origin = origin,
@@ -344,11 +344,11 @@ namespace Assets._Scripts.Managers
             };
         }
 
-        private TemplateGraph GenerateSplittedGraph()
+        private GraphTemplate GenerateSplittedGraph()
         {
-            var result = new TemplateGraph();
+            var result = new GraphTemplate();
 
-            result.DecisionBrain = GlobalBrainParameters.DecisionBrainMeta;
+            result.DecisionBrain = GlobalParameters.DecisionBrain;
             result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
             var genomeParameters = new GenomeParameters
@@ -374,7 +374,7 @@ namespace Assets._Scripts.Managers
             var linkVision = TemplateGraphLinkGet(result.DecisionBrain, visionTp, TemplateLinkTypeEnum.SingleVisionPortions);
             var linkNoVision = TemplateGraphLinkGet(result.DecisionBrain, noVisionTp, TemplateLinkTypeEnum.SingleNoVisionPortions);
 
-            result.Edges.Add(result.DecisionBrain.Name, new List<TemplateGraphLink> { linkVision, linkNoVision });
+            result.Edges.Add(result.DecisionBrain.Name, new List<GraphLink> { linkVision, linkNoVision });
 
             return result;
         }

@@ -2,9 +2,9 @@
 
 namespace Assets.Dtos
 {
-    public class BrainCaracteristicGraph
+    public class GraphInstance
     {
-        public BrainCaracteristicGraph()
+        public GraphInstance()
         {
             CaracteristicNodes = new Dictionary<string, BrainCaracteristicsInstance>();
             CaracteristicEdges = new Dictionary<string, List<string>>();

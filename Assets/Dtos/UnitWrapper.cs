@@ -11,6 +11,6 @@ namespace Assets.Dtos
     {
         public Unit NugetUnit { get; set; }
 
-        public BrainCaracteristicGraph BrainCaracteristicsGraph { get; set; }
+        public GraphInstance BrainCaracteristicsGraph { get; set; }
     }
 }

@@ -1,4 +1,7 @@
-﻿using NeuralNetwork.Interfaces.Model.Etc;
+﻿using Assets.Dtos;
+using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Interfaces.Model.Etc;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets._Scripts.Utilities
@@ -20,8 +23,11 @@ namespace Assets._Scripts.Utilities
         public static int VisionRange = 4;
         public static int UnitNumberToSelect => ReproductionCaracteristics.PercentToSelect * ColonyMaxPopulation / 100;
 
-
-        public static string SelectedBrainGraph = "Splitted";
+        public static HashSet<InputTypeEnum> UnityInputTypes = new HashSet<InputTypeEnum>
+        {
+            InputTypeEnum.Portion,
+            InputTypeEnum.CarryFood
+        };
 
         // Reproduction parameters
         public static ReproductionCaracteristics ReproductionCaracteristics = new ReproductionCaracteristics
@@ -31,7 +37,26 @@ namespace Assets._Scripts.Utilities
             CrossOverNumber = 1,
             MutationRate = 0.01f
         };
-        
+
+        // Selected brain graph
+        public static string SelectedBrainGraph = "Splitted";
+        public static BrainCaracteristicsTemplate DecisionBrain = new BrainCaracteristicsTemplate
+        {
+            Name = "DecisionSplitted",
+            IsDecisionBrain = true,
+            InputLayer = new LayerCaracteristics(LayerTypeEnum.Input, 0),
+            NeutralLayers = new List<LayerCaracteristics>
+                {
+                    new LayerCaracteristics(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f)
+                },
+            OutputLayer = new LayerCaracteristics(LayerTypeEnum.Output, 2, 6, ActivationFunctionEnum.Sigmoid, 1),
+            GenomeCaracteristics = new GenomeParameters
+            {
+                NetworkCoverage = 80,
+                WeightBitNumber = 4
+            }
+        };
+
 
         //
         public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";

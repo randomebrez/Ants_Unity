@@ -20,7 +20,7 @@ internal class UnitManager : BaseManager<UnitManager>
     private BaseAnt _lastClicked;
     private BrainBuilder _brainGraphBuilder;
 
-    private BrainCaracteristicGraph _simulationCaracteristicGraph;
+    private GraphInstance _simulationCaracteristicGraph;
     private List<BrainCaracteristicsTemplate> _distinctTemplates;
     private Dictionary<string, BrainCaracteristics> _templateBrainCaracteristics;
 
@@ -140,7 +140,7 @@ internal class UnitManager : BaseManager<UnitManager>
     }
 
     //Given genomes grouped by template & following instance graph structure, Build a genome graph for each unit (i-th position in all dictionary's list correspond to the i-th unit)
-    private List<GenomeGraph> GenomeGraphListBuild(BrainCaracteristicGraph instanceGraph, Dictionary<string, List<Genome>> genomes)
+    private List<GenomeGraph> GenomeGraphListBuild(GraphInstance instanceGraph, Dictionary<string, List<Genome>> genomes)
     {
         var graphs = new List<GenomeGraph>();
         var number = genomes.First().Value.Count();

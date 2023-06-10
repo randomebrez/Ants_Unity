@@ -1,6 +1,6 @@
 ﻿namespace Assets.Dtos
 {
-    public class InputParameterConstraint
+    public class SimulationParameterConstraint
     {
         public string RegExp { get; set; }
 

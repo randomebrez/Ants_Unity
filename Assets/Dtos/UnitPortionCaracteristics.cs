@@ -2,12 +2,12 @@
 
 namespace Assets.Dtos
 {
-    public class UnitScanablePortion
+    public class UnitPortionCaracteristics
     {
 
         private readonly Guid _uniqueName;
 
-        public UnitScanablePortion()
+        public UnitPortionCaracteristics()
         {
             _uniqueName= Guid.NewGuid();
         }

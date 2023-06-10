@@ -2,7 +2,7 @@
 
 namespace Assets.Dtos
 {
-    public class TemplateGraphLink
+    public class GraphLink
     {
         public string Key => Target.Name;
 

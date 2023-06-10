@@ -34,9 +34,9 @@ internal  class ParametersManager : BaseManager<ParametersManager>
 
     // Simulation parameters
 
-    public Dictionary<SimulationParameterTypeEnum, (string value, InputParameterConstraint valueConstraint)> SimulationParametersGet()
+    public Dictionary<SimulationParameterTypeEnum, (string value, SimulationParameterConstraint valueConstraint)> SimulationParametersGet()
     {
-        var result = new Dictionary<SimulationParameterTypeEnum, (string value, InputParameterConstraint valueConstraint)>();
+        var result = new Dictionary<SimulationParameterTypeEnum, (string value, SimulationParameterConstraint valueConstraint)>();
 
         for(int i = 0; i < _simulationParameters.Count; i++)
             result.Add(_simulationParameters[i], (SimulationParameterValueGet(_simulationParameters[i]), SimulationParameterConstraintGet(_simulationParameters[i])));
@@ -69,9 +69,9 @@ internal  class ParametersManager : BaseManager<ParametersManager>
         }
     }
 
-    private InputParameterConstraint SimulationParameterConstraintGet(SimulationParameterTypeEnum type)
+    private SimulationParameterConstraint SimulationParameterConstraintGet(SimulationParameterTypeEnum type)
     {
-        var constraint = new InputParameterConstraint();
+        var constraint = new SimulationParameterConstraint();
         switch (type)
         {
             case SimulationParameterTypeEnum.MaxPopulation:
@@ -125,9 +125,9 @@ internal  class ParametersManager : BaseManager<ParametersManager>
 
     // NeuralNetwork parameters
 
-    public Dictionary<NeuralNetworkParameterTypeEnum, (string value, InputParameterConstraint valueConstraint)> NeuralNetworkParametersGet()
+    public Dictionary<NeuralNetworkParameterTypeEnum, (string value, SimulationParameterConstraint valueConstraint)> NeuralNetworkParametersGet()
     {
-        var result = new Dictionary<NeuralNetworkParameterTypeEnum, (string value, InputParameterConstraint valueConstraint)>();
+        var result = new Dictionary<NeuralNetworkParameterTypeEnum, (string value, SimulationParameterConstraint valueConstraint)>();
 
         for (int i = 0; i < _neuralNetworkParameters.Count; i++)
             result.Add(_neuralNetworkParameters[i], (NeuralNetworkParameterValueGet(_neuralNetworkParameters[i]), NeuralNetworkParameterConstraintGet(_neuralNetworkParameters[i])));
@@ -165,9 +165,9 @@ internal  class ParametersManager : BaseManager<ParametersManager>
         //}
     }
 
-    private InputParameterConstraint NeuralNetworkParameterConstraintGet(NeuralNetworkParameterTypeEnum type)
+    private SimulationParameterConstraint NeuralNetworkParameterConstraintGet(NeuralNetworkParameterTypeEnum type)
     {
-        var constraint = new InputParameterConstraint();
+        var constraint = new SimulationParameterConstraint();
         switch (type)
         {
             case NeuralNetworkParameterTypeEnum.NeutralLayers:
@@ -209,9 +209,9 @@ internal  class ParametersManager : BaseManager<ParametersManager>
 
     // AntCaracteristics parameters
 
-    public Dictionary<AntCaracteristicsParameterTypeEnum, (string value, InputParameterConstraint valueConstraint)> AntCaracteristicsParametersGet()
+    public Dictionary<AntCaracteristicsParameterTypeEnum, (string value, SimulationParameterConstraint valueConstraint)> AntCaracteristicsParametersGet()
     {
-        var result = new Dictionary<AntCaracteristicsParameterTypeEnum, (string value, InputParameterConstraint valueConstraint)>();
+        var result = new Dictionary<AntCaracteristicsParameterTypeEnum, (string value, SimulationParameterConstraint valueConstraint)>();
 
         for (int i = 0; i < _antCaracteristics.Count; i++)
             result.Add(_antCaracteristics[i], (NeuralNetworkParameterValueGet(_antCaracteristics[i]), AntCaracteristicsParameterConstraintGet(_antCaracteristics[i])));
@@ -242,9 +242,9 @@ internal  class ParametersManager : BaseManager<ParametersManager>
         }
     }
 
-    private InputParameterConstraint AntCaracteristicsParameterConstraintGet(AntCaracteristicsParameterTypeEnum type)
+    private SimulationParameterConstraint AntCaracteristicsParameterConstraintGet(AntCaracteristicsParameterTypeEnum type)
     {
-        var constraint = new InputParameterConstraint();
+        var constraint = new SimulationParameterConstraint();
         switch (type)
         {
             case AntCaracteristicsParameterTypeEnum.VisionRadius:

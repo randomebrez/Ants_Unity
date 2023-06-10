@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{7C9635DD-60D3-BDDA-0401-AF4508BF87E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -56,12 +57,13 @@
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Dtos\UnitPortionInputValues.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\StatisticEnum.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\WorkerAnt.cs" />
     <Compile Include="Assets\_Scripts\UI\GraphicManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Ground.cs" />
-    <Compile Include="Assets\Dtos\UnityInputTypeEnum.cs" />
+    <Compile Include="Assets\Dtos\Enum\UnityInputTypeEnum.cs" />
     <Compile Include="Assets\Dtos\Block.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\GenomeParameters.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypePortion.cs" />
@@ -78,25 +80,24 @@
     <Compile Include="Assets\_Scripts\Scriptable\ScriptablePheromoneBase.cs" />
     <Compile Include="Assets\_Scripts\Utilities\StaticHelper.cs" />
     <Compile Include="Assets\_Scripts\Gateways\FileStorageGateway.cs" />
-    <Compile Include="Assets\Dtos\InputParameterConstraint.cs" />
+    <Compile Include="Assets\Dtos\SimulationParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
     <Compile Include="Assets\Dtos\Pheromone.cs" />
     <Compile Include="Assets\_Scripts\System\ResourceSystem.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainCaracteristicGraph.cs" />
+    <Compile Include="Assets\Dtos\BrainSetup\GraphInstance.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\InputParameterField.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\TemplateLinkTypeEnum.cs" />
+    <Compile Include="Assets\Dtos\Enum\TemplateLinkTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Environment\GroundBlock.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\TemplateGraphLink.cs" />
+    <Compile Include="Assets\Dtos\BrainSetup\GraphLink.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BaseAnt.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypeBase.cs" />
-    <Compile Include="Assets\Dtos\PheromoneType.cs" />
-    <Compile Include="Assets\Dtos\Layer.cs" />
+    <Compile Include="Assets\Dtos\Enum\Layer.cs" />
     <Compile Include="Assets\_Scripts\Utilities\GlobalParameters.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerBlock.cs" />
     <Compile Include="Assets\_Scripts\Utilities\StaticCompute.cs" />
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
     <Compile Include="Assets\_Scripts\Managers\EnvironmentManager.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\TemplateGraph.cs" />
+    <Compile Include="Assets\Dtos\BrainSetup\GraphTemplate.cs" />
     <Compile Include="Assets\Dtos\BrainSetup\BrainCaracteristicsTemplate.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\PauseMenu.cs" />
@@ -117,14 +118,12 @@
     <Compile Include="Assets\_Scripts\Managers\BrainBuilder.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\AntScanners\AntScannerObstacles.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\AxisIndexes.cs" />
-    <Compile Include="Assets\Dtos\ParametersEnum.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypeEnum.cs" />
-    <Compile Include="Assets\_Scripts\Utilities\GlobalBrainParameters.cs" />
+    <Compile Include="Assets\Dtos\Enum\ParametersEnum.cs" />
+    <Compile Include="Assets\Dtos\Enum\InputTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Managers\SceneManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypeBrainOutput.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\UnitScanablePortion.cs" />
-    <Compile Include="Assets\Dtos\NeuralNetworkInputs.cs" />
+    <Compile Include="Assets\Dtos\UnitPortionCaracteristics.cs" />
+    <Compile Include="Assets\Dtos\UnitScanningResult.cs" />
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />

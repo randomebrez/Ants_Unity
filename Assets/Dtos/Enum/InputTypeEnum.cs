@@ -3,7 +3,6 @@
     public enum InputTypeEnum
     {
         Portion,
-        CarryFood,
-        BrainOutput
+        CarryFood
     }
 }

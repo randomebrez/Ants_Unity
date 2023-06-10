@@ -9,7 +9,7 @@ public class InputParameterField : MonoBehaviour
     private TextMeshProUGUI _inputDescription;
     private string _initialValue;
     private TMP_InputField _inputValue;
-    private InputParameterConstraint _valueConstraint;
+    private SimulationParameterConstraint _valueConstraint;
 
     public bool Edited = false;
 
@@ -22,7 +22,7 @@ public class InputParameterField : MonoBehaviour
         _inputValue.text = _initialValue;
     }
 
-    public void Initialyze(string description, string initialValue, InputParameterConstraint constraint)
+    public void Initialyze(string description, string initialValue, SimulationParameterConstraint constraint)
     {
         _description = description;
         _initialValue = initialValue;
