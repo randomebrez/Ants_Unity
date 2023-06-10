@@ -1,6 +1,5 @@
 ﻿using Assets.Dtos;
-using NeuralNetwork.Interfaces.Model;
-using NeuralNetwork.Interfaces.Model.Etc;
+using NeuralNetwork.Abstraction.Model;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -44,12 +43,22 @@ namespace Assets._Scripts.Utilities
         {
             Name = "DecisionSplitted",
             IsDecisionBrain = true,
-            InputLayer = new LayerCaracteristics(LayerTypeEnum.Input, 0),
+            InputLayer = new LayerCaracteristics(0, LayerTypeEnum.Input),
             NeutralLayers = new List<LayerCaracteristics>
                 {
-                    new LayerCaracteristics(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f)
+                    new LayerCaracteristics(1, LayerTypeEnum.Neutral)
+                    {
+                        NeuronNumber = 2,
+                        ActivationFunction = ActivationFunctionEnum.Tanh,
+                        ActivationFunction90PercentTreshold = 0.5f
+                    }
                 },
-            OutputLayer = new LayerCaracteristics(LayerTypeEnum.Output, 2, 6, ActivationFunctionEnum.Sigmoid, 1),
+            OutputLayer = new LayerCaracteristics(2, LayerTypeEnum.Output)
+            {
+                NeuronNumber = 6,
+                ActivationFunction = ActivationFunctionEnum.Sigmoid,
+                ActivationFunction90PercentTreshold = 1
+            },
             GenomeCaracteristics = new GenomeParameters
             {
                 NetworkCoverage = 80,

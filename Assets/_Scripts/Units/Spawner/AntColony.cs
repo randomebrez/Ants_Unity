@@ -33,7 +33,6 @@ public class AntColony : MonoBehaviour
     {
         transform.name = name;
 
-        _neuralNetworkGateway = new NeuralNetworkGateway();
         _population = new List<BaseAnt>();
 
         var blocksUnderneath = EnvironmentManager.Instance.GroundBlockWithinCircle(transform.position, 2 * GlobalParameters.NodeRadius);
@@ -112,11 +111,11 @@ public class AntColony : MonoBehaviour
         for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
-                _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber + meanChildnumber / 2;
+                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildnumber + meanChildnumber / 2;
             else if (i < GlobalParameters.UnitNumberToSelect - index1)
-                _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber;
+                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildnumber;
             else
-                _currentSelection[i].ant.GetUnit.MaxChildNumber = meanChildnumber - meanChildnumber / 2;
+                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildnumber - meanChildnumber / 2;
         }
         _bestBrains = _currentSelection;
         return _bestBrains.Select(t => t.ant).ToList();

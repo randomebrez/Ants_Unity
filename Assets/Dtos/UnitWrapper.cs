@@ -1,9 +1,4 @@
-﻿using NeuralNetwork.Interfaces.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NeuralNetwork.Abstraction.Model;
 
 namespace Assets.Dtos
 {
@@ -11,6 +6,6 @@ namespace Assets.Dtos
     {
         public Unit NugetUnit { get; set; }
 
-        public GraphInstance BrainCaracteristicsGraph { get; set; }
+        public GraphInstance InstanceGraph { get; set; }
     }
 }

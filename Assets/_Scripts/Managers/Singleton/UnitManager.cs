@@ -6,7 +6,7 @@ using static mew.ScriptablePheromoneBase;
 using Assets.Dtos;
 using System.Linq;
 using Assets.Gateways;
-using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Abstraction.Model;
 using Assets._Scripts.Managers;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -189,7 +189,7 @@ internal class UnitManager : BaseManager<UnitManager>
             result[i] = new UnitWrapper
             {
                 NugetUnit = nugetUnits[i],
-                BrainCaracteristicsGraph = _simulationCaracteristicGraph
+                InstanceGraph = _simulationCaracteristicGraph
             };
         }
 
@@ -209,7 +209,7 @@ internal class UnitManager : BaseManager<UnitManager>
             result[i] = new UnitWrapper
             {
                 NugetUnit = children[i],
-                BrainCaracteristicsGraph = _simulationCaracteristicGraph
+                InstanceGraph = _simulationCaracteristicGraph
             };
         }
             
@@ -244,17 +244,21 @@ internal class UnitManager : BaseManager<UnitManager>
         foreach (var template in distinctTemplates)
             result.Add(template.Name, new List<Genome>());
 
-        var childrenGenomeGraphs = new List<GenomeGraph>();
         foreach(var couple in couples)
         {
             // Since each unit needs same template as everyone else, this work.
             // i-th position in all list of the dictionary, are genomes of the i-th couple
             foreach(var template in distinctTemplates)
             {
-                var genomeA = couple.parentA.GetUnit.GenomeGraph.DistinctGenomes[template.Name];
-                var genomeB = couple.parentB.GetUnit.GenomeGraph.DistinctGenomes[template.Name];
-                var mixedGenome = _neuralNetworkGateway.GetMixedGenome(genomeA, genomeB, _templateBrainCaracteristics[template.Name], 1, 0.01f);
+                // Get BrainName from UnitWrapper InstanceGraph
+                // Then fetch the genome from the NugetUnit BrainGraph
+                var genomeABrainName = couple.parentA.Unit.InstanceGraph.InstanceByTemplate[template.Name].First().BrainName;
+                var genomeA = couple.parentA.GetNugetUnit.BrainGraph.BrainNodes[genomeABrainName].Genome;
 
+                var genomeBBrainName = couple.parentB.Unit.InstanceGraph.InstanceByTemplate[template.Name].First().BrainName;
+                var genomeB = couple.parentA.GetNugetUnit.BrainGraph.BrainNodes[genomeBBrainName].Genome;
+
+                var mixedGenome = _neuralNetworkGateway.GetMixedGenome(genomeA, genomeB, _templateBrainCaracteristics[template.Name], 1, 0.01f);
                 result[template.Name].Add(mixedGenome);
             }            
         }
@@ -277,18 +281,17 @@ internal class UnitManager : BaseManager<UnitManager>
                 secondIndex = Random.Range(0, bestUnits.Count);
             var parentB = bestUnits[secondIndex];
             result[index] = (parentA, parentB);
-            parentA.GetUnit.UseForChildCounter++;
-            parentB.GetUnit.UseForChildCounter++;
-            bestUnits = bestUnits.Where(t => t.GetUnit.UseForChildCounter < t.GetUnit.MaxChildNumber).ToList();
+            parentA.GetNugetUnit.ChildrenNumber++;
+            parentB.GetNugetUnit.ChildrenNumber++;
+            bestUnits = bestUnits.Where(t => t.GetNugetUnit.ChildrenNumber < t.GetNugetUnit.MaxChildNumber).ToList();
         }
 
         return result;
     }
     private BrainCaracteristics ToBrainCarac(BrainCaracteristicsTemplate template)
     {
-        return new BrainCaracteristics(template.Name)
+        return new BrainCaracteristics()
         {
-            TemplateName = template.Name,
             InputLayer = template.InputLayer,
             NeutralLayers = template.NeutralLayers,
             OutputLayer = template.OutputLayer,

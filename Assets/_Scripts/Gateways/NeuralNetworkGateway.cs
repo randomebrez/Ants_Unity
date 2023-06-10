@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NeuralNetwork.Implementations;
-using NeuralNetwork.Interfaces;
-using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Abstraction;
+using NeuralNetwork.Abstraction.Model;
 
 namespace Assets.Gateways
 {
@@ -16,17 +16,17 @@ namespace Assets.Gateways
 
         public List<Genome> GetGenomes(int number, BrainCaracteristics caracteristics)
         {
-            return _genomeManager.GetGenomes(number, caracteristics);
+            return _genomeManager.GenomesListGet(number, caracteristics);
         }
 
         public Unit[] GetUnits(List<GenomeGraph> graphs)
         {
-            return _genomeManager.GetUnitFromGenomeGraphs(graphs);
+            return _genomeManager.UnitsFromGenomeGraphList(graphs);
         }
 
         public Genome GetMixedGenome(Genome parentA, Genome parentB, BrainCaracteristics caracteristics, int crossOverNumber, float mutationRate)
         {
-            return _genomeManager.GetMixedGenome(parentA, parentB, caracteristics, crossOverNumber, mutationRate);
+            return _genomeManager.GenomeCrossOverGet(parentA, parentB, caracteristics, crossOverNumber, mutationRate);
         }
     }
 }

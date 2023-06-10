@@ -1,6 +1,6 @@
 ﻿using Assets._Scripts.Utilities;
 using Assets.Dtos;
-using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Abstraction.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -328,7 +328,12 @@ namespace Assets._Scripts.Managers
 
         private LayerCaracteristics LayerCaracteristicsGet(LayerTypeEnum layerType, int layerId, int neuronNumber = 0, ActivationFunctionEnum activationFunction = ActivationFunctionEnum.Identity, float caracteristicValue = 0f)
         {
-            return new LayerCaracteristics(layerType, layerId, neuronNumber, activationFunction, caracteristicValue);
+            return new LayerCaracteristics(layerId, layerType)
+            {
+                NeuronNumber = neuronNumber,
+                ActivationFunction = activationFunction,
+                ActivationFunction90PercentTreshold = caracteristicValue
+            };
         }
 
         private GraphLink TemplateGraphLinkGet(BrainCaracteristicsTemplate target, BrainCaracteristicsTemplate origin, GraphLinkTypeEnum linkType)

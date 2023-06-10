@@ -1,7 +1,7 @@
 using Assets._Scripts.Units.Ants;
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
-using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Abstraction.Model;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -48,14 +48,14 @@ namespace mew
         private int ComputeAndGetOutput()
         {
             var inputs = GetBrainInputs();
-            _brainComputer.ComputeBrainGraph(GetUnit.BrainGraph, inputs);
+            _brainComputer.BrainGraphCompute(GetNugetUnit.BrainGraph, inputs);
             return GetBestOutput();
         }
 
         private int GetBestOutput()
         {
-            var decisionBrain = GetUnit.BrainGraph.DecisionBrain;
-            var outputs = decisionBrain.Neurons.Outputs;
+            var decisionBrain = GetNugetUnit.BrainGraph.DecisionBrain;
+            var outputs = decisionBrain.Neurons.OutputLayer.Neurons.ToList();
             (int bestOutputIndex, float bestOutputValue) = (-1, 0);
             for(int i = 0; i < outputs.Count; i++)
             {
@@ -73,7 +73,7 @@ namespace mew
             var allInputs = _scannerManager.GetInputs;
 
             // Pour chaque template
-            foreach (var template in _unit.BrainCaracteristicsGraph.UnityInputsUsingTemplates)
+            foreach (var template in Unit.InstanceGraph.UnityInputsUsingTemplates)
             {
                 // On filtre les inputs pour garder que ceux dont a besoin le tp pour chaque portion
 
@@ -86,7 +86,7 @@ namespace mew
                 var tpInputs = allInputs.RestrictedInputListGet(requiredInputs.ToHashSet());
 
                 // On récupère toutes les instances utilisant ce tp
-                var instanceBrains = _unit.BrainCaracteristicsGraph.InstanceByTemplate[template.Key];
+                var instanceBrains = Unit.InstanceGraph.InstanceByTemplate[template.Key];
                 foreach (var brain in instanceBrains)
                 {
                     // pour chaque on construit sa liste d'input

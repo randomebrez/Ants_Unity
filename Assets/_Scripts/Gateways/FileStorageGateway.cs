@@ -1,5 +1,5 @@
 ﻿using Assets.Abstractions;
-using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Abstraction.Model;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

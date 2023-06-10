@@ -1,4 +1,4 @@
-using NeuralNetwork.Interfaces.Model;
+using NeuralNetwork.Abstraction.Model;
 using UnityEngine;
 
 public class NeuronUI : MonoBehaviour

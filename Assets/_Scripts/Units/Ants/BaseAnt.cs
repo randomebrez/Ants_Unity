@@ -2,11 +2,10 @@ using System;
 using UnityEngine;
 using Assets._Scripts.Utilities;
 using System.Collections.Generic;
-using Assets._Scripts.Units.Ants;
-using NeuralNetwork.Interfaces.Model;
 using Assets.Dtos;
-using NeuralNetwork.Interfaces;
 using NeuralNetwork.Implementations;
+using NeuralNetwork.Abstraction;
+using NeuralNetwork.Abstraction.Model;
 
 namespace mew
 {
@@ -16,13 +15,14 @@ namespace mew
         // Events
         public Action<BaseAnt> Clicked;
 
+        public UnitWrapper Unit { get; private set; }
+
         // Positions
         public GroundBlock CurrentPos { get; protected set; }
         protected GroundBlock _nextPos;
 
         //Managers
-        protected IBrain _brainComputer;
-        protected UnitWrapper _unit;
+        protected IBrainCalculator _brainComputer;
         protected UnitScannerManager _scannerManager;
 
         // Private fields
@@ -35,7 +35,7 @@ namespace mew
         // Public methods
         public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
         public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
-        public Unit GetUnit => _unit.NugetUnit;
+        public Unit GetNugetUnit => Unit.NugetUnit;
 
 
         // Unity methods
@@ -75,10 +75,10 @@ namespace mew
         // Override methods
         public void Initialyze(ScriptableUnitBase.Stats stats, UnitWrapper unit, GroundBlock initalPosition)
         {
-            _unit = unit;
+            Unit = unit;
             Stats = stats;
             CurrentPos = initalPosition;
-            _brainComputer = new BrainCompute();
+            _brainComputer = new BrainCalculator();
             _scannerManager.InitialyzeScanners();
             SetHeadColor(_colors[0]);
             SetBodyColor(_colors[0]);
