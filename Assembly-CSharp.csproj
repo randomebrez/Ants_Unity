@@ -56,73 +56,73 @@
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Dtos\Enum\UnitStatististicsEnum.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnitStatististicsEnum.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\WorkerAnt.cs" />
     <Compile Include="Assets\_Scripts\UI\GraphicManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Ground.cs" />
-    <Compile Include="Assets\Dtos\Enum\UnityInputTypeEnum.cs" />
-    <Compile Include="Assets\Dtos\Block.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\GenomeParameters.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypePortion.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnityInputTypeEnum.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Block.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GenomeParameters.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInputs\InputTypePortion.cs" />
     <Compile Include="Assets\_Scripts\Gateways\NeuralNetworkGateway.cs" />
-    <Compile Include="Assets\Dtos\UnitWrapper.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitWrapper.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptableAntBase.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\AntSceneManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\AntColony.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptableUnitBase.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypeCarryFood.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInputs\InputTypeCarryFood.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\Axis.cs" />
     <Compile Include="Assets\_Scripts\Environment\FoodToken.cs" />
     <Compile Include="Assets\_Scripts\Environment\BlockBase.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptablePheromoneBase.cs" />
     <Compile Include="Assets\_Scripts\Utilities\StaticHelper.cs" />
-    <Compile Include="Assets\Dtos\UnitPortionInputValues.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitPortionInputValues.cs" />
     <Compile Include="Assets\_Scripts\Gateways\FileStorageGateway.cs" />
-    <Compile Include="Assets\Dtos\SimulationParameterConstraint.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\SimulationParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
-    <Compile Include="Assets\Dtos\Pheromone.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Pheromone.cs" />
     <Compile Include="Assets\_Scripts\System\ResourceSystem.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\GraphInstance.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphInstance.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\InputParameterField.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\StatisticEnum.cs" />
-    <Compile Include="Assets\Dtos\Enum\GraphLinkTypeEnum.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\GraphLinkTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Environment\GroundBlock.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\GraphLink.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphLink.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BaseAnt.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainInputs\InputTypeBase.cs" />
-    <Compile Include="Assets\Dtos\Enum\UnityLayerEnum.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInputs\InputTypeBase.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnityLayerEnum.cs" />
     <Compile Include="Assets\_Scripts\Utilities\GlobalParameters.cs" />
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBlock.cs" />
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\EnvironmentManager.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\GraphTemplate.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainCaracteristicsTemplate.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphTemplate.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainCaracteristicsTemplate.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\PauseMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\SpawnerAnt.cs" />
-    <Compile Include="Assets\Dtos\BrainSetup\BrainCaracteristicInstance.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainCaracteristicInstance.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\UnitManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\PheromoneToken.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\Curve.cs" />
-    <Compile Include="Assets\Abstractions\IManager.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\IManager.cs" />
     <Compile Include="Assets\_Scripts\UI\SidePanels.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\StatisticsManager.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\ParametersManager.cs" />
     <Compile Include="Assets\_Scripts\Managers\UI\GameViewsManager.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\MainMenu.cs" />
-    <Compile Include="Assets\Abstractions\IStorage.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\IStorage.cs" />
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBase.cs" />
     <Compile Include="Assets\_Scripts\Managers\UI\InitialScreenManager.cs" />
     <Compile Include="Assets\_Scripts\Managers\BrainBuilder.cs" />
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerObstacles.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\AxisIndexes.cs" />
-    <Compile Include="Assets\Dtos\Enum\SimulationParametersEnum.cs" />
-    <Compile Include="Assets\Dtos\Enum\InputTypeEnum.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\SimulationParametersEnum.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\InputTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\SceneManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />
-    <Compile Include="Assets\Dtos\UnitPortionCaracteristics.cs" />
-    <Compile Include="Assets\Dtos\UnitScanningResult.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitPortionCaracteristics.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitScanningResult.cs" />
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
@@ -419,11 +419,14 @@
     <Reference Include="System.Text.Encodings.Web">
       <HintPath>Assets\Plugins\System.Text.Encodings.Web.dll</HintPath>
     </Reference>
+    <Reference Include="NeuralNetwork.Abstraction">
+      <HintPath>Assets\Plugins\NeuralNetwork.Abstraction.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore">
       <HintPath>Assets\Plugins\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>
-    <Reference Include="NeuralNetwork.Abstraction">
-      <HintPath>Assets\Plugins\NeuralNetwork.Abstraction.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <HintPath>Assets\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="System.Text.Json">
       <HintPath>Assets\Plugins\System.Text.Json.dll</HintPath>
@@ -433,9 +436,6 @@
     </Reference>
     <Reference Include="SQLitePCLRaw.core">
       <HintPath>Assets\Plugins\SQLitePCLRaw.core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
-      <HintPath>Assets\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces">
       <HintPath>Assets\Plugins\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -452,11 +452,11 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@3.0.2\Runtime\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="DataBase.Abstraction">
-      <HintPath>Assets\Plugins\DataBase.Abstraction.dll</HintPath>
-    </Reference>
     <Reference Include="NeuralNetwork">
       <HintPath>Assets\Plugins\NeuralNetwork.dll</HintPath>
+    </Reference>
+    <Reference Include="DataBase.Abstraction">
+      <HintPath>Assets\Plugins\DataBase.Abstraction.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyModel">
       <HintPath>Assets\Plugins\Microsoft.Extensions.DependencyModel.dll</HintPath>
