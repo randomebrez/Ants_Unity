@@ -100,15 +100,15 @@ public class AntColony : MonoBehaviour
 
         var selectedNumber = Mathf.Min(GlobalParameters.UnitNumberToSelect, _currentSelection.Count);
         var index1 = selectedNumber / 3;
-        var meanChildnumber = GlobalParameters.ReproductionCaracteristics.MeanChildNumberByUnit;
+        var meanChildNumber = GlobalParameters.ReproductionCaracteristics.MeanChildNumberByUnit;
         for (int i = 0; i < selectedNumber; i++)
         {
             if (i < index1)
-                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildnumber + meanChildnumber / 2;
+                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildNumber + meanChildNumber / 2;
             else if (i < GlobalParameters.UnitNumberToSelect - index1)
-                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildnumber;
+                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildNumber;
             else
-                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildnumber - meanChildnumber / 2;
+                _currentSelection[i].ant.GetNugetUnit.MaxChildNumber = meanChildNumber - meanChildNumber / 2;
         }
         _bestBrains = _currentSelection;
         return _bestBrains.Select(t => t.ant).ToList();

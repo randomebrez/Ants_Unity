@@ -271,10 +271,8 @@ internal class UnitManager : BaseManager<UnitManager>
     // Mapping & tooling
     private (BaseAnt parentA, BaseAnt parentB)[] CreateCouples(List<BaseAnt> bestUnits)
     {
-        ;
-        var result = new (BaseAnt parentA, BaseAnt parentB)[GlobalParameters.ColonyMaxPopulation];
-        var index = 0;
-        while (bestUnits.Count > 1)
+        var result = new List<(BaseAnt parentA, BaseAnt parentB)>();
+        while (bestUnits.Count > 1 && result.Count < GlobalParameters.ColonyMaxPopulation)
         {
             var firstindex = Random.Range(0, bestUnits.Count);
             var parentA = bestUnits[firstindex];
@@ -282,13 +280,13 @@ internal class UnitManager : BaseManager<UnitManager>
             while (secondIndex == firstindex)
                 secondIndex = Random.Range(0, bestUnits.Count);
             var parentB = bestUnits[secondIndex];
-            result[index] = (parentA, parentB);
+            result.Add((parentA, parentB));
             parentA.GetNugetUnit.ChildrenNumber++;
             parentB.GetNugetUnit.ChildrenNumber++;
             bestUnits = bestUnits.Where(t => t.GetNugetUnit.ChildrenNumber < t.GetNugetUnit.MaxChildNumber).ToList();
         }
 
-        return result;
+        return result.ToArray();
     }
     private BrainCaracteristics ToBrainCarac(BrainCaracteristicsTemplate template)
     {

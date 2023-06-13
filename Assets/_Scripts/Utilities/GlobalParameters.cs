@@ -14,7 +14,7 @@ namespace Assets._Scripts.Utilities
         public static int SpawnRandomFoodFreq = 10;
 
         // AntParameters
-        public static int ColonyMaxPopulation = 5;
+        public static int ColonyMaxPopulation = 50;
         public static float LifeTimeFrame = 300;
 
         public static int ScannerSubdivision = 6;
