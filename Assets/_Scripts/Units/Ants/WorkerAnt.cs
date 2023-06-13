@@ -97,7 +97,7 @@ namespace mew
                     if (template.Value.InputsTypes.Any(t => t.InputType == InputTypeEnum.CarryFood))
                         brainInputs.Add(allInputs.CarryFood ? 1 : 0);
 
-                    result.Add(brain.BrainName, brainInputs);
+                    result.Add(brain.UniqueName, brainInputs);
                 }
             }
 

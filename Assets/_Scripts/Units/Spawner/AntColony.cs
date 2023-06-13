@@ -1,6 +1,5 @@
 using Assets._Scripts.Utilities;
 using Assets.Dtos;
-using Assets.Gateways;
 using mew;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,22 +17,16 @@ public class AntColony : MonoBehaviour
     private int _generationId = 0;
     private bool _initialyzed = false;
 
-    // Unity methods
-    void Start()
-    {
-        _spawner = GetComponentInChildren<SpawnerAnt>();
-        _block = GetComponentInChildren<BlockBase>();
-
-        _block.transform.localScale =  GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
-    }
-
 
     // Public methods
     public void Initialyze(string name)
     {
-        transform.name = name;
-
         _population = new List<BaseAnt>();
+        _spawner = GetComponentInChildren<SpawnerAnt>();
+        _block = GetComponentInChildren<BlockBase>();
+        _block.transform.localScale = GlobalParameters.NodeRadius * (2 * Vector3.one - Vector3.up);
+
+        transform.name = name;
 
         var blocksUnderneath = EnvironmentManager.Instance.GroundBlockWithinCircle(transform.position, 2 * GlobalParameters.NodeRadius);
         foreach (var block in blocksUnderneath)

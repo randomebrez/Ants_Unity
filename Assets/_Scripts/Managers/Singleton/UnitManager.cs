@@ -59,9 +59,11 @@ internal class UnitManager : BaseManager<UnitManager>
 
         var id = _colonies.Count + 1;
         var colony = spawned.GetComponent<AntColony>();
-        var units = GetRandomUnits(GlobalParameters.ColonyMaxPopulation);
         colony.Initialyze($"Colony_{id}");
+
+        var units = GetRandomUnits(GlobalParameters.ColonyMaxPopulation);
         colony.InstantiateUnits(units);
+
         _colonies.Add(colony);
     }
     public void RenewColonies()
@@ -160,7 +162,7 @@ internal class UnitManager : BaseManager<UnitManager>
             {
                 var result = new HashSet<string>();
                 foreach (var origin in edge.Value)
-                    result.Add(instanceGraph.CaracteristicNodes[origin].BrainName);
+                    result.Add(instanceGraph.CaracteristicNodes[origin].UniqueName);
 
                 graph.GenomeEdges.Add(edge.Key, result.ToList());
             }
@@ -252,10 +254,10 @@ internal class UnitManager : BaseManager<UnitManager>
             {
                 // Get BrainName from UnitWrapper InstanceGraph
                 // Then fetch the genome from the NugetUnit BrainGraph
-                var genomeABrainName = couple.parentA.Unit.InstanceGraph.InstanceByTemplate[template.Name].First().BrainName;
+                var genomeABrainName = couple.parentA.Unit.InstanceGraph.InstanceByTemplate[template.Name].First().UniqueName;
                 var genomeA = couple.parentA.GetNugetUnit.BrainGraph.BrainNodes[genomeABrainName].Genome;
 
-                var genomeBBrainName = couple.parentB.Unit.InstanceGraph.InstanceByTemplate[template.Name].First().BrainName;
+                var genomeBBrainName = couple.parentB.Unit.InstanceGraph.InstanceByTemplate[template.Name].First().UniqueName;
                 var genomeB = couple.parentA.GetNugetUnit.BrainGraph.BrainNodes[genomeBBrainName].Genome;
 
                 var mixedGenome = _neuralNetworkGateway.GetMixedGenome(genomeA, genomeB, _templateBrainCaracteristics[template.Name], 1, 0.01f);
@@ -302,7 +304,7 @@ internal class UnitManager : BaseManager<UnitManager>
     private BrainCaracteristics ToBrainCarac(BrainCaracteristicsInstance instance)
     {
         var result = ToBrainCarac(instance.Template);
-        result.BrainName = instance.BrainName;
+        result.BrainName = instance.UniqueName;
         return result;
     }
     private GenomeCaracteristics ToGenomeCarac(BrainCaracteristicsTemplate template, GenomeParameters parameters)

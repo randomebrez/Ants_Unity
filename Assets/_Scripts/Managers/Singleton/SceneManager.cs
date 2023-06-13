@@ -94,6 +94,7 @@ internal class SceneManager : BaseManager<SceneManager>
     private void InstantiateContext()
     {
         EnvironmentManager.Instance.SpawnGround();
+        UnitManager.Instance.SimulationInstanceGraphSet(GlobalParameters.SelectedBrainGraph);
     }
 
     private void InstantiateContextObjects()
@@ -101,7 +102,7 @@ internal class SceneManager : BaseManager<SceneManager>
         // Spawn food
         EnvironmentManager.Instance.SpawnFood();
 
-        // Spawn ants
+        // Spawn ants        
         UnitManager.Instance.CreateNewColony();
     }
 

@@ -73,7 +73,7 @@ namespace Assets._Scripts.Managers
                 // Fill in it's input neuron number in InputLayer
                 carac.Template.InputLayer.NeuronNumber = templateInputNumber[carac.Template.Name];
                 // Give the instance a name
-                carac.BrainName = $"{carac.Template.Name}_{templateUseCounter[carac.Template.Name]}";
+                carac.PrettyName = $"{carac.Template.Name}_{templateUseCounter[carac.Template.Name]}";
                 // increment use of that template
                 templateUseCounter[carac.Template.Name] += 1;
             }
@@ -153,6 +153,7 @@ namespace Assets._Scripts.Managers
                     IntersectVisionRange = inVisionField
                 };
                 result.Add(portion);
+                currentMin = currentMax;
             }
 
             return result;
@@ -212,11 +213,11 @@ namespace Assets._Scripts.Managers
                 // Build origin brain names list
                 var tempOriginsList = new List<string>();
                 for (int j = 0; j < originInstances.Count(); j++)
-                    tempOriginsList.Add(originInstances[j].BrainName);
+                    tempOriginsList.Add(originInstances[j].UniqueName);
 
                 // Add it for all instance target
                 for (int i = 0; i < targetInstances.Count(); i++)
-                    result.Add(targetInstances[i].BrainName, tempOriginsList);
+                    result.Add(targetInstances[i].UniqueName, tempOriginsList);
             }
 
             return result;
@@ -248,7 +249,7 @@ namespace Assets._Scripts.Managers
             }
 
             // Ici a voir si on peut pas imaginer des schémas ou le template n'aurait pas le même nombre d'input que toutes ses instances.
-            if (graph.CaracteristicEdges.TryGetValue(caracteristics.BrainName, out var feeders))
+            if (graph.CaracteristicEdges.TryGetValue(caracteristics.UniqueName, out var feeders))
             {
                 foreach (var feeder in feeders)
                     result += graph.CaracteristicNodes[feeder].Template.OutputLayer.NeuronNumber;
@@ -260,29 +261,29 @@ namespace Assets._Scripts.Managers
         // Constructor & Mapping 
 
         //ALL BrainInstance construction must be done HERE
-        private BrainCaracteristicsInstance BrainCaracteristicBuild(BrainCaracteristicsTemplate caracTemplate, List<int> portionIndex, string instanceName = "")
+        private BrainCaracteristicsInstance BrainCaracteristicBuild(BrainCaracteristicsTemplate caracTemplate, List<int> portionIndex, string prettyName = "")
         {
-            if (string.IsNullOrEmpty(instanceName))
-                instanceName = Guid.NewGuid().ToString();
+            var instanceUniqueName = Guid.NewGuid().ToString();
 
             var needUnityInputs = portionIndex.Count > 0 && caracTemplate.InputsTypes.Any(t => GlobalParameters.UnityInputTypes.Contains(t.InputType));
 
             var result = new BrainCaracteristicsInstance(caracTemplate)
             {
-                BrainName = instanceName,
+                UniqueName = instanceUniqueName,
+                PrettyName = prettyName,
                 PortionIndexes = portionIndex
             };
 
             return result;
         }
 
-        // Map the list of InstanceGraph nodes to a dictionary using Instance.BrainName as key
+        // Map the list of InstanceGraph nodes to a dictionary using Instance.UniqueName as key
         private Dictionary<string, BrainCaracteristicsInstance> ToDictionary(List<BrainCaracteristicsInstance> instanceNodes)
         {
             var result = new Dictionary<string, BrainCaracteristicsInstance>();
 
             foreach (var node in instanceNodes)
-                result.Add(node.BrainName, node);
+                result.Add(node.UniqueName, node);
 
             return result;
         }
@@ -359,16 +360,20 @@ namespace Assets._Scripts.Managers
                 WeightBitNumber = 4
             };
 
-            var inputLayer = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
-            var neutralLayers = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
-            var outputLayer = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
+            var inputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
+            var neutralLayersVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
+            var outputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
+
+            var inputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
+            var neutralLayersNoVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
+            var outputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
 
             var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls };
             var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC };
 
 
-            var visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayer, neutralLayers, outputLayer, genomeParameters);
-            var noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayer, neutralLayers, outputLayer, genomeParameters);
+            var visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
+            var noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
 
             result.Nodes.Add(visionTp.Name, visionTp);
             result.Nodes.Add(noVisionTp.Name, noVisionTp);

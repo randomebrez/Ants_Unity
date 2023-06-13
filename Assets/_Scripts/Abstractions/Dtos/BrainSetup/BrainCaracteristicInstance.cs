@@ -11,7 +11,9 @@ namespace Assets.Dtos
 
         public BrainCaracteristicsTemplate Template { get; private set; }
 
-        public string BrainName { get; set; }
+        public string UniqueName { get; set; }
+
+        public string PrettyName { get; set; }
 
         public List<int> PortionIndexes { get; set; }
     }
