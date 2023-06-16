@@ -1,5 +1,6 @@
 ﻿using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NeuralNetwork.Abstraction.Model;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,8 @@ namespace Assets._Scripts.Managers
         {
             if (templateGraphName == "Splitted")
                 return GenerateSplittedGraph();
+            else if (templateGraphName == "BigBrain")
+                return GenerateBigBrainGraph();
 
             return new GraphTemplate();
         }
@@ -50,7 +53,6 @@ namespace Assets._Scripts.Managers
                 InstanceByTemplate = nodes.GroupBy(t => t.Template.Name).ToDictionary(t => t.Key, t => t.ToList())
             };
 
-            // ToDo : tester si modifier le InputLayer.InputNumber d'un template les modifie pas tous d'un coup ?
             var templateUseCounter = new Dictionary<string, int>();
             var templateInputNumber = new Dictionary<string, int>();
             var distinctTemplateList = new HashSet<string>();
@@ -99,7 +101,7 @@ namespace Assets._Scripts.Managers
             switch (link.LinkTypeEnum)
             {
                 case GraphLinkTypeEnum.Default:
-                    result.Add(BrainCaracteristicBuild(link.Origin, new List<int>()));
+                    result.Add(BrainCaracteristicBuild(link.Origin, null));
                     break;
                 case GraphLinkTypeEnum.AllPortions:
                     result.Add(BrainCaracteristicBuild(link.Origin, _portions.Select(t => t.Id).ToList()));
@@ -167,10 +169,9 @@ namespace Assets._Scripts.Managers
             // Only add decisionBrain "manually"
             if (targetTemplate.IsDecisionBrain)
             {
-
                 // ToDo : Can't this brain have portions too ? 
                 // What if our graph is a unique brain like first brain implemented ?
-                var decisionBrain = BrainCaracteristicBuild(targetTemplate, new List<int>());
+                var decisionBrain = BrainCaracteristicBuild(targetTemplate, null);
                 result.Add(decisionBrain);
             }
             
@@ -228,26 +229,12 @@ namespace Assets._Scripts.Managers
         // Requires the InstanceGraph to be set for 'BrainOutput' input type
         private int GetInputNumber(GraphInstance graph, BrainCaracteristicsInstance caracteristics)
         {
-            // ToDo : Can be améliorer : On le fait sur chaque InstanceCaracteristic de l'instance graph. peut etre possible de le faire que sur les templates ?
             var result = 0;
-
-            // Cette partie là oui
-            foreach (var inputType in caracteristics.Template.InputsTypes)
-            {
-                switch (inputType.InputType)
-                {
-                    case InputTypeEnum.Portion:
-                        {
-                            var input = inputType as InputTypePortion;
-                            result += input.UnityInputTypes.Count() * caracteristics.PortionIndexes.Count;
-                            break;
-                        }
-                    case InputTypeEnum.CarryFood:
-                        result++;
-                        break;
-                }
-            }
-
+            foreach (var inputType in caracteristics.InputPortions)
+                result += inputType.UnityInputTypes.Count() * inputType.PortionIndexes.Count;
+            if (caracteristics.Template.InputsTypes.Any(t => t.InputType == InputTypeEnum.CarryFood))
+                result++;
+            
             // Ici a voir si on peut pas imaginer des schémas ou le template n'aurait pas le même nombre d'input que toutes ses instances.
             if (graph.CaracteristicEdges.TryGetValue(caracteristics.UniqueName, out var feeders))
             {
@@ -257,21 +244,60 @@ namespace Assets._Scripts.Managers
             return result;
         }
 
+        private InputTypePortion InputPortionCopyAndSetIndexes(InputTypePortion portion, List<int> indexes = null)
+        {
+            var visionPortions = _portions.Where(t => t.IntersectVisionRange);
+            var noVisionPortions = _portions.Where(t => t.IntersectVisionRange == false);
+
+            var result = new InputTypePortion(portion.MaxPortionIndexes)
+            {
+                PortionTypeToApplyOn = portion.PortionTypeToApplyOn,
+                UnityInputTypes = portion.UnityInputTypes
+            };
+            
+            if (indexes == null)
+            {
+                indexes = new List<int>();
+                switch (portion.PortionTypeToApplyOn)
+                {
+                    case PortionTypeEnum.WithinSightField:
+                        indexes = _portions.Where(t => t.IntersectVisionRange).Select(t => t.Id).ToList();
+                        break;
+                    case PortionTypeEnum.OutSightField:
+                        indexes = _portions.Where(t => t.IntersectVisionRange == false).Select(t => t.Id).ToList();
+                        break;
+                    case PortionTypeEnum.AllTypes:
+                        indexes = _portions.Select(t => t.Id).ToList();
+                        break;
+                }
+            }
+
+            result.PortionIndexes = indexes;
+
+            return result;
+        }
+
 
         // Constructor & Mapping 
 
         //ALL BrainInstance construction must be done HERE
-        private BrainCaracteristicsInstance BrainCaracteristicBuild(BrainCaracteristicsTemplate caracTemplate, List<int> portionIndex, string prettyName = "")
+        private BrainCaracteristicsInstance BrainCaracteristicBuild(BrainCaracteristicsTemplate caracTemplate, List<int> portionIndexes, string prettyName = "")
         {
-            var instanceUniqueName = Guid.NewGuid().ToString();
-
-            var needUnityInputs = portionIndex.Count > 0 && caracTemplate.InputsTypes.Any(t => GlobalParameters.UnityInputTypes.Contains(t.InputType));
-
             var result = new BrainCaracteristicsInstance(caracTemplate)
             {
-                UniqueName = instanceUniqueName,
-                PrettyName = prettyName,
-                PortionIndexes = portionIndex
+                UniqueName = Guid.NewGuid().ToString(),
+                PrettyName = prettyName
+            };
+
+            // portionindex is a filter that is set using GraphLink.
+            // It allows to restrain a template to certain portions.
+            // TpA : InputType1 : PortionTypeEnum.AllTypes
+            // Without filter ==> PortionIndexes = _portions.Id.tolist
+            // If used in a graph with for example a SingleVision GraphLink ==> PortionIndexes = filter (calculated in external method using a switch on GraphLink.Type)
+            foreach (var inputPortion in caracTemplate.InputsTypes.Where(t => t is InputTypePortion))
+            {
+                var instanceInputPortion = InputPortionCopyAndSetIndexes(inputPortion as InputTypePortion, portionIndexes);
+                result.InputPortions.Add(instanceInputPortion);
             };
 
             return result;
@@ -351,7 +377,7 @@ namespace Assets._Scripts.Managers
         {
             var result = new GraphTemplate();
 
-            result.DecisionBrain = GlobalParameters.DecisionBrain;
+            result.DecisionBrain = GlobalParameters.SplittedDecisionBrain;
             result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
             var genomeParameters = new GenomeParameters
@@ -382,6 +408,17 @@ namespace Assets._Scripts.Managers
             var linkNoVision = TemplateGraphLinkGet(result.DecisionBrain, noVisionTp, GraphLinkTypeEnum.SingleNoVisionPortions);
 
             result.Edges.Add(result.DecisionBrain.Name, new List<GraphLink> { linkVision, linkNoVision });
+
+            return result;
+        }
+
+        private GraphTemplate GenerateBigBrainGraph()
+        {
+            var result = new GraphTemplate
+            {
+                DecisionBrain = GlobalParameters.BigBrainDecisionBrain
+            };
+            result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
             return result;
         }

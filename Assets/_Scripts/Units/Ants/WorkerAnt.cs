@@ -67,35 +67,24 @@ namespace mew
         {
             var result = new Dictionary<string, List<float>>();
 
-            // Get brut object NeuralNetworkInputs (bool carryFood + List<Valeurs sur chaque portion>)
+            // Get brut object NeuralNetworkInputs (bool carryFood + List<Valeurs> sur chaque portion>)
             var allInputs = _scannerManager.GetInputs;
 
             // Pour chaque template
             foreach (var template in Unit.InstanceGraph.UnityInputsUsingTemplates)
             {
-                // On filtre les inputs pour garder que ceux dont a besoin le tp pour chaque portion
-
-                // ToDo : améliorer ça
-                var requiredInputs = new List<UnityInputTypeEnum>();
-                var portions = template.Value.InputsTypes.Where(t => t.InputType == InputTypeEnum.Portion).Select(t => (t as InputTypePortion).UnityInputTypes);
-                foreach (var portion in portions)
-                    requiredInputs.AddRange(portion);
-
-                var tpInputs = allInputs.RestrictedInputListGet(requiredInputs.ToHashSet());
-
                 // On récupère toutes les instances utilisant ce tp
                 var instanceBrains = Unit.InstanceGraph.InstanceByTemplate[template.Key];
                 foreach (var brain in instanceBrains)
                 {
                     // pour chaque on construit sa liste d'input
-                    var brainInputs = new List<float>();
-                    foreach (var portionIndex in brain.PortionIndexes)
-                        brainInputs.AddRange(tpInputs[portionIndex]);
+                    var portionInputs = allInputs.InputsFromInputPortionsList(brain.InputPortions);
 
+                    // CarryFood is a template InputType
                     if (template.Value.InputsTypes.Any(t => t.InputType == InputTypeEnum.CarryFood))
-                        brainInputs.Add(allInputs.CarryFood ? 1 : 0);
+                        portionInputs.Add(allInputs.CarryFood ? 1 : 0);
 
-                    result.Add(brain.UniqueName, brainInputs);
+                    result.Add(brain.UniqueName, portionInputs);
                 }
             }
 

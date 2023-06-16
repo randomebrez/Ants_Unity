@@ -7,6 +7,7 @@ namespace Assets.Dtos
         public BrainCaracteristicsInstance(BrainCaracteristicsTemplate template)
         {
             Template = template;
+            InputPortions = new List<InputTypePortion>();
         }
 
         public BrainCaracteristicsTemplate Template { get; private set; }
@@ -15,6 +16,6 @@ namespace Assets.Dtos
 
         public string PrettyName { get; set; }
 
-        public List<int> PortionIndexes { get; set; }
+        public List<InputTypePortion> InputPortions { get; set; }
     }
 }

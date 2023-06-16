@@ -17,6 +17,8 @@ namespace Assets.Dtos
 
         public List<int> PortionIndexes { get; set; }
 
+        public PortionTypeEnum PortionTypeToApplyOn { get; set; }
+
         public HashSet<UnityInputTypeEnum> UnityInputTypes { get; set; }
     }
 }

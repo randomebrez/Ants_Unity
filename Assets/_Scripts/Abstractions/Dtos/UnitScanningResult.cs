@@ -14,33 +14,34 @@ namespace Assets.Dtos
 
         public Dictionary<int, UnitPortionInputValues> PortionInputValues { get; set; }
 
-        public Dictionary<int, List<float>> RestrictedInputListGet(HashSet<UnityInputTypeEnum> requiredTypes)
+        public List<float> InputsFromInputPortionsList(List<InputTypePortion> inputPortions)
         {
-            var result = new Dictionary<int, List<float>>();
-            for (int i = 0; i < PortionInputValues.Count; i++)
-                result.Add(i, new List<float>());
+            var result = new List<float>();
 
-            foreach (var inputType in requiredTypes)
+            foreach (var inputPortion in inputPortions)
             {
-                for(int i = 0; i < PortionInputValues.Count; i++)
+                foreach(var portionIndex in inputPortion.PortionIndexes)
                 {
-                    switch(inputType)
+                    foreach(var inputType in inputPortion.UnityInputTypes)
                     {
-                        case UnityInputTypeEnum.PheromoneW:
-                            result[i].Add(PortionInputValues[i].PheroW);
-                            break;
-                        case UnityInputTypeEnum.PheromoneC:
-                            result[i].Add(PortionInputValues[i].PheroC);
-                            break;
-                        case UnityInputTypeEnum.Food:
-                            result[i].Add(PortionInputValues[i].FoodToken ? 1 : 0);
-                            break;
-                        case UnityInputTypeEnum.Nest:
-                            result[i].Add(PortionInputValues[i].IsNestInSight ? 1 : 0);
-                            break;
-                        case UnityInputTypeEnum.Walls:
-                            result[i].Add(PortionInputValues[i].WallDist);
-                            break;
+                        switch (inputType)
+                        {
+                            case UnityInputTypeEnum.PheromoneW:
+                                result.Add(PortionInputValues[portionIndex].PheroW);
+                                break;
+                            case UnityInputTypeEnum.PheromoneC:
+                                result.Add(PortionInputValues[portionIndex].PheroC);
+                                break;
+                            case UnityInputTypeEnum.Food:
+                                result.Add(PortionInputValues[portionIndex].FoodToken ? 1 : 0);
+                                break;
+                            case UnityInputTypeEnum.Nest:
+                                result.Add(PortionInputValues[portionIndex].IsNestInSight ? 1 : 0);
+                                break;
+                            case UnityInputTypeEnum.Walls:
+                                result.Add(PortionInputValues[portionIndex].WallDist);
+                                break;
+                        }
                     }
                 }
             }
