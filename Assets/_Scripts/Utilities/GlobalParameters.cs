@@ -38,8 +38,24 @@ namespace Assets._Scripts.Utilities
         };
 
         // Selected brain graph
-        public static string SelectedBrainGraph = "Splitted";
-        public static BrainCaracteristicsTemplate DecisionBrain = new BrainCaracteristicsTemplate
+        public static string SelectedBrainGraph = "BigBrain";
+        //public static string SelectedBrainGraph = "Splitted";
+
+
+        //
+        public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";
+
+        // Database
+        public static int StoreFrequency = 20;
+        public static string SqlFolderPath = @".\Database";
+
+        // Saved brains
+        public static string FirstBrainsFolderPath = @".\SavedBrains";
+        public static string FirstBrainsFilePath = @".\SavedBrains\1.txt";
+
+
+        // A bouger de là
+        public static BrainCaracteristicsTemplate SplittedDecisionBrain = new BrainCaracteristicsTemplate
         {
             Name = "DecisionSplitted",
             IsDecisionBrain = true,
@@ -65,17 +81,54 @@ namespace Assets._Scripts.Utilities
                 WeightBitNumber = 4
             }
         };
-
-
-        //
-        public static string LogFileBase = "D:\\Codes\\Test\\AntWinners";
-
-        // Database
-        public static int StoreFrequency = 20;
-        public static string SqlFolderPath = @".\Database";
-
-        // Saved brains
-        public static string FirstBrainsFolderPath = @".\SavedBrains";
-        public static string FirstBrainsFilePath = @".\SavedBrains\1.txt";
+        public static BrainCaracteristicsTemplate BigBrainDecisionBrain = new BrainCaracteristicsTemplate
+        {
+            Name = "BigBrainDecision",
+            IsDecisionBrain = true,
+            NeedUnityInpus = true,
+            InputLayer = new LayerCaracteristics(0, LayerTypeEnum.Input),
+            InputsTypes = new List<InputTypeBase>
+            {
+                //Vision
+                new InputTypePortion(6)
+                {
+                    PortionTypeToApplyOn = PortionTypeEnum.WithinSightField,
+                    UnityInputTypes = new HashSet<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls }
+                },
+                //NoVision
+                new InputTypePortion(6)
+                {
+                    PortionTypeToApplyOn = PortionTypeEnum.OutSightField,
+                    UnityInputTypes = new HashSet<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC }
+                },
+                new InputTypeCarryFood()
+            },
+            NeutralLayers = new List<LayerCaracteristics>
+                {
+                    new LayerCaracteristics(1, LayerTypeEnum.Neutral)
+                    {
+                        NeuronNumber = 8,
+                        ActivationFunction = ActivationFunctionEnum.Tanh,
+                        ActivationFunction90PercentTreshold = 0.5f
+                    },
+                    new LayerCaracteristics(2, LayerTypeEnum.Neutral)
+                    {
+                        NeuronNumber = 4,
+                        ActivationFunction = ActivationFunctionEnum.Tanh,
+                        ActivationFunction90PercentTreshold = 0.5f
+                    }
+                },
+            OutputLayer = new LayerCaracteristics(3, LayerTypeEnum.Output)
+            {
+                NeuronNumber = 6,
+                ActivationFunction = ActivationFunctionEnum.Sigmoid,
+                ActivationFunction90PercentTreshold = 1
+            },
+            GenomeCaracteristics = new GenomeParameters
+            {
+                NetworkCoverage = 80,
+                WeightBitNumber = 4
+            }
+        };
     }
 }

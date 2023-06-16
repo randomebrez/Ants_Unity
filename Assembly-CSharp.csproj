@@ -127,6 +127,7 @@
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitScannerManager.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\PortionTypeEnum.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
