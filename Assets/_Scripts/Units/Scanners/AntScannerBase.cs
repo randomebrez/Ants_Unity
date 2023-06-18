@@ -130,7 +130,7 @@ public abstract class AntScannerBase : MonoBehaviour
             return false;
 
         // Check on angle
-        if (_checkVisionField && 2 * Mathf.Abs(Vector3.SignedAngle(_directionAtScanTime, direction, Vector3.up)) > _scannerAngle)
+        if (_checkVisionField && Mathf.Abs(Vector3.SignedAngle(_directionAtScanTime, direction, Vector3.up)) > _scannerAngle / 2f)
             return false;
 
         if (_checkObtruction == false)

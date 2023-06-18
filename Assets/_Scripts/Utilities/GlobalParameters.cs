@@ -18,7 +18,7 @@ namespace Assets._Scripts.Utilities
         public static float LifeTimeFrame = 200;
 
         public static int ScannerSubdivision = 6;
-        public static int VisionAngle = 60;
+        public static int VisionAngle = 120;
         public static int VisionRange = 4;
         public static int UnitNumberToSelect => ReproductionCaracteristics.PercentToSelect * ColonyMaxPopulation / 100;
 

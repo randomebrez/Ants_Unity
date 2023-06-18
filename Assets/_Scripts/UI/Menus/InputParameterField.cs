@@ -1,4 +1,5 @@
 using Assets.Dtos;
+using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
@@ -9,17 +10,29 @@ public class InputParameterField : MonoBehaviour
     private TextMeshProUGUI _inputDescription;
     private string _initialValue;
     private TMP_InputField _inputValue;
+    private TMP_Dropdown _inputDropdownValue;
     private SimulationParameterConstraint _valueConstraint;
+
+    private bool _useDropDown;
 
     public bool Edited = false;
 
-    // Start is called before the first frame update
+    // Strange thing Initialyze method is called before Start() (even before Awake())
     void Start()
     {
         _inputDescription = transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
         _inputDescription.text = _description;
         _inputValue = transform.GetChild(0).GetChild(0).GetComponent<TMP_InputField>();
+        _inputDropdownValue = transform.GetChild(0).GetChild(2).GetComponent<TMP_Dropdown>();
         _inputValue.text = _initialValue;
+
+        // That is why we do that here (cf top comment)
+        _useDropDown = _valueConstraint.PossibleValues.Count > 0;
+        _inputValue.gameObject.SetActive(!_useDropDown);
+        _inputDropdownValue.gameObject.SetActive(_useDropDown);
+
+        if (_useDropDown)
+            _inputDropdownValue.AddOptions(_valueConstraint.PossibleValues.ToList());
     }
 
     public void Initialyze(string description, string initialValue, SimulationParameterConstraint constraint)
@@ -31,7 +44,10 @@ public class InputParameterField : MonoBehaviour
 
     public string GetParameterValue()
     {
-        return _inputValue.text;
+        if (_useDropDown)
+            return _inputDropdownValue.captionText.text;
+        else
+            return _inputValue.text;
     }
 
     public void OnEndEditing()
@@ -43,14 +59,16 @@ public class InputParameterField : MonoBehaviour
 
     private void CheckConstraint()
     {
-        var valid = string.IsNullOrEmpty(_inputValue.text) == false;
+        var valid = string.IsNullOrEmpty(GetParameterValue()) == false;
         
         if (valid && string.IsNullOrEmpty(_valueConstraint.RegExp) ==  false)
-            valid = Regex.Match(_inputValue.text, _valueConstraint.RegExp).Success;
-        else if (valid && int.TryParse(_inputValue.text, out var intValue))
+            valid = Regex.Match(GetParameterValue(), _valueConstraint.RegExp).Success;
+        else if (valid && int.TryParse(GetParameterValue(), out var intValue))
             valid = intValue >= _valueConstraint.MinValue && intValue <= _valueConstraint.MaxValue;
+        else if (valid && _valueConstraint.PossibleValues.Count > 0)
+            valid = _valueConstraint.PossibleValues.Contains(GetParameterValue());
 
-        if (valid == false)
+        if (valid == false && _useDropDown == false)
             _inputValue.text = _initialValue;
     }
 }

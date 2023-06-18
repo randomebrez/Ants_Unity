@@ -17,8 +17,8 @@ namespace mew
             public Color Color;
 
             // Vision
-            public float VisionRadius { get; set; } = 4;
-            public float VisionAngle { get; set; } = 130;
+            public float VisionRadius { get; set; }
+            public float VisionAngle { get; set; }
             public int ScannerSubdivisions;
 
             // Collision

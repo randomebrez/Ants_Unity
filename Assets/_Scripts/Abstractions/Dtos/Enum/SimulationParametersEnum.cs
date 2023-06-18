@@ -6,14 +6,15 @@
         LifeTime,
         SelectPercent,
         ChildMean,
-        StorageFrequency
+        //StorageFrequency
     }
 
     public enum NeuralNetworkParameterTypeEnum
     {
-        NeutralLayers,
-        GeneWeightBitNumber,
-        GeneNumber
+        //NeutralLayers,
+        //GeneWeightBitNumber,
+        //GeneNumber,
+        SelectedBrainGraph
     }
 
     public enum AntCaracteristicsParameterTypeEnum

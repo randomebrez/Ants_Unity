@@ -222,6 +222,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114484404643559039, guid: 7ee70deba9334c64692f451493abb85a, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 114484405494757763, guid: 7ee70deba9334c64692f451493abb85a, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
