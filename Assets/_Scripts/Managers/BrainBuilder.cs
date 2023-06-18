@@ -1,4 +1,6 @@
-﻿using Assets._Scripts.Utilities;
+﻿using Assets._Scripts.Gateways;
+using Assets._Scripts.Utilities;
+using Assets.Abstractions;
 using Assets.Dtos;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NeuralNetwork.Abstraction.Model;
@@ -11,6 +13,12 @@ namespace Assets._Scripts.Managers
     public class BrainBuilder
     {
         private List<UnitPortionCaracteristics> _portions = new List<UnitPortionCaracteristics>();
+        private IStorage _fileStorageGateway;
+
+        public BrainBuilder() 
+        {
+            _fileStorageGateway = new FileStorageGateway(GlobalParameters.SavedBrainsFolder, GlobalParameters.TemplateFileName, GlobalParameters.GraphTemplatesFileName);
+        }
 
         // Ask to retrieve a TemplateGraph by its name
         public GraphInstance UserSelectionInstanceGraphGet(string templateGraphName)
@@ -25,8 +33,12 @@ namespace Assets._Scripts.Managers
         // Get the TemplateGraph from the dataSource by its name
         private GraphTemplate TemplateGraphGetFromDataSource(string templateGraphName)
         {
+            //var graph = _fileStorageGateway.GraphTemplateFetchAsync(templateGraphName).GetAwaiter().GetResult();
+            //return graph;
             if (templateGraphName == "Splitted")
+            {
                 return GenerateSplittedGraph();
+            }
             else if (templateGraphName == "BigBrain")
                 return GenerateBigBrainGraph();
 
@@ -377,6 +389,7 @@ namespace Assets._Scripts.Managers
         {
             var result = new GraphTemplate();
 
+            result.Name = "Splitted";
             result.DecisionBrain = GlobalParameters.SplittedDecisionBrain;
             result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
@@ -401,6 +414,10 @@ namespace Assets._Scripts.Managers
             var visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
             var noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
 
+            //_fileStorageGateway.TemplateCaracteristicStoreAsync(GlobalParameters.SplittedDecisionBrain);
+            //_fileStorageGateway.TemplateCaracteristicStoreAsync(visionTp);
+            //_fileStorageGateway.TemplateCaracteristicStoreAsync(noVisionTp);
+
             result.Nodes.Add(visionTp.Name, visionTp);
             result.Nodes.Add(noVisionTp.Name, noVisionTp);
 
@@ -409,6 +426,7 @@ namespace Assets._Scripts.Managers
 
             result.Edges.Add(result.DecisionBrain.Name, new List<GraphLink> { linkVision, linkNoVision });
 
+            //_fileStorageGateway.TemplateGraphStoreAsync(result);
             return result;
         }
 
@@ -416,10 +434,13 @@ namespace Assets._Scripts.Managers
         {
             var result = new GraphTemplate
             {
+                Name = "BigBrain",
                 DecisionBrain = GlobalParameters.BigBrainDecisionBrain
             };
             result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
+            //_fileStorageGateway.TemplateCaracteristicStoreAsync(GlobalParameters.BigBrainDecisionBrain);
+            //_fileStorageGateway.TemplateGraphStoreAsync(result);
             return result;
         }
     }

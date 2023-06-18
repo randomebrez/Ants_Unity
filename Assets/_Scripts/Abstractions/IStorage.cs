@@ -1,11 +1,16 @@
-﻿using NeuralNetwork.Abstraction.Model;
-using System.Collections.Generic;
+﻿using Assets.Dtos;
 using System.Threading.Tasks;
 
 namespace Assets.Abstractions
 {
     public interface IStorage
     {
-        Task StoreBrainsAsync(int generationId, List<Unit> units);
+        Task TemplateCaracteristicStoreAsync(BrainCaracteristicsTemplate template);
+
+        Task<BrainCaracteristicsTemplate> TemplateCaracteristicsFetchAsync(string templateName);
+
+        Task TemplateGraphStoreAsync(GraphTemplate graphTemplate);
+
+        Task<GraphTemplate> GraphTemplateFetchAsync(string graphName);
     }
 }

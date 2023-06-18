@@ -7,6 +7,7 @@
         ComeBackMean,
         FoodCollected,
         FoodGrabbed,
-        Age
+        Age,
+        RandomUnitNumber
     }
 }

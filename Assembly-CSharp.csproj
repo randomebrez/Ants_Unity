@@ -81,6 +81,7 @@
     <Compile Include="Assets\_Scripts\Gateways\FileStorageGateway.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\SimulationParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\PortionTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Pheromone.cs" />
     <Compile Include="Assets\_Scripts\System\ResourceSystem.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphInstance.cs" />
@@ -124,10 +125,8 @@
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitPortionCaracteristics.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitScanningResult.cs" />
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
-    <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitScannerManager.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\PortionTypeEnum.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

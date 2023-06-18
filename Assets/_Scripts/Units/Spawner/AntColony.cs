@@ -14,8 +14,9 @@ public class AntColony : MonoBehaviour
     private List<(BaseAnt ant, float score)> _currentSelection = new List<(BaseAnt ant, float score)>();
     private List<(BaseAnt ant, float score)> _bestBrains = new List<(BaseAnt ant, float score)>();
 
-    private int _generationId = 0;
     private bool _initialyzed = false;
+    public int GenerationId { get; private set; } = -1;
+    private Dictionary<int, int> _randomUnitNumber = new Dictionary<int, int>();
 
 
     // Public methods
@@ -34,9 +35,9 @@ public class AntColony : MonoBehaviour
 
         StatisticsManager.Instance.InitializeView(new List<UnitStatististicsEnum>
         {
-            //StatisticEnum.Score,
-            UnitStatististicsEnum.Age,
-            UnitStatististicsEnum.ComeBackMean,
+
+            UnitStatististicsEnum.RandomUnitNumber,
+            UnitStatististicsEnum.Score,
             UnitStatististicsEnum.FoodCollected,
             UnitStatististicsEnum.FoodGrabbed
         });
@@ -78,11 +79,12 @@ public class AntColony : MonoBehaviour
         return result;
     }
 
-    public void InstantiateUnits(UnitWrapper[] units)
+    public void InstantiateUnits(UnitWrapper[] units, int randomUnitGenerated)
     {
+        GenerationId++;
         _population = _spawner.InstantiateUnits(units, ScriptableAntBase.AntTypeEnum.Worker);
-        _generationId++;
-        AntSceneManager.Instance.SetNewGenerationId(_generationId);
+        _randomUnitNumber.Add(GenerationId, randomUnitGenerated);
+        AntSceneManager.Instance.SetNewGenerationId(GenerationId);
     }
 
     public List<BaseAnt> SelectBestUnits()
@@ -116,7 +118,7 @@ public class AntColony : MonoBehaviour
 
     public void SetStatistics()
     {
-        StatisticsManager.Instance.GetStatisticsAsync(_generationId - 1, _population).GetAwaiter().GetResult();
+        StatisticsManager.Instance.SetStatistics(GenerationId, _population, _randomUnitNumber[GenerationId]);
     }
 
     public void DestroyAllUnits()

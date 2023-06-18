@@ -87,8 +87,8 @@ internal class SceneManager : BaseManager<SceneManager>
 
     private void CreateFolders()
     {
-        if (Directory.Exists(GlobalParameters.FirstBrainsFolderPath) == false)
-            Directory.CreateDirectory(GlobalParameters.FirstBrainsFolderPath);
+        if (Directory.Exists(GlobalParameters.SavedBrainsFolder) == false)
+            Directory.CreateDirectory(GlobalParameters.SavedBrainsFolder);
     }
 
     private void InstantiateContext()
@@ -119,10 +119,12 @@ internal class SceneManager : BaseManager<SceneManager>
             else
             {
                 var selectedNumber = UnitManager.Instance.GetColoniesSurvivorNumber(0);
-                if (selectedNumber >= GlobalParameters.UnitNumberToSelect && _generationId % GlobalParameters.SpawnRandomFoodFreq == 0)
-                    EnvironmentManager.Instance.RenewEnvironment(true);
-                else
-                    EnvironmentManager.Instance.RenewEnvironment(false);
+                EnvironmentManager.Instance.RenewEnvironment(false);
+
+                //if (selectedNumber >= GlobalParameters.UnitNumberToSelect) && _generationId % GlobalParameters.SpawnRandomFoodFreq == 0)
+                //    EnvironmentManager.Instance.RenewEnvironment(true);
+                //else
+                //    EnvironmentManager.Instance.RenewEnvironment(false);
 
                 UnitManager.Instance.RenewColonies();
                 _frameCount = -1;

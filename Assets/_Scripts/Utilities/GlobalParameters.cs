@@ -15,7 +15,7 @@ namespace Assets._Scripts.Utilities
 
         // AntParameters
         public static int ColonyMaxPopulation = 50;
-        public static float LifeTimeFrame = 300;
+        public static float LifeTimeFrame = 200;
 
         public static int ScannerSubdivision = 6;
         public static int VisionAngle = 60;
@@ -31,15 +31,15 @@ namespace Assets._Scripts.Utilities
         // Reproduction parameters
         public static ReproductionCaracteristics ReproductionCaracteristics = new ReproductionCaracteristics
         {
-            PercentToSelect = 40,
-            MeanChildNumberByUnit = 5,
+            PercentToSelect = 67,
+            MeanChildNumberByUnit = 3,
             CrossOverNumber = 1,
             MutationRate = 0.01f
         };
 
         // Selected brain graph
-        public static string SelectedBrainGraph = "BigBrain";
-        //public static string SelectedBrainGraph = "Splitted";
+        //public static string SelectedBrainGraph = "BigBrain";
+        public static string SelectedBrainGraph = "Splitted";
 
 
         //
@@ -50,8 +50,9 @@ namespace Assets._Scripts.Utilities
         public static string SqlFolderPath = @".\Database";
 
         // Saved brains
-        public static string FirstBrainsFolderPath = @".\SavedBrains";
-        public static string FirstBrainsFilePath = @".\SavedBrains\1.txt";
+        public static string SavedBrainsFolder = @".\SavedBrains";
+        public static string TemplateFileName = @"BrainTemplate";
+        public static string GraphTemplatesFileName = @"TemplateGraphs";
 
 
         // A bouger de là

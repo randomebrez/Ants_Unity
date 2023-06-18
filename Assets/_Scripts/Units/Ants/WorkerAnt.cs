@@ -96,8 +96,6 @@ namespace mew
         protected override HashSet<UnitStatististicsEnum> RequiredStatistics() => new HashSet<UnitStatististicsEnum>
         { 
             UnitStatististicsEnum.Score,
-            UnitStatististicsEnum.Age,
-            UnitStatististicsEnum.ComeBackMean,
             UnitStatististicsEnum.FoodCollected,
             UnitStatististicsEnum.FoodGrabbed
         };
@@ -147,6 +145,8 @@ namespace mew
 
                     if (FoodGrabbed > 1)
                         _score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
+                    else
+                        _score += 1;
 
                     _findFoodStepNumber = 0;
                     _carryingFood = true;

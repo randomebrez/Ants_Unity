@@ -9,6 +9,7 @@ using Assets.Gateways;
 using NeuralNetwork.Abstraction.Model;
 using Assets._Scripts.Managers;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using UnityEngine.UIElements;
 
 internal class UnitManager : BaseManager<UnitManager>
 {
@@ -62,7 +63,7 @@ internal class UnitManager : BaseManager<UnitManager>
         colony.Initialyze($"Colony_{id}");
 
         var units = GetRandomUnits(GlobalParameters.ColonyMaxPopulation);
-        colony.InstantiateUnits(units);
+        colony.InstantiateUnits(units, GlobalParameters.ColonyMaxPopulation);
 
         _colonies.Add(colony);
     }
@@ -72,9 +73,9 @@ internal class UnitManager : BaseManager<UnitManager>
         {
             var bestUnits = _colonies[i].SelectBestUnits();
             _colonies[i].SetStatistics();
-            _colonies[i].DestroyAllUnits();
             var units = GenerateNewUnits(bestUnits);
-            _colonies[i].InstantiateUnits(units);
+            _colonies[i].DestroyAllUnits();
+            _colonies[i].InstantiateUnits(units.units, units.randomUnitNumber);
         }
     }
     public void ClearColonies()
@@ -197,13 +198,15 @@ internal class UnitManager : BaseManager<UnitManager>
 
         return result;
     }
-    private UnitWrapper[] GenerateNewUnits(List<BaseAnt> bestUnits)
+    private (UnitWrapper[] units, int randomUnitNumber) GenerateNewUnits(List<BaseAnt> bestUnits)
     {
         var result = new UnitWrapper[GlobalParameters.ColonyMaxPopulation];
 
         // Generate as many children as possible from best units
         var genomes = GenerateMixedGenomes(_distinctTemplates, bestUnits);
         var childrenGenomeGraphs = GenomeGraphListBuild(_simulationCaracteristicGraph, genomes);
+        if (bestUnits.Count == 1)
+            childrenGenomeGraphs.Add(bestUnits[0].GetNugetUnit.GenomeGraph);
         var children = _neuralNetworkGateway.GetUnits(childrenGenomeGraphs);
 
         for (int i = 0; i < children.Length; i++)
@@ -216,13 +219,13 @@ internal class UnitManager : BaseManager<UnitManager>
         }
             
         // Generate random units to reach ColonyMaxPopulation treshold
-        var randomUnitToGenerate = GlobalParameters.ColonyMaxPopulation - genomes.First().Value.Count();
+        var randomUnitToGenerate = GlobalParameters.ColonyMaxPopulation - children.Count();
         var randomUnits = GetRandomUnits(randomUnitToGenerate);
 
         for (int i = children.Length; i < GlobalParameters.ColonyMaxPopulation; i++)
-            result[i] = randomUnits[i];
+            result[i] = randomUnits[i - children.Length];
 
-        return result;
+        return (result, randomUnitToGenerate);
     }
 
 
