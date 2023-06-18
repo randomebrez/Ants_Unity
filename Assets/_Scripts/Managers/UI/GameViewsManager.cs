@@ -14,6 +14,7 @@ public class GameViewsManager : MonoBehaviour
     private TimeSpan _genereationElapsedTime;
 
     private bool _simulationStarted = false;
+    private int _frameCount = 0;
 
     // Start is called before the first frame update
     void Awake()
@@ -37,7 +38,8 @@ public class GameViewsManager : MonoBehaviour
 
         var temp = Math.Round(Time.deltaTime, 3).ToString().Split(',');
         _genereationElapsedTime += new TimeSpan(0, 0, 0, int.Parse(temp[0]), int.Parse(temp[1]));
-        var text = $"Generation n° {_generationId}\nElapsed time : {_genereationElapsedTime.Minutes}:{_genereationElapsedTime.Seconds}:{_genereationElapsedTime.Milliseconds}";
+        var text = $"Generation n° {_generationId}\nFrame : {_frameCount} - Elapsed time : {_genereationElapsedTime.Minutes}:{_genereationElapsedTime.Seconds}:{_genereationElapsedTime.Milliseconds}";
+        _frameCount++;
         _headerText.text = text;
     }
 
@@ -45,6 +47,7 @@ public class GameViewsManager : MonoBehaviour
     {
         _generationId = generationId;
         _genereationElapsedTime = TimeSpan.Zero;
+        _frameCount = 0;
         _simulationStarted = true;
     }
 
