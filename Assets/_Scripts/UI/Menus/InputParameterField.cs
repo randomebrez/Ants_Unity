@@ -24,7 +24,7 @@ public class InputParameterField : MonoBehaviour
         _inputDescription.text = _description;
         _inputValue = transform.GetChild(0).GetChild(0).GetComponent<TMP_InputField>();
         _inputDropdownValue = transform.GetChild(0).GetChild(2).GetComponent<TMP_Dropdown>();
-        _inputValue.text = _initialValue;
+        
 
         // That is why we do that here (cf top comment)
         _useDropDown = _valueConstraint.PossibleValues.Count > 0;
@@ -32,7 +32,12 @@ public class InputParameterField : MonoBehaviour
         _inputDropdownValue.gameObject.SetActive(_useDropDown);
 
         if (_useDropDown)
+        {
             _inputDropdownValue.AddOptions(_valueConstraint.PossibleValues.ToList());
+            _inputDropdownValue.SetValueWithoutNotify(_inputDropdownValue.options.FindIndex(t => t.text == _initialValue));
+        }
+        else
+            _inputValue.text = _initialValue;
     }
 
     public void Initialyze(string description, string initialValue, SimulationParameterConstraint constraint)

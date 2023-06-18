@@ -38,8 +38,7 @@ namespace Assets._Scripts.Utilities
         };
 
         // Selected brain graph
-        //public static string SelectedBrainGraph = "BigBrain";
-        public static string SelectedBrainGraph = "Splitted";
+        public static string SelectedBrainGraph = "BigBrain";
 
 
         //
