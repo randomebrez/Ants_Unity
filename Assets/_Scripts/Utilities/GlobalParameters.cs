@@ -38,6 +38,8 @@ namespace Assets._Scripts.Utilities
         };
 
         // Selected brain graph
+        //BigBrain
+        //Splitted
         public static string SelectedBrainGraph = "BigBrain";
 
 
@@ -87,21 +89,21 @@ namespace Assets._Scripts.Utilities
             IsDecisionBrain = true,
             NeedUnityInpus = true,
             InputLayer = new LayerCaracteristics(0, LayerTypeEnum.Input),
-            InputsTypes = new List<InputTypeBase>
+            InputsTypes = new List<UnityInput>
             {
                 //Vision
-                new InputTypePortion(6)
+                new UnityInput(InputTypeEnum.Portion, 6)
                 {
                     PortionTypeToApplyOn = PortionTypeEnum.WithinSightField,
                     UnityInputTypes = new HashSet<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls }
                 },
                 //NoVision
-                new InputTypePortion(6)
+                new UnityInput(InputTypeEnum.Portion, 6)
                 {
                     PortionTypeToApplyOn = PortionTypeEnum.OutSightField,
                     UnityInputTypes = new HashSet<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC }
                 },
-                new InputTypeCarryFood()
+                new UnityInput(InputTypeEnum.CarryFood)
             },
             NeutralLayers = new List<LayerCaracteristics>
                 {

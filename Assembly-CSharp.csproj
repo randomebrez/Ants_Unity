@@ -64,14 +64,13 @@
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnityInputTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Block.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GenomeParameters.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInputs\InputTypePortion.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\UnityInput.cs" />
     <Compile Include="Assets\_Scripts\Gateways\NeuralNetworkGateway.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitWrapper.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptableAntBase.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\AntSceneManager.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\AntColony.cs" />
     <Compile Include="Assets\_Scripts\Scriptable\ScriptableUnitBase.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInputs\InputTypeCarryFood.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\Axis.cs" />
     <Compile Include="Assets\_Scripts\Environment\FoodToken.cs" />
     <Compile Include="Assets\_Scripts\Environment\BlockBase.cs" />
@@ -91,7 +90,6 @@
     <Compile Include="Assets\_Scripts\Environment\GroundBlock.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphLink.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BaseAnt.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInputs\InputTypeBase.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnityLayerEnum.cs" />
     <Compile Include="Assets\_Scripts\Utilities\GlobalParameters.cs" />
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBlock.cs" />

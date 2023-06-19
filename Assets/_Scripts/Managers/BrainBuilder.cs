@@ -41,7 +41,7 @@ namespace Assets._Scripts.Managers
             }
             else if (templateGraphName == "BigBrain")
                 return GenerateBigBrainGraph();
-
+            
             return new GraphTemplate();
         }
 
@@ -256,12 +256,12 @@ namespace Assets._Scripts.Managers
             return result;
         }
 
-        private InputTypePortion InputPortionCopyAndSetIndexes(InputTypePortion portion, List<int> indexes = null)
+        private UnityInput InputPortionCopyAndSetIndexes(UnityInput portion, List<int> indexes = null)
         {
             var visionPortions = _portions.Where(t => t.IntersectVisionRange);
             var noVisionPortions = _portions.Where(t => t.IntersectVisionRange == false);
 
-            var result = new InputTypePortion(portion.MaxPortionIndexes)
+            var result = new UnityInput(InputTypeEnum.Portion, portion.MaxPortionIndexes)
             {
                 PortionTypeToApplyOn = portion.PortionTypeToApplyOn,
                 UnityInputTypes = portion.UnityInputTypes
@@ -306,9 +306,9 @@ namespace Assets._Scripts.Managers
             // TpA : InputType1 : PortionTypeEnum.AllTypes
             // Without filter ==> PortionIndexes = _portions.Id.tolist
             // If used in a graph with for example a SingleVision GraphLink ==> PortionIndexes = filter (calculated in external method using a switch on GraphLink.Type)
-            foreach (var inputPortion in caracTemplate.InputsTypes.Where(t => t is InputTypePortion))
+            foreach (var inputPortion in caracTemplate.InputsTypes.Where(t => t is UnityInput))
             {
-                var instanceInputPortion = InputPortionCopyAndSetIndexes(inputPortion as InputTypePortion, portionIndexes);
+                var instanceInputPortion = InputPortionCopyAndSetIndexes(inputPortion as UnityInput, portionIndexes);
                 result.InputPortions.Add(instanceInputPortion);
             };
 
@@ -340,7 +340,7 @@ namespace Assets._Scripts.Managers
                 IsDecisionBrain = isDecisionBrain
             };
 
-            var portionInputObj = new InputTypePortion(maxPortionIndex);
+            var portionInputObj = new UnityInput(InputTypeEnum.Portion, maxPortionIndex);
             foreach(var portionInputType in portionInputs)
             {
                 switch(portionInputType)
@@ -353,7 +353,7 @@ namespace Assets._Scripts.Managers
                         portionInputObj.UnityInputTypes.Add(portionInputType);
                         break;
                     case UnityInputTypeEnum.CarryFood:
-                        result.InputsTypes.Add(new InputTypeCarryFood());
+                        result.InputsTypes.Add(new UnityInput(InputTypeEnum.CarryFood));
                         break;
                 }
             }
@@ -414,9 +414,9 @@ namespace Assets._Scripts.Managers
             var visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
             var noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
 
-            //_fileStorageGateway.TemplateCaracteristicStoreAsync(GlobalParameters.SplittedDecisionBrain);
-            //_fileStorageGateway.TemplateCaracteristicStoreAsync(visionTp);
-            //_fileStorageGateway.TemplateCaracteristicStoreAsync(noVisionTp);
+            //_fileStorageGateway.TemplateCaracteristicStoreAsync(GlobalParameters.SplittedDecisionBrain).GetAwaiter().GetResult();
+            //_fileStorageGateway.TemplateCaracteristicStoreAsync(visionTp).GetAwaiter().GetResult();
+            //_fileStorageGateway.TemplateCaracteristicStoreAsync(noVisionTp).GetAwaiter().GetResult();
 
             result.Nodes.Add(visionTp.Name, visionTp);
             result.Nodes.Add(noVisionTp.Name, noVisionTp);
@@ -426,7 +426,7 @@ namespace Assets._Scripts.Managers
 
             result.Edges.Add(result.DecisionBrain.Name, new List<GraphLink> { linkVision, linkNoVision });
 
-            //_fileStorageGateway.TemplateGraphStoreAsync(result);
+            //_fileStorageGateway.TemplateGraphStoreAsync(result).GetAwaiter().GetResult();
             return result;
         }
 

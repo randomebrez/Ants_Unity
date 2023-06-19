@@ -2,16 +2,16 @@
 
 namespace Assets.Dtos
 {
-    public class InputTypePortion : InputTypeBase
+    public class UnityInput
     {
-        public InputTypePortion(int maxPortionIndexes)
+        public UnityInput(InputTypeEnum type, int maxPortionIndexes = 0)
         {
             PortionIndexes = new List<int>();
             MaxPortionIndexes = maxPortionIndexes;
             UnityInputTypes = new HashSet<UnityInputTypeEnum>();
         }
 
-        public override InputTypeEnum InputType => InputTypeEnum.Portion;
+        public InputTypeEnum InputType { get; private set; }
 
         public int MaxPortionIndexes { get; set; }
 

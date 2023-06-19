@@ -7,7 +7,7 @@ namespace Assets.Dtos
     {
         public BrainCaracteristicsTemplate()
         {
-            InputsTypes = new List<InputTypeBase>();
+            InputsTypes = new List<UnityInput>();
             NeutralLayers = new List<LayerCaracteristics>();
         }
 
@@ -15,7 +15,7 @@ namespace Assets.Dtos
 
         public bool IsDecisionBrain { get; set; }
 
-        public List<InputTypeBase> InputsTypes { get; set; }
+        public List<UnityInput> InputsTypes { get; set; }
 
         public LayerCaracteristics InputLayer { get; set; }
 

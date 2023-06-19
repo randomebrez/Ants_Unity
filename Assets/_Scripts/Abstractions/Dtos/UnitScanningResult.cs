@@ -14,7 +14,7 @@ namespace Assets.Dtos
 
         public Dictionary<int, UnitPortionInputValues> PortionInputValues { get; set; }
 
-        public List<float> InputsFromInputPortionsList(List<InputTypePortion> inputPortions)
+        public List<float> InputsFromInputPortionsList(List<UnityInput> inputPortions)
         {
             var result = new List<float>();
 
