@@ -25,6 +25,7 @@ namespace Assets._Scripts.Utilities
             SetRecursiveLayer(newList, layerId);
         }
 
+        // Todo : to delete ?
         public static Mesh CreateDiagramMesh(float height, float alpha, float radius)
         {
             var mesh = new Mesh();

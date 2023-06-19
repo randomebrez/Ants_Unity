@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace mew
@@ -10,7 +8,7 @@ namespace mew
         public Stats BaseStats => _statistics;
 
         [System.Serializable]
-        public struct Stats
+        public class Stats
         {
             // Base stats
             public float MaxSpeed;
@@ -19,8 +17,8 @@ namespace mew
             public Color Color;
 
             // Vision
-            public float VisionRadius;
-            public float VisionAngle;
+            public float VisionRadius { get; set; }
+            public float VisionAngle { get; set; }
             public int ScannerSubdivisions;
 
             // Collision

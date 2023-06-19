@@ -1,4 +1,6 @@
+using Assets._Scripts.Utilities;
 using Assets.Dtos;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -6,64 +8,199 @@ namespace mew
 {
     public class WorkerAnt : BaseAnt
     {
-        public bool _carryingFood;
+        public bool _carryingFood = false;
+        public int FoodCollected = 0;
+        public int FoodGrabbed = 0;
+        private int _comeBackStepNumber = 0;
+        private int _bestComeBackStepNumber = int.MaxValue;
+        private int _findFoodStepNumber = 0;
+        private int _bestFindFoodStepNumber = int.MaxValue;
+        private float RandomMoveCount = 0f;
+        private float WrongFoodCollision = 0f;
+
+        private float _score = 0f;
+        private int[] _outputs = new int[7];
+
+
+        // Override Methods
         public override void Move()
         {
-            if (HasTarget || ScanForNest() || ScanForFood())
-                MoveTowardTarget();
-            else
-                RandomWalk();
+            if (_initialyzed == false)
+                return;
+
+            // Scan environment
+            _scannerManager.ScanAll(_carryingFood);
+
+            // Update Statistics
+            UpdateStatistics();
+
+            // Compute output using brain
+            var outputIndex = ComputeAndGetOutput();
+
+            // Select next pos : Interpret output
+            InterpretOutput(outputIndex);
 
             base.Move();
         }
 
-
-        public override void OnTargetReach()
+        private int ComputeAndGetOutput()
         {
-            if (_target == null)
-                return;
+            var inputs = GetBrainInputs();
+            _brainComputer.BrainGraphCompute(GetNugetUnit.BrainGraph, inputs);
+            return GetBestOutput();
+        }
 
-            switch (_target.Type)
+        private int GetBestOutput()
+        {
+            var decisionBrain = GetNugetUnit.BrainGraph.DecisionBrain;
+            var outputs = decisionBrain.Neurons.OutputLayer.Neurons.ToList();
+            (int bestOutputIndex, float bestOutputValue) = (-1, 0);
+            for(int i = 0; i < outputs.Count; i++)
             {
-                case TargetTypeEnum.Food:
-                    _carryingFood = true;
-                    transform.Rotate(0, 180, 0);
-                    Destroy(_target.Transform.gameObject);
-                    break;
-                case TargetTypeEnum.Nest:
-                    _carryingFood = false;
-                    break;
+                if (outputs[i].Value > bestOutputValue)
+                    (bestOutputIndex, bestOutputValue) = (outputs[i].Id, outputs[i].Value);
+            }
+            return bestOutputIndex;
+        }
+
+        private Dictionary<string, List<float>> GetBrainInputs()
+        {
+            var result = new Dictionary<string, List<float>>();
+
+            // Get brut object NeuralNetworkInputs (bool carryFood + List<Valeurs> sur chaque portion>)
+            var allInputs = _scannerManager.GetInputs;
+
+            // Pour chaque template
+            foreach (var template in Unit.InstanceGraph.UnityInputsUsingTemplates)
+            {
+                // On récupère toutes les instances utilisant ce tp
+                var instanceBrains = Unit.InstanceGraph.InstanceByTemplate[template.Key];
+                foreach (var brain in instanceBrains)
+                {
+                    // pour chaque on construit sa liste d'input
+                    var portionInputs = allInputs.InputsFromInputPortionsList(brain.InputPortions);
+
+                    // CarryFood is a template InputType
+                    if (template.Value.InputsTypes.Any(t => t.InputType == InputTypeEnum.CarryFood))
+                        portionInputs.Add(allInputs.CarryFood ? 1 : 0);
+
+                    result.Add(brain.UniqueName, portionInputs);
+                }
             }
 
-            _target.Active = false;
+            return result;
         }
 
-        private bool ScanForNest()
+        // Abstract method implementations
+
+        protected override HashSet<UnitStatististicsEnum> RequiredStatistics() => new HashSet<UnitStatististicsEnum>
+        { 
+            UnitStatististicsEnum.Score,
+            UnitStatististicsEnum.FoodCollected,
+            UnitStatististicsEnum.FoodGrabbed
+        };
+
+        public override Dictionary<UnitStatististicsEnum, float> GetStatistics()
+        {
+            var stats = new Dictionary<UnitStatististicsEnum, float>();
+            foreach (var statType in RequiredStatistics())
+            {
+                switch(statType)
+                {
+                    case UnitStatististicsEnum.Score:
+                        stats.Add(statType, GetUnitScore());
+                        break;
+                    case UnitStatististicsEnum.BestFoodReachStepNumber:
+                        stats.Add(statType, _bestFindFoodStepNumber);
+                        break;
+                    case UnitStatististicsEnum.ComeBackMean:
+                        stats.Add(statType, _bestComeBackStepNumber);
+                        break;
+                    case UnitStatististicsEnum.FoodCollected:
+                        stats.Add(statType, FoodCollected);
+                        break;
+                    case UnitStatististicsEnum.FoodGrabbed:
+                        stats.Add(statType, FoodGrabbed);
+                        break;
+                    case UnitStatististicsEnum.Age:
+                        stats.Add(statType, _age);
+                        break;
+                }
+            }
+
+            return stats;
+        }
+
+        public override void CheckCollectableCollisions()
         {
             if (!_carryingFood)
-                return false;
+            {
+                if (CurrentPos.HasAnyFood)
+                {
+                    CurrentPos.RemoveFoodToken();
+                    FoodGrabbed++;
 
-            if (_scannerManager.IsNestInSight(_nest.name).answer == false)
-                return false;
+                    if (_findFoodStepNumber < _bestFindFoodStepNumber)
+                        _bestFindFoodStepNumber = _findFoodStepNumber;
 
-            _target = new Target { Type = TargetTypeEnum.Nest, Transform = _nest, Active = true };
-            return true;
+                    if (FoodGrabbed > 1)
+                        _score += Mathf.Pow(1f / _findFoodStepNumber, 1f / FoodGrabbed);
+                    else
+                        _score += 1;
+
+                    _findFoodStepNumber = 0;
+                    _carryingFood = true;
+
+                    if (FoodGrabbed < _colors.Count)
+                        SetHeadColor(_colors[FoodGrabbed]);
+                }
+            }
+            else
+            {
+                if (CurrentPos.HasAnyFood)
+                    WrongFoodCollision++;
+
+                if (CurrentPos.IsUnderNest)
+                {
+                    FoodCollected++;
+
+                    if (_comeBackStepNumber < _bestComeBackStepNumber)
+                        _bestComeBackStepNumber = _comeBackStepNumber;
+
+                    _score += Mathf.Pow(1f / _comeBackStepNumber, 1f / (2 * FoodCollected));
+                    _comeBackStepNumber = 0;
+                    _carryingFood = false;
+
+                    if (FoodCollected < _colors.Count)
+                        SetBodyColor(_colors[FoodCollected]);
+                }
+            }
         }
 
-        private bool ScanForFood()
+        public override float GetUnitScore()
         {
-            if (_carryingFood)
-                return false;
+            var maxRound = _age / 3;
 
-            var foodObjects = _scannerManager.CollectablesListByTag("Food");
-            if (foodObjects.Count <= 0)
-                return false;
+            var bonusGrab = Mathf.Min(1, FoodGrabbed);
+            var bonusCollected = Mathf.Min(0, FoodCollected);
+            var randomMoveMalus = RandomMoveCount / _age;
+            var wrongFoodMalus = Mathf.Pow(WrongFoodCollision / _age, 2);
+            var overloadedOutputs = _outputs.Where(t => t > 0.4 * _age).ToList();
+            var outputOverloadMalus = 0f;
 
-            _target = new Target { Type = TargetTypeEnum.Food, Transform = foodObjects.First().transform, Active = true };
-            return true;
+            //for (int i = 0; i < overloadedOutputs.Count(); i++)
+            //{
+            //    outputOverloadMalus += (float)overloadedOutputs[i] / _age;
+            //}
+            //
+            //if (overloadedOutputs.Count > 0)
+            //    outputOverloadMalus /= overloadedOutputs.Count;
+
+            var result = _score + bonusGrab + bonusCollected  - outputOverloadMalus - randomMoveMalus - wrongFoodMalus;
+            return result;
         }
 
-        protected override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
+        public override ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType()
         {
             if (_carryingFood)
                 return ScriptablePheromoneBase.PheromoneTypeEnum.CarryFood;
@@ -71,42 +208,51 @@ namespace mew
             return ScriptablePheromoneBase.PheromoneTypeEnum.Wander;
         }
 
-        private void MoveTowardTarget()
+
+        // Private methods
+        private void UpdateStatistics()
         {
-            if (!HasTarget)
-                return;
-
-            _desiredDirection = _target.Transform.position - _position;
-            _desiredDirection.y = 0;
-
-            // Normalize if above one
-            // Otherwise it will slow down the ant until it reaches the target
-            if (Mathf.Sqrt(_desiredDirection.x * _desiredDirection.x + _desiredDirection.y * _desiredDirection.y + _desiredDirection.z * _desiredDirection.z) > 1)
-                _desiredDirection = _desiredDirection.normalized;
+            if (_carryingFood)
+                _comeBackStepNumber++;
+            else
+                _findFoodStepNumber++;
         }
 
-        private void RandomWalk()
+        private void InterpretOutput(int outputValue)
         {
-            var random = GetRandomDirection(_carryingFood);
+            _outputs[outputValue + 1]++;
 
-            _desiredDirection = (_desiredDirection + new Vector3(random.x, 0, random.z) * Stats.WanderStrength).normalized;
-            _desiredDirection.y = 0;
-        }
-
-        private void OnDrawGizmos()
-        {
-            /*Gizmos.color = Color.black;
-            Gizmos.DrawLine(_position, _position + BodyHeadAxis);
-            if (Probabilities.Length == 0)
-                return;
-
-            Gizmos.color = Color.red;
-            var stratingAngle = -180f;
-            var deltaAngle = 360f / 20;
-            for (int i = 0; i < Probabilities.Length; i++)
+            var deltaTheta = 360f / Stats.ScannerSubdivisions;
+            Vector3 direction;
+            RaycastHit hit;
+            switch (outputValue)
             {
-                Gizmos.DrawLine(_position, _position + 100 * Probabilities[i] * (Quaternion.Euler(0, stratingAngle + i * deltaAngle, 0) * BodyHeadAxis));
-            }*/
+                case -1:
+                    RandomMove();
+                    break;
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                    direction = Quaternion.Euler(0, outputValue * deltaTheta, 0) * BodyHeadAxis;
+                    if (Physics.Raycast(CurrentPos.Block.WorldPosition, direction, out hit, 2 * GlobalParameters.NodeRadius, LayerMask.GetMask(UnityLayerEnum.Walkable.ToString())))
+                        _nextPos = hit.collider.GetComponentInParent<GroundBlock>();
+                    else
+                    {
+                        RandomMove();
+                        RandomMoveCount++;
+                    }
+                    break;
+            }
         }
-    }
+
+        private void RandomMove()
+        {
+            var maxNeighbourIndex = CurrentPos.Block.Neighbours.Count();
+            var randomIndex = Random.Range(0, maxNeighbourIndex);
+            _nextPos = EnvironmentManager.Instance.GroundBlockFromBlock(CurrentPos.Block.Neighbours[randomIndex]);
+        }
+    }   
 }

@@ -1,193 +1,115 @@
-using Assets.Dtos;
 using System;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Assets._Scripts.Utilities;
+using System.Collections.Generic;
+using Assets.Dtos;
+using NeuralNetwork.Implementations;
+using NeuralNetwork.Abstraction;
+using NeuralNetwork.Abstraction.Model;
 
 namespace mew
 {
     public abstract class BaseAnt : UnitBase
     {
+        protected List<Color> _colors = new List<Color> { Color.black, Color.red, Color.yellow, Color.blue, Color.magenta, Color.cyan, Color.green, Color.gray, Color.white };
+        // Events
         public Action<BaseAnt> Clicked;
 
-        private bool _initialyzed = false;
+        public UnitWrapper Unit { get; private set; }
 
-        protected Vector3 _position;
-        protected Vector3 _velocity;
-        protected Vector3 _desiredDirection;
+        // Positions
+        public GroundBlock CurrentPos { get; protected set; }
+        protected GroundBlock _nextPos;
 
+        //Managers
+        protected IBrainCalculator _brainComputer;
+        protected UnitScannerManager _scannerManager;
+
+        // Private fields
         private Transform _body;
         private Transform _head;
-        protected Transform _nest;
-        protected AntScannerManager _scannerManager;
 
-        private Transform PheromoneContainer;
+        protected bool _initialyzed = false;
+        protected int _age = 0;
 
-        protected int _dropPheroFrequency = 10;
-        protected float _dropPheroInterval;
-        protected float _dropPheroTimer;
+        // Public methods
+        public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
+        public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
+        public Unit GetNugetUnit => Unit.NugetUnit;
 
-        protected bool HasTarget => _target.Active && _target.Transform != null;
-        protected Target _target = new Target();
-        protected float _targetTreshold = 0.3f;
 
-        public float[] Probabilities => _scannerManager.ProbabilitiesGet;
-        public string[] PortionInfos => _scannerManager.PortionInfos;
-
-        public float steeringForceConstant = 10;
-
+        // Unity methods
         private void Awake()
         {
-            _position = transform.position;
-            _position.y = 1.25f;
             _body = transform.GetChild(0);
             _head = transform.GetChild(1);
 
-            _scannerManager = _head.GetComponentInChildren<AntScannerManager>();
-            
-
-            _dropPheroInterval = 1.0f / _dropPheroFrequency;
+            _scannerManager = GetComponentInChildren<UnitScannerManager>();
         }
 
-        void Start()
-        {
-            _nest = transform.parent;
-            _desiredDirection = BodyHeadAxis.normalized;
 
-            PheromoneContainer = transform.parent.parent.parent.GetChild(1);
+        // Abstract Methods
+        public abstract void CheckCollectableCollisions();
+
+        public abstract float GetUnitScore();
+
+        public abstract Dictionary<UnitStatististicsEnum, float> GetStatistics();
+
+        protected abstract HashSet<UnitStatististicsEnum> RequiredStatistics();
+
+        public abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
+
+
+        // Ant methods
+        protected void SetHeadColor(Color color)
+        {
+            _head.GetComponent<MeshRenderer>().material.color = color;
         }
 
-        void Update()
+        protected void SetBodyColor(Color color)
         {
-            if (_initialyzed == false)
-                return;
-
-            Move();
-            DropPheromone();
-
-            if (HasTarget == false)
-                return;
-
-            if (TargetDistance() < Stats.TargetDestroyTreshold)
-                OnTargetReach();
+            _body.GetComponent<MeshRenderer>().material.color = color;
         }
 
-        public override void Initialyze(ScriptableUnitBase.Stats stats)
-        {
-            base.Initialyze(stats);
 
+        // Override methods
+        public void Initialyze(ScriptableUnitBase.Stats stats, UnitWrapper unit, GroundBlock initalPosition)
+        {
+            Unit = unit;
+            Stats = stats;
+            CurrentPos = initalPosition;
+            _brainComputer = new BrainCalculator();
             _scannerManager.InitialyzeScanners();
-
+            SetHeadColor(_colors[0]);
+            SetBodyColor(_colors[0]);
             _initialyzed = true;
         }
 
-        /* Get axis from body to head.
-         In order to have that vector following the ant, one need to add ant position (so that position will always be the origin of the vector)*/
-        public Vector3 BodyHeadAxis => (_head.position - _body.position).normalized;
-
-        public float PhysicalLength => Vector3.Distance(_body.position, _head.position);
-
-
-        /* Set _desiredDirection in non abstract classes
-         Once _desiredDirection is set ant movement always end like that*/
+        // Virtual Methods
         public virtual void Move()
         {
-            var desiredVelocity = _desiredDirection * Stats.MaxSpeed;
-            var desiredSteeringForce = (desiredVelocity - _velocity) * Stats.SteerStrength;
+            _age++;
 
-            // get acceleration
-            var acceleration = Vector3.ClampMagnitude(desiredSteeringForce, Stats.SteerStrength);
-
-            var isHeadingForCollision = _scannerManager.IsHeadingForCollision();
-            if (isHeadingForCollision.isIt)
+            // _nextPos must be updated in inherited classes
+            if (_nextPos == null)
             {
-                var avoidForce = (isHeadingForCollision.avoidDir.normalized * Stats.MaxSpeed - _velocity) * Stats.SteerStrength;
-                avoidForce.y = 0;
-                acceleration += Vector3.ClampMagnitude(avoidForce, Stats.SteerStrength) * Stats.AvoidCollisionForce;
-            }
-
-            // calculate new velocity
-            var newVelocity = Vector3.ClampMagnitude(_velocity + acceleration * Time.deltaTime, Stats.MaxSpeed);
-
-            // calculate new position
-            var newPos = _position + newVelocity * Time.deltaTime;
-
-            // if ant ends in a obstacle, just rotate ant
-            switch (_scannerManager.IsMoveValid(_position, newPos))
-            {
-                case true:
-                    _position = newPos;
-                    _velocity = newVelocity;
-                    break;
-                case false:
-                    _velocity = Vector3.zero;
-                    break;
-            }
-
-            var rotation = Vector3.SignedAngle(BodyHeadAxis, newVelocity, Vector3.up);
-
-            // Apply it to the ant game object
-            transform.SetPositionAndRotation(_position, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
-        }
-
-        protected Vector3 GetRandomDirection(bool carryFood)
-        {
-            _scannerManager.CarryingFood = carryFood;
-
-            var randomNumber = Random.value;
-            var foundZone = false;
-            var sum = 0f;
-            var count = 0;
-
-            while(foundZone == false && count < Probabilities.Length)
-            {
-                sum += Probabilities[count];
-                if (randomNumber < sum)
-                    foundZone = true;
-
-                count++;
-            }
-
-            var deltaAngle = 360f / Stats.ScannerSubdivisions;
-            var startingAngle = -180f + (count - 1) * deltaAngle;
-
-            var randomAngle = startingAngle + Random.value * deltaAngle;
-            var randomNorm = Random.value;
-            return Quaternion.Euler(0, transform.rotation.eulerAngles.y + randomAngle, 0) * BodyHeadAxis * randomNorm;
-        }
-
-        public abstract void OnTargetReach();
-
-
-        internal virtual void DropPheromone()
-        {
-            _dropPheroTimer -= Time.deltaTime;
-            if (_dropPheroTimer > 0)
+                Debug.Log("Next pos null");
                 return;
+            }
 
-            _dropPheroTimer += _dropPheroInterval;
+            var rotation = Vector3.SignedAngle(BodyHeadAxis, _nextPos.Block.WorldPosition - CurrentPos.Block.WorldPosition, Vector3.up);
 
-            // Spawn pheromone
-            var scriptablePheromone = ResourceSystem.Instance.PheromoneOfTypeGet(GetPheroType());
-            var pheromone = Instantiate(scriptablePheromone.PheromonePrefab, _body.position, Quaternion.identity, PheromoneContainer);
-            pheromone.SetCaracteristics(scriptablePheromone.BaseCaracteristics);
+            CurrentPos = _nextPos;
+            transform.SetPositionAndRotation(CurrentPos.Block.WorldPosition + 2 * GlobalParameters.NodeRadius * Vector3.up, Quaternion.Euler(0, transform.rotation.eulerAngles.y + rotation, 0));
+
+            CheckCollectableCollisions();
         }
 
-
-        public float TargetDistance()
-        {
-            if (!HasTarget)
-                return float.MaxValue;
-
-            var distance = _target.Transform.position - _position;
-            return Mathf.Sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
-        }
-
+        // Events
         private void OnMouseDown()
         {
             Clicked?.Invoke(this);
             Debug.Log($"Mouse was clicked on {name}");
         }
-
-        protected abstract ScriptablePheromoneBase.PheromoneTypeEnum GetPheroType();
     }
 }
