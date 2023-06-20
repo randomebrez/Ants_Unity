@@ -2,7 +2,6 @@
 using Assets._Scripts.Utilities;
 using Assets.Abstractions;
 using Assets.Dtos;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NeuralNetwork.Abstraction.Model;
 using System;
 using System.Collections.Generic;
@@ -17,7 +16,7 @@ namespace Assets._Scripts.Managers
 
         public BrainBuilder() 
         {
-            _fileStorageGateway = new FileStorageGateway(GlobalParameters.SavedBrainsFolder, GlobalParameters.TemplateFileName, GlobalParameters.GraphTemplatesFileName);
+            _fileStorageGateway = new FileStorageGateway(GlobalParameters.SqlFolderPath, GlobalParameters.DbFileName);
         }
 
         // Ask to retrieve a TemplateGraph by its name
@@ -306,9 +305,9 @@ namespace Assets._Scripts.Managers
             // TpA : InputType1 : PortionTypeEnum.AllTypes
             // Without filter ==> PortionIndexes = _portions.Id.tolist
             // If used in a graph with for example a SingleVision GraphLink ==> PortionIndexes = filter (calculated in external method using a switch on GraphLink.Type)
-            foreach (var inputPortion in caracTemplate.InputsTypes.Where(t => t is UnityInput))
+            foreach (var inputPortion in caracTemplate.InputsTypes.Where(t => t.InputType == InputTypeEnum.Portion))
             {
-                var instanceInputPortion = InputPortionCopyAndSetIndexes(inputPortion as UnityInput, portionIndexes);
+                var instanceInputPortion = InputPortionCopyAndSetIndexes(inputPortion, portionIndexes);
                 result.InputPortions.Add(instanceInputPortion);
             };
 
@@ -391,6 +390,7 @@ namespace Assets._Scripts.Managers
 
             result.Name = "Splitted";
             result.DecisionBrain = GlobalParameters.SplittedDecisionBrain;
+            //result.DecisionBrain = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.SplittedDecisionBrain.Name);
             result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
             var genomeParameters = new GenomeParameters
@@ -398,25 +398,27 @@ namespace Assets._Scripts.Managers
                 NetworkCoverage = 80,
                 WeightBitNumber = 4
             };
-
+            
             var inputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
             var neutralLayersVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
             var outputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-
+            
             var inputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
             var neutralLayersNoVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
             var outputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-
+            
             var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls };
             var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC };
 
 
             var visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
             var noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
+            //var visionTp = _fileStorageGateway.TemplateCaracteristicsFetch("VisionTp");
+            //var noVisionTp = _fileStorageGateway.TemplateCaracteristicsFetch("NoVisionTp");
 
-            //_fileStorageGateway.TemplateCaracteristicStoreAsync(GlobalParameters.SplittedDecisionBrain).GetAwaiter().GetResult();
-            //_fileStorageGateway.TemplateCaracteristicStoreAsync(visionTp).GetAwaiter().GetResult();
-            //_fileStorageGateway.TemplateCaracteristicStoreAsync(noVisionTp).GetAwaiter().GetResult();
+            //_fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.SplittedDecisionBrain);
+            //_fileStorageGateway.TemplateCaracteristicStore(visionTp);
+            //_fileStorageGateway.TemplateCaracteristicStore(noVisionTp);
 
             result.Nodes.Add(visionTp.Name, visionTp);
             result.Nodes.Add(noVisionTp.Name, noVisionTp);
@@ -434,12 +436,13 @@ namespace Assets._Scripts.Managers
         {
             var result = new GraphTemplate
             {
-                Name = "BigBrain",
-                DecisionBrain = GlobalParameters.BigBrainDecisionBrain
+                Name = "BigBrain"
             };
-            result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
-            //_fileStorageGateway.TemplateCaracteristicStoreAsync(GlobalParameters.BigBrainDecisionBrain);
+            //_fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.BigBrainDecisionBrain);
+            result.DecisionBrain = GlobalParameters.BigBrainDecisionBrain;
+            //result.DecisionBrain = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.BigBrainDecisionBrain.Name);
+            result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
             //_fileStorageGateway.TemplateGraphStoreAsync(result);
             return result;
         }

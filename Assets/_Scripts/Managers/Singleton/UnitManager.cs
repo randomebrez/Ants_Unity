@@ -8,8 +8,6 @@ using System.Linq;
 using Assets.Gateways;
 using NeuralNetwork.Abstraction.Model;
 using Assets._Scripts.Managers;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using UnityEngine.UIElements;
 
 internal class UnitManager : BaseManager<UnitManager>
 {

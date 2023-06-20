@@ -69,7 +69,8 @@ namespace mew
 
             // Get brut object NeuralNetworkInputs (bool carryFood + List<Valeurs> sur chaque portion>)
             var allInputs = _scannerManager.GetInputs;
-
+            if (allInputs.PortionInputValues.Any(t => t.Value.PheroC != 0 || t.Value.PheroW != 0))
+                Debug.Log("oui");
             // Pour chaque template
             foreach (var template in Unit.InstanceGraph.UnityInputsUsingTemplates)
             {

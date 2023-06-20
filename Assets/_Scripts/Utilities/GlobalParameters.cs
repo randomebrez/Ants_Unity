@@ -14,7 +14,7 @@ namespace Assets._Scripts.Utilities
         public static int SpawnRandomFoodFreq = 10;
 
         // AntParameters
-        public static int ColonyMaxPopulation = 50;
+        public static int ColonyMaxPopulation = 5;
         public static float LifeTimeFrame = 200;
 
         public static int ScannerSubdivision = 6;
@@ -49,6 +49,7 @@ namespace Assets._Scripts.Utilities
         // Database
         public static int StoreFrequency = 20;
         public static string SqlFolderPath = @".\Database";
+        public static string DbFileName = "TestDb.db";
 
         // Saved brains
         public static string SavedBrainsFolder = @".\SavedBrains";

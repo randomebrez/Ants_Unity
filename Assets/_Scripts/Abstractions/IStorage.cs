@@ -1,16 +1,15 @@
 ﻿using Assets.Dtos;
-using System.Threading.Tasks;
 
 namespace Assets.Abstractions
 {
     public interface IStorage
     {
-        Task TemplateCaracteristicStoreAsync(BrainCaracteristicsTemplate template);
+        void TemplateCaracteristicStore(BrainCaracteristicsTemplate template);
 
-        Task<BrainCaracteristicsTemplate> TemplateCaracteristicsFetchAsync(string templateName);
+        BrainCaracteristicsTemplate TemplateCaracteristicsFetch(string templateName);
+        
+        void TemplateGraphStore(GraphTemplate graphTemplate);
 
-        Task TemplateGraphStoreAsync(GraphTemplate graphTemplate);
-
-        Task<GraphTemplate> GraphTemplateFetchAsync(string graphName);
+        GraphTemplate GraphTemplateFetch(string graphName);
     }
 }
