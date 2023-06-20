@@ -28,6 +28,9 @@ internal class UnitManager : BaseManager<UnitManager>
         _neuralNetworkGateway = new NeuralNetworkGateway();
         _brainGraphBuilder = new BrainBuilder();
         base.Awake();
+
+        // Needed to set scriptable parameters in case we don't get through parameter screen
+        AntScriptableStatisticsSet();
     }
 
     private void Update()
@@ -224,6 +227,11 @@ internal class UnitManager : BaseManager<UnitManager>
             result[i] = randomUnits[i - children.Length];
 
         return (result, randomUnitToGenerate);
+    }
+    private void AntScriptableStatisticsSet()
+    {
+        ResourceSystem.Instance.ModifyVisionRadius(ScriptableAntBase.AntTypeEnum.Worker, GlobalParameters.VisionRange);
+        ResourceSystem.Instance.ModifyVisionAngle(ScriptableAntBase.AntTypeEnum.Worker, GlobalParameters.VisionAngle);
     }
 
 
