@@ -387,62 +387,81 @@ namespace Assets._Scripts.Managers
         private GraphTemplate GenerateSplittedGraph()
         {
             var result = new GraphTemplate();
-
             result.Name = "Splitted";
-            result.DecisionBrain = GlobalParameters.SplittedDecisionBrain;
-            //result.DecisionBrain = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.SplittedDecisionBrain.Name);
+
+            var decisionBrain = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.SplittedDecisionBrain.Name);
+            if (decisionBrain == null)
+            {
+                _fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.SplittedDecisionBrain);
+                decisionBrain = GlobalParameters.SplittedDecisionBrain;
+            }
+            result.DecisionBrain = decisionBrain;
             result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
 
-            var genomeParameters = new GenomeParameters
+
+            var visionTp = _fileStorageGateway.TemplateCaracteristicsFetch("VisionTp");
+            if (visionTp == null)
             {
-                NetworkCoverage = 80,
-                WeightBitNumber = 4
-            };
-            
-            var inputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
-            var neutralLayersVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
-            var outputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-            
-            var inputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
-            var neutralLayersNoVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
-            var outputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-            
-            var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls };
-            var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC };
+                var genomeParameters = new GenomeParameters
+                {
+                    NetworkCoverage = 80,
+                    WeightBitNumber = 4
+                };
+                var inputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
+                var neutralLayersVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
+                var outputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
+                var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls };
 
-
-            var visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
-            var noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
-            //var visionTp = _fileStorageGateway.TemplateCaracteristicsFetch("VisionTp");
-            //var noVisionTp = _fileStorageGateway.TemplateCaracteristicsFetch("NoVisionTp");
-
-            //_fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.SplittedDecisionBrain);
-            //_fileStorageGateway.TemplateCaracteristicStore(visionTp);
-            //_fileStorageGateway.TemplateCaracteristicStore(noVisionTp);
-
+                visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
+                _fileStorageGateway.TemplateCaracteristicStore(visionTp);
+            }
             result.Nodes.Add(visionTp.Name, visionTp);
+
+
+            var noVisionTp = _fileStorageGateway.TemplateCaracteristicsFetch("NoVisionTp");
+            if (noVisionTp == null)
+            {
+                var genomeParameters = new GenomeParameters
+                {
+                    NetworkCoverage = 80,
+                    WeightBitNumber = 4
+                };
+                var inputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
+                var neutralLayersNoVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
+                var outputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
+                var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC };
+
+                noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
+                _fileStorageGateway.TemplateCaracteristicStore(noVisionTp);
+            }
             result.Nodes.Add(noVisionTp.Name, noVisionTp);
+
 
             var linkVision = TemplateGraphLinkGet(result.DecisionBrain, visionTp, GraphLinkTypeEnum.SingleVisionPortions);
             var linkNoVision = TemplateGraphLinkGet(result.DecisionBrain, noVisionTp, GraphLinkTypeEnum.SingleNoVisionPortions);
-
             result.Edges.Add(result.DecisionBrain.Name, new List<GraphLink> { linkVision, linkNoVision });
-
-            //_fileStorageGateway.TemplateGraphStoreAsync(result).GetAwaiter().GetResult();
+            
+            
             return result;
+            //_fileStorageGateway.TemplateGraphStoreAsync(result).GetAwaiter().GetResult();
         }
 
         private GraphTemplate GenerateBigBrainGraph()
         {
+            var brainCarac = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.BigBrainDecisionBrain.Name);
+            if (brainCarac == null)
+            {
+                _fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.BigBrainDecisionBrain);
+                brainCarac = GlobalParameters.BigBrainDecisionBrain;
+            }
+
             var result = new GraphTemplate
             {
-                Name = "BigBrain"
+                Name = "BigBrain",
+                DecisionBrain = brainCarac
             };
-
-            //_fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.BigBrainDecisionBrain);
-            result.DecisionBrain = GlobalParameters.BigBrainDecisionBrain;
-            //result.DecisionBrain = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.BigBrainDecisionBrain.Name);
             result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
+
             //_fileStorageGateway.TemplateGraphStoreAsync(result);
             return result;
         }
