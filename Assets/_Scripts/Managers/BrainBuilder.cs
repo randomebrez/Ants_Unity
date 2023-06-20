@@ -16,7 +16,7 @@ namespace Assets._Scripts.Managers
 
         public BrainBuilder() 
         {
-            _fileStorageGateway = new FileStorageGateway(GlobalParameters.SqlFolderPath, GlobalParameters.DbFileName);
+            _fileStorageGateway = new DatabaseGateway(GlobalParameters.SqlFolderPath, GlobalParameters.DbFileName);
         }
 
         // Ask to retrieve a TemplateGraph by its name

@@ -1,21 +1,18 @@
-﻿using Assets._Scripts.Utilities;
-using Assets.Abstractions;
+﻿using Assets.Abstractions;
 using Assets.Dtos;
 using Mono.Data.Sqlite;
 using Newtonsoft.Json;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Assets._Scripts.Gateways
 {
-    public class FileStorageGateway : IStorage
+    public class DatabaseGateway : IStorage
     {
-
         private string _dbConnexionString;
 
-        public FileStorageGateway(string sqlFolderPath, string dbFileName) 
+        public DatabaseGateway(string sqlFolderPath, string dbFileName) 
         {
             _dbConnexionString = $"URI=file:{sqlFolderPath}\\{dbFileName}";
 

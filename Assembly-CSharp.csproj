@@ -77,7 +77,7 @@
     <Compile Include="Assets\_Scripts\Scriptable\ScriptablePheromoneBase.cs" />
     <Compile Include="Assets\_Scripts\Utilities\StaticHelper.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitPortionInputValues.cs" />
-    <Compile Include="Assets\_Scripts\Gateways\FileStorageGateway.cs" />
+    <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\SimulationParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\PortionTypeEnum.cs" />
