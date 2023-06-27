@@ -197,8 +197,8 @@ namespace Assets._Scripts.Gateways
         private string BrainTemplateToSql(BrainTemplateDb templateDb)
         {
             var result = new StringBuilder();
-            result.Append($"'{templateDb.Name}', ");
-            result.Append($"'{templateDb.SerialyzedValue}'");
+            result.Append($"\'{templateDb.Name}\', ");
+            result.Append($"\'{templateDb.SerialyzedValue}\'");
             return result.ToString();
         }
         private BrainTemplateDb BrainTemplateFromSql(IDataReader reader)
@@ -216,7 +216,8 @@ namespace Assets._Scripts.Gateways
         private string GraphTemplateToSql(GraphTemplateDb graphTemplateDb)
         {
             var result = new StringBuilder();
-            result.Append($"'{graphTemplateDb.Name}'");
+            result.Append($"\'{graphTemplateDb.Name}\', ");
+            result.Append($"'{graphTemplateDb.DecisionBrainTemplateId}'");
             return result.ToString();
         }
         private GraphTemplateDb GraphTemplateFromSql(IDataReader reader)
@@ -224,7 +225,8 @@ namespace Assets._Scripts.Gateways
             return new GraphTemplateDb
             {
                 Id = int.Parse(reader["id"].ToString()),
-                Name = reader["name"].ToString()
+                Name = reader["name"].ToString(),
+                DecisionBrainTemplateId = int.Parse(reader["decision_template_id"].ToString())
             };
         }
 
@@ -232,9 +234,9 @@ namespace Assets._Scripts.Gateways
         private string GraphLinkToSql(GraphLinkDb graphLink)
         {
             var result = new StringBuilder();
-            result.Append($"'{graphLink.GraphId}', ");
-            result.Append($"'{graphLink.OriginId}', ");
-            result.Append($"'{graphLink.TargetId}'");
+            result.Append($"\'{graphLink.GraphId}\', ");
+            result.Append($"\'{graphLink.OriginId}\', ");
+            result.Append($"\'{graphLink.TargetId}\'");
             return result.ToString();
         }
         private GraphLinkDb GraphLinkFromSql(IDataReader reader)

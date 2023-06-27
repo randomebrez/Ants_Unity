@@ -57,7 +57,6 @@
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\TrashTemp.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnitStatististicsEnum.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\WorkerAnt.cs" />
