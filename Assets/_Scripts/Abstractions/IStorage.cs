@@ -1,15 +1,19 @@
-﻿using Assets.Dtos;
+﻿using Assets.Dtos.Database;
+using System.Collections.Generic;
 
 namespace Assets.Abstractions
 {
     public interface IStorage
     {
-        void TemplateCaracteristicStore(BrainCaracteristicsTemplate template);
+        void TemplateCaracteristicStore(BrainTemplateDb template);
+        BrainTemplateDb TemplateCaracteristicsFetchByName(string templateName);
+        public BrainTemplateDb TemplateCaracteristicsFetchById(int templateId);
+        List<BrainTemplateDb> TemplateCaracteristicsListFetchById(List<int> templateIds);
 
-        BrainCaracteristicsTemplate TemplateCaracteristicsFetch(string templateName);
-        
-        void TemplateGraphStore(GraphTemplate graphTemplate);
+        void GraphTemplateStore(GraphTemplateDb graphTemplate);
+        GraphTemplateDb GraphTemplateFetch(string graphName);
 
-        GraphTemplate GraphTemplateFetch(string graphName);
+        public List<GraphLinkDb> GraphLinksFetch(int graphId);
+        public void GraphLinksStore(List<GraphLinkDb> links);
     }
 }

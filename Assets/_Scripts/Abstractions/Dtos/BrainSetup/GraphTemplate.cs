@@ -10,6 +10,7 @@ namespace Assets.Dtos
             Edges = new Dictionary<string, List<GraphLink>>();
         }
 
+        public int DbId { get; set; }
         public string Name { get; set; }
 
         public BrainCaracteristicsTemplate DecisionBrain { get; set; }

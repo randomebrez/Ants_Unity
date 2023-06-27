@@ -11,6 +11,8 @@ namespace Assets.Dtos
             NeutralLayers = new List<LayerCaracteristics>();
         }
 
+        public int DbId { get; set; }
+
         public string Name { get; set; }
 
         public bool IsDecisionBrain { get; set; }

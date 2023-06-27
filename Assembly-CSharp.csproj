@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{7C9635DD-60D3-BDDA-0401-AF4508BF87E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -56,6 +57,7 @@
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\TrashTemp.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnitStatististicsEnum.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\ParametersMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\WorkerAnt.cs" />
@@ -80,6 +82,7 @@
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\SimulationParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Database\GraphTemplateDb.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\PortionTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Pheromone.cs" />
     <Compile Include="Assets\_Scripts\System\ResourceSystem.cs" />
@@ -98,6 +101,7 @@
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphTemplate.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainCaracteristicsTemplate.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
+    <Compile Include="Assets\_Scripts\Utilities\DbMapper.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\PauseMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\SpawnerAnt.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainCaracteristicInstance.cs" />
@@ -112,11 +116,14 @@
     <Compile Include="Assets\_Scripts\UI\Menus\MainMenu.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\IStorage.cs" />
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBase.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Database\BrainTemplateDb.cs" />
     <Compile Include="Assets\_Scripts\Managers\UI\InitialScreenManager.cs" />
     <Compile Include="Assets\_Scripts\Managers\BrainBuilder.cs" />
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerObstacles.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\AxisIndexes.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\SimulationParametersEnum.cs" />
+    <Compile Include="Assets\_Scripts\Managers\Singleton\DatabaseManager.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Database\GraphLinkDb.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\InputTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\SceneManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />

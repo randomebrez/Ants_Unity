@@ -1,6 +1,4 @@
-﻿using Assets._Scripts.Gateways;
-using Assets._Scripts.Utilities;
-using Assets.Abstractions;
+﻿using Assets._Scripts.Utilities;
 using Assets.Dtos;
 using NeuralNetwork.Abstraction.Model;
 using System;
@@ -12,38 +10,16 @@ namespace Assets._Scripts.Managers
     public class BrainBuilder
     {
         private List<UnitPortionCaracteristics> _portions = new List<UnitPortionCaracteristics>();
-        private IStorage _fileStorageGateway;
-
-        public BrainBuilder() 
-        {
-            _fileStorageGateway = new DatabaseGateway(GlobalParameters.SqlFolderPath, GlobalParameters.DbFileName);
-        }
 
         // Ask to retrieve a TemplateGraph by its name
         public GraphInstance UserSelectionInstanceGraphGet(string templateGraphName)
         {
             // Retrieve the TemplateGraph from DataSource
-            var templateGraph = TemplateGraphGetFromDataSource(templateGraphName);
+            var templateGraph = DatabaseManager.Instance.TemplateGraphFetchByName(templateGraphName);
             // Map it to an InstanceGraph
             var result = InstanceGraphGet(templateGraph);
             return result;
         }
-
-        // Get the TemplateGraph from the dataSource by its name
-        private GraphTemplate TemplateGraphGetFromDataSource(string templateGraphName)
-        {
-            //var graph = _fileStorageGateway.GraphTemplateFetchAsync(templateGraphName).GetAwaiter().GetResult();
-            //return graph;
-            if (templateGraphName == "Splitted")
-            {
-                return GenerateSplittedGraph();
-            }
-            else if (templateGraphName == "BigBrain")
-                return GenerateBigBrainGraph();
-            
-            return new GraphTemplate();
-        }
-
 
         // Transform a TemplateGraph in a InstanceGraph using simulation parameters
         private GraphInstance InstanceGraphGet(GraphTemplate templateGraph)
@@ -89,84 +65,6 @@ namespace Assets._Scripts.Managers
                 carac.PrettyName = $"{carac.Template.Name}_{templateUseCounter[carac.Template.Name]}";
                 // increment use of that template
                 templateUseCounter[carac.Template.Name] += 1;
-            }
-
-            return result;
-        }
-
-
-
-        // Objective here is to build all CaracteristicInstance, given a link in a TemplateGraph.
-        // There can be many to build for a single link only if portion are required
-        // Link contains information about ScannerPortion that generated brains should use.
-        // Ex :
-        // 1. If we have a link with SingleVisionPortion info => create one CaracteristicInstance for each VisionPortion
-        // 2. If we have a link with VisionPortion info => create one CaracteristicInstance using inputs from all VisionPortions
-        private List<BrainCaracteristicsInstance> EdgeOriginCaracteristicInstancesBuild(GraphLink link)
-        {
-            var result = new List<BrainCaracteristicsInstance>();
-
-            var visionPortions = _portions.Where(t => t.IntersectVisionRange);
-            var noVisionPortions = _portions.Where(t => t.IntersectVisionRange == false);
-
-            switch (link.LinkTypeEnum)
-            {
-                case GraphLinkTypeEnum.Default:
-                    result.Add(BrainCaracteristicBuild(link.Origin, null));
-                    break;
-                case GraphLinkTypeEnum.AllPortions:
-                    result.Add(BrainCaracteristicBuild(link.Origin, _portions.Select(t => t.Id).ToList()));
-                    break;
-                case GraphLinkTypeEnum.VisionPortions:
-                    result.Add(BrainCaracteristicBuild(link.Origin, visionPortions.Select(t => t.Id).ToList()));
-                    break;
-                case GraphLinkTypeEnum.NoVisionPortions:
-                    result.Add(BrainCaracteristicBuild(link.Origin, noVisionPortions.Select(t => t.Id).ToList()));
-                    break;
-                case GraphLinkTypeEnum.SingleAllPortions:
-                    foreach (var portion in _portions)
-                        result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
-                    break;
-                case GraphLinkTypeEnum.SingleVisionPortions:
-                    foreach (var portion in visionPortions)
-                        result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
-                    break;
-                case GraphLinkTypeEnum.SingleNoVisionPortions:
-                    foreach (var portion in noVisionPortions)
-                        result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
-                    break;
-            }
-
-            return result;
-        }
-
-        
-        // Return the list of portions of a unit
-        // Portion is a couple (minAngle, MaxAngle) with Id and a boolean that is equal to 'true' if the portion intersects the unit VisionField
-        private List<UnitPortionCaracteristics> TypePortionIndexesGet(int portionNumber, float visionAngle)
-        {
-            var result = new List<UnitPortionCaracteristics>();
-
-            var deltaTheta = 360f / portionNumber;
-            var currentMin = -180 - deltaTheta / 2f;
-            var minVisionAngle = -visionAngle / 2f;
-            var maxVisionAngle = visionAngle / 2f;
-
-            for(int i = 0; i < portionNumber; i++)
-            {
-                var currentMax = currentMin + deltaTheta;
-                var inVisionField = (currentMax > minVisionAngle) && (currentMin < maxVisionAngle);
-
-                var portion = new UnitPortionCaracteristics
-                {
-                    MinAngle = currentMin,
-                    MaxAngle = currentMax,
-                    PrettyName = $"{i}",
-                    Id = i,
-                    IntersectVisionRange = inVisionField
-                };
-                result.Add(portion);
-                currentMin = currentMax;
             }
 
             return result;
@@ -235,7 +133,58 @@ namespace Assets._Scripts.Managers
             return result;
         }
 
-        
+        // Objective here is to build all CaracteristicInstance, given a link in a TemplateGraph.
+        // There can be many to build for a single link only if portion are required
+        // Link contains information about ScannerPortion that generated brains should use.
+        // Ex :
+        // 1. If we have a link with SingleVisionPortion info => create one CaracteristicInstance for each VisionPortion
+        // 2. If we have a link with VisionPortion info => create one CaracteristicInstance using inputs from all VisionPortions
+        private List<BrainCaracteristicsInstance> EdgeOriginCaracteristicInstancesBuild(GraphLink link)
+        {
+            var result = new List<BrainCaracteristicsInstance>();
+
+            var visionPortions = _portions.Where(t => t.IntersectVisionRange);
+            var noVisionPortions = _portions.Where(t => t.IntersectVisionRange == false);
+
+            switch (link.LinkTypeEnum)
+            {
+                case GraphLinkTypeEnum.Default:
+                    result.Add(BrainCaracteristicBuild(link.Origin, null));
+                    break;
+                case GraphLinkTypeEnum.AllPortions:
+                    result.Add(BrainCaracteristicBuild(link.Origin, _portions.Select(t => t.Id).ToList()));
+                    break;
+                case GraphLinkTypeEnum.VisionPortions:
+                    result.Add(BrainCaracteristicBuild(link.Origin, visionPortions.Select(t => t.Id).ToList()));
+                    break;
+                case GraphLinkTypeEnum.NoVisionPortions:
+                    result.Add(BrainCaracteristicBuild(link.Origin, noVisionPortions.Select(t => t.Id).ToList()));
+                    break;
+                case GraphLinkTypeEnum.SingleAllPortions:
+                    foreach (var portion in _portions)
+                        result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
+                    break;
+                case GraphLinkTypeEnum.SingleVisionPortions:
+                    foreach (var portion in visionPortions)
+                        result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
+                    break;
+                case GraphLinkTypeEnum.SingleNoVisionPortions:
+                    foreach (var portion in noVisionPortions)
+                        result.Add(BrainCaracteristicBuild(link.Origin, new List<int> { portion.Id }));
+                    break;
+            }
+
+            return result;
+        }
+
+
+
+
+
+
+
+
+
         // Count CaracteristicInstance input number
         // Requires the InstanceGraph to be set for 'BrainOutput' input type
         private int GetInputNumber(GraphInstance graph, BrainCaracteristicsInstance caracteristics)
@@ -255,6 +204,37 @@ namespace Assets._Scripts.Managers
             return result;
         }
 
+
+        // Return the list of portions of a unit
+        // Portion is a couple (minAngle, MaxAngle) with Id and a boolean that is equal to 'true' if the portion intersects the unit VisionField
+        private List<UnitPortionCaracteristics> TypePortionIndexesGet(int portionNumber, float visionAngle)
+        {
+            var result = new List<UnitPortionCaracteristics>();
+
+            var deltaTheta = 360f / portionNumber;
+            var currentMin = -180 - deltaTheta / 2f;
+            var minVisionAngle = -visionAngle / 2f;
+            var maxVisionAngle = visionAngle / 2f;
+
+            for (int i = 0; i < portionNumber; i++)
+            {
+                var currentMax = currentMin + deltaTheta;
+                var inVisionField = (currentMax > minVisionAngle) && (currentMin < maxVisionAngle);
+
+                var portion = new UnitPortionCaracteristics
+                {
+                    MinAngle = currentMin,
+                    MaxAngle = currentMax,
+                    PrettyName = $"{i}",
+                    Id = i,
+                    IntersectVisionRange = inVisionField
+                };
+                result.Add(portion);
+                currentMin = currentMax;
+            }
+
+            return result;
+        }
         private UnityInput InputPortionCopyAndSetIndexes(UnityInput portion, List<int> indexes = null)
         {
             var visionPortions = _portions.Where(t => t.IntersectVisionRange);
@@ -322,147 +302,6 @@ namespace Assets._Scripts.Managers
             foreach (var node in instanceNodes)
                 result.Add(node.UniqueName, node);
 
-            return result;
-        }
-
-
-
-        private BrainCaracteristicsTemplate TemplateCaracteristicsBuild(string name, List<UnityInputTypeEnum> portionInputs, int maxPortionIndex, LayerCaracteristics inputLayer, List<LayerCaracteristics> neutralLayers, LayerCaracteristics outputLayer, GenomeParameters genomeParameters, bool isDecisionBrain = false)
-        {
-            var result = new BrainCaracteristicsTemplate
-            {
-                Name = name,
-                InputLayer = inputLayer,
-                NeutralLayers = neutralLayers,
-                OutputLayer = outputLayer,
-                GenomeCaracteristics = genomeParameters,
-                IsDecisionBrain = isDecisionBrain
-            };
-
-            var portionInputObj = new UnityInput(InputTypeEnum.Portion, maxPortionIndex);
-            foreach(var portionInputType in portionInputs)
-            {
-                switch(portionInputType)
-                {
-                    case UnityInputTypeEnum.PheromoneW:
-                    case UnityInputTypeEnum.PheromoneC:
-                    case UnityInputTypeEnum.Nest:
-                    case UnityInputTypeEnum.Food:
-                    case UnityInputTypeEnum.Walls:
-                        portionInputObj.UnityInputTypes.Add(portionInputType);
-                        break;
-                    case UnityInputTypeEnum.CarryFood:
-                        result.InputsTypes.Add(new UnityInput(InputTypeEnum.CarryFood));
-                        break;
-                }
-            }
-            if (portionInputObj.UnityInputTypes.Any())
-                result.InputsTypes.Add(portionInputObj);
-
-            result.NeedUnityInpus = portionInputs.Any();
-
-            return result;
-        }
-
-        private LayerCaracteristics LayerCaracteristicsGet(LayerTypeEnum layerType, int layerId, int neuronNumber = 0, ActivationFunctionEnum activationFunction = ActivationFunctionEnum.Identity, float caracteristicValue = 0f)
-        {
-            return new LayerCaracteristics(layerId, layerType)
-            {
-                NeuronNumber = neuronNumber,
-                ActivationFunction = activationFunction,
-                ActivationFunction90PercentTreshold = caracteristicValue
-            };
-        }
-
-        private GraphLink TemplateGraphLinkGet(BrainCaracteristicsTemplate target, BrainCaracteristicsTemplate origin, GraphLinkTypeEnum linkType)
-        {
-            return new GraphLink
-            {
-                Target = target,
-                Origin = origin,
-                LinkTypeEnum = linkType
-            };
-        }
-
-        private GraphTemplate GenerateSplittedGraph()
-        {
-            var result = new GraphTemplate();
-            result.Name = "Splitted";
-
-            var decisionBrain = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.SplittedDecisionBrain.Name);
-            if (decisionBrain == null)
-            {
-                _fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.SplittedDecisionBrain);
-                decisionBrain = GlobalParameters.SplittedDecisionBrain;
-            }
-            result.DecisionBrain = decisionBrain;
-            result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
-
-
-            var visionTp = _fileStorageGateway.TemplateCaracteristicsFetch("VisionTp");
-            if (visionTp == null)
-            {
-                var genomeParameters = new GenomeParameters
-                {
-                    NetworkCoverage = 80,
-                    WeightBitNumber = 4
-                };
-                var inputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
-                var neutralLayersVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
-                var outputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-                var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls };
-
-                visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
-                _fileStorageGateway.TemplateCaracteristicStore(visionTp);
-            }
-            result.Nodes.Add(visionTp.Name, visionTp);
-
-
-            var noVisionTp = _fileStorageGateway.TemplateCaracteristicsFetch("NoVisionTp");
-            if (noVisionTp == null)
-            {
-                var genomeParameters = new GenomeParameters
-                {
-                    NetworkCoverage = 80,
-                    WeightBitNumber = 4
-                };
-                var inputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
-                var neutralLayersNoVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
-                var outputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-                var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC };
-
-                noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
-                _fileStorageGateway.TemplateCaracteristicStore(noVisionTp);
-            }
-            result.Nodes.Add(noVisionTp.Name, noVisionTp);
-
-
-            var linkVision = TemplateGraphLinkGet(result.DecisionBrain, visionTp, GraphLinkTypeEnum.SingleVisionPortions);
-            var linkNoVision = TemplateGraphLinkGet(result.DecisionBrain, noVisionTp, GraphLinkTypeEnum.SingleNoVisionPortions);
-            result.Edges.Add(result.DecisionBrain.Name, new List<GraphLink> { linkVision, linkNoVision });
-            
-            
-            return result;
-            //_fileStorageGateway.TemplateGraphStoreAsync(result).GetAwaiter().GetResult();
-        }
-
-        private GraphTemplate GenerateBigBrainGraph()
-        {
-            var brainCarac = _fileStorageGateway.TemplateCaracteristicsFetch(GlobalParameters.BigBrainDecisionBrain.Name);
-            if (brainCarac == null)
-            {
-                _fileStorageGateway.TemplateCaracteristicStore(GlobalParameters.BigBrainDecisionBrain);
-                brainCarac = GlobalParameters.BigBrainDecisionBrain;
-            }
-
-            var result = new GraphTemplate
-            {
-                Name = "BigBrain",
-                DecisionBrain = brainCarac
-            };
-            result.Nodes.Add(result.DecisionBrain.Name, result.DecisionBrain);
-
-            //_fileStorageGateway.TemplateGraphStoreAsync(result);
             return result;
         }
     }
