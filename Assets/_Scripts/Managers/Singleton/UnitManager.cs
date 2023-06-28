@@ -26,11 +26,15 @@ internal class UnitManager : BaseManager<UnitManager>
     protected override void Awake()
     {
         _neuralNetworkGateway = new NeuralNetworkGateway();
-        _brainGraphBuilder = new BrainBuilder();
         base.Awake();
 
         // Needed to set scriptable parameters in case we don't get through parameter screen
         AntScriptableStatisticsSet();
+    }
+
+    protected void Start()
+    {
+        _brainGraphBuilder = new BrainBuilder();
     }
 
     private void Update()

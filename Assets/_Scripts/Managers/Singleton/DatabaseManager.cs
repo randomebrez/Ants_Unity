@@ -8,11 +8,12 @@ using System.Linq;
 
 internal class DatabaseManager : BaseManager<DatabaseManager>
 {
-    private readonly IStorage _databaseGateway;
+    private IStorage _databaseGateway;
 
-    public DatabaseManager()
+    protected override void Awake()
     {
         _databaseGateway = new DatabaseGateway(GlobalParameters.SqlFolderPath, GlobalParameters.DbFileName);
+        base.Awake();
     }
 
     public void TemplateGraphStore(GraphTemplate graph)
@@ -24,13 +25,12 @@ internal class DatabaseManager : BaseManager<DatabaseManager>
         var dbGraph = _databaseGateway.GraphTemplateFetch(graph.Name);
 
         // Fetch Template Ids
-        var templateDbIds = graph.Nodes.Values.Select(t => t.DbId).ToList();
-        var dbTemplates = _databaseGateway.TemplateCaracteristicsListFetchById(templateDbIds).ToDictionary(t => t.Name, t => t.Id);
+        var templateDbIds = graph.Nodes.Values.ToDictionary(t => t.Name, t => t.DbId);
 
         // Map GrapLinks to GraphLinksDb
         var linksDb = new List<GraphLinkDb>();
         foreach (var linkList in graph.Edges.Values)
-            linksDb.AddRange(DbMapper.ToDb(dbGraph.Id, linkList.ToList(), dbTemplates));
+            linksDb.AddRange(DbMapper.ToDb(dbGraph.Id, linkList, templateDbIds));
 
         // Store links
         _databaseGateway.GraphLinksStore(linksDb);
@@ -39,12 +39,14 @@ internal class DatabaseManager : BaseManager<DatabaseManager>
     {
         // Get graph obj
         var dbGraph = _databaseGateway.GraphTemplateFetch(graphName);
+        if (dbGraph == null)
+            return null;
 
         // Get all links
         var dbLinks = _databaseGateway.GraphLinksFetch(dbGraph.Id);
 
         // For each link fetch template
-        var distinctTemplateIds = new List<int>();
+        var distinctTemplateIds = new List<int> { dbGraph.DecisionBrainTemplateId };
         foreach (var link in dbLinks)
         {
             if (distinctTemplateIds.Contains(link.TargetId) == false)
@@ -64,17 +66,20 @@ internal class DatabaseManager : BaseManager<DatabaseManager>
     }
     public BrainCaracteristicsTemplate BrainTemplateFetch(int? id = null, string name = null)
     {
+        BrainCaracteristicsTemplate result = null;
         if (id != null)
         {
             var dbTemplate = _databaseGateway.TemplateCaracteristicsFetchById(id.Value);
-            return DbMapper.ToUnity(dbTemplate);
+            if (dbTemplate != null)
+                result = DbMapper.ToUnity(dbTemplate);
         }
         else if (string.IsNullOrEmpty(name) == false)
         {
             var dbTemplate = _databaseGateway.TemplateCaracteristicsFetchByName(name);
-            return DbMapper.ToUnity(dbTemplate);
+            if (dbTemplate != null)
+                result = DbMapper.ToUnity(dbTemplate);
         }
 
-        throw new System.Exception("Template could not be found with those filter. Id :{id} - Name : {name}");
+        return result;
     }
 }

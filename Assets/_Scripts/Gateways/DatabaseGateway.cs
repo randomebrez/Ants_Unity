@@ -2,7 +2,6 @@
 using Assets.Abstractions;
 using Mono.Data.Sqlite;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Text;
 using System.Linq;
@@ -44,9 +43,9 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from CaracteristicsTemplate where name = \"{templateName}\";";
+                    command.CommandText = $"Select * from CaracteristicsTemplate where name = \'{templateName}\';";
             
-                    using (IDataReader reader = command.ExecuteReader())
+                    using (var reader = command.ExecuteReader())
                     {
                         result = BrainTemplateFromSql(reader);
                     }
@@ -65,9 +64,9 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from CaracteristicsTemplate where id = \"{templateId}\";";
+                    command.CommandText = $"Select * from CaracteristicsTemplate where id = {templateId};";
 
-                    using (IDataReader reader = command.ExecuteReader())
+                    using (var reader = command.ExecuteReader())
                     {
                         result = BrainTemplateFromSql(reader);
                     }
@@ -82,8 +81,8 @@ namespace Assets._Scripts.Gateways
             var result = new List<BrainTemplateDb>();
             var sqlFilter = new StringBuilder();
             for (int i = 0; i < templateIds.Count - 1; i++)
-                sqlFilter.Append($"\'{templateIds[i]}\',");
-            sqlFilter.Append($"\'{templateIds[^1]}\'");
+                sqlFilter.Append($"{templateIds[i]}, ");
+            sqlFilter.Append($"{templateIds[^1]}");
             using (var connection = new SqliteConnection(_dbConnexionString))
             {
                 connection.Open();
@@ -91,10 +90,10 @@ namespace Assets._Scripts.Gateways
                 {
                     command.CommandText = $"Select * from CaracteristicsTemplate where id in ({sqlFilter});";
 
-                    using (IDataReader reader = command.ExecuteReader())
+                    using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
-                            result.Append(BrainTemplateFromSql(reader));
+                            result.Add(BrainTemplateFromSql(reader));
                     }
                 }
                 connection.Close();
@@ -111,7 +110,7 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"insert into TemplateGraph (name) values ({GraphTemplateToSql(graphTemplate)});";
+                    command.CommandText = $"insert into TemplateGraph (name, decision_template_id) values ({GraphTemplateToSql(graphTemplate)});";
                     command.ExecuteReader();
                 }
 
@@ -127,9 +126,9 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from TemplateGraph where name = \"{graphName}\";";
+                    command.CommandText = $"Select * from TemplateGraph where name = \'{graphName}\';";
 
-                    using (IDataReader reader = command.ExecuteReader())
+                    using (var reader = command.ExecuteReader())
                     {
                         result = GraphTemplateFromSql(reader);
                     }
@@ -144,16 +143,16 @@ namespace Assets._Scripts.Gateways
         public void GraphLinksStore(List<GraphLinkDb> links)
         {
             var sqlRequestValues = new StringBuilder();
-            for (int i = 0; i < links.Count - 1; i++)
-                sqlRequestValues.Append($"({GraphLinkToSql(links[i])}),");
-            sqlRequestValues.Append($"({GraphLinkToSql(links[^1])})");
+            var sqlBase = "insert into TemplateGraphLink (graph_id, origin_template_id, target_template_id, link_type) values";
+            for (int i = 0; i < links.Count; i++)
+                sqlRequestValues.AppendLine($"{sqlBase} ({GraphLinkToSql(links[i])});");
 
             using (var connection = new SqliteConnection(_dbConnexionString))
             {
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"insert into TemplateGraphLink (graph_id, template_origin_id, template_target_id) values {sqlRequestValues};";
+                    command.CommandText = sqlRequestValues.ToString();
                     command.ExecuteReader();
                 }
 
@@ -169,11 +168,14 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from TemplateGraphLink where template_graph_id = \"{graphId}\";";
+                    command.CommandText = $"Select * from TemplateGraphLink where graph_id = {graphId};";
 
-                    using (IDataReader reader = command.ExecuteReader())
+                    using (var reader = command.ExecuteReader())
                     {
-                        result.Add(GraphLinkFromSql(reader));
+                        while(reader.Read())
+                        {
+                            result.Add(GraphLinkFromSql(reader));
+                        }
                     }
                 }
                 connection.Close();
@@ -201,8 +203,11 @@ namespace Assets._Scripts.Gateways
             result.Append($"\'{templateDb.SerialyzedValue}\'");
             return result.ToString();
         }
-        private BrainTemplateDb BrainTemplateFromSql(IDataReader reader)
+        private BrainTemplateDb BrainTemplateFromSql(SqliteDataReader reader)
         {
+            if (reader.HasRows == false)
+                return null;
+
             var templateDb = new BrainTemplateDb
             {
                 Id = int.Parse(reader["id"].ToString()),
@@ -217,11 +222,14 @@ namespace Assets._Scripts.Gateways
         {
             var result = new StringBuilder();
             result.Append($"\'{graphTemplateDb.Name}\', ");
-            result.Append($"'{graphTemplateDb.DecisionBrainTemplateId}'");
+            result.Append($"{graphTemplateDb.DecisionBrainTemplateId}");
             return result.ToString();
         }
-        private GraphTemplateDb GraphTemplateFromSql(IDataReader reader)
+        private GraphTemplateDb GraphTemplateFromSql(SqliteDataReader reader)
         {
+            if (reader.HasRows == false)
+                return null;
+
             return new GraphTemplateDb
             {
                 Id = int.Parse(reader["id"].ToString()),
@@ -234,18 +242,24 @@ namespace Assets._Scripts.Gateways
         private string GraphLinkToSql(GraphLinkDb graphLink)
         {
             var result = new StringBuilder();
-            result.Append($"\'{graphLink.GraphId}\', ");
-            result.Append($"\'{graphLink.OriginId}\', ");
-            result.Append($"\'{graphLink.TargetId}\'");
+            result.Append($"{graphLink.GraphId}, ");
+            result.Append($"{graphLink.OriginId}, ");
+            result.Append($"{graphLink.TargetId}, ");
+            result.Append($"\'{graphLink.LinkType}\'");
             return result.ToString();
         }
-        private GraphLinkDb GraphLinkFromSql(IDataReader reader)
+        private GraphLinkDb GraphLinkFromSql(SqliteDataReader reader)
         {
+            if (reader.HasRows == false)
+                return null;
+
             var caracTemplate = new GraphLinkDb
             {
+                Id = int.Parse(reader["id"].ToString()),
                 GraphId = int.Parse(reader["graph_id"].ToString()),
                 OriginId = int.Parse(reader["origin_template_id"].ToString()),
-                TargetId = int.Parse(reader["target_template_id"].ToString())
+                TargetId = int.Parse(reader["target_template_id"].ToString()),
+                LinkType = reader["link_type"].ToString()
             };
             return caracTemplate;
         }

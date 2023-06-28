@@ -13,6 +13,7 @@ namespace Assets._Scripts.Utilities
             return new GraphTemplateDb
             {
                 Name = tpGraph.Name,
+                DecisionBrainTemplateId = tpGraph.DecisionBrain.DbId
             };
         }
         public static GraphTemplate ToUnity(GraphTemplateDb tpGraph, List<GraphLinkDb> graphLinks, Dictionary<int, BrainTemplateDb> templates)
@@ -81,7 +82,7 @@ namespace Assets._Scripts.Utilities
                     OriginId = templatesDb[link.Origin.Name],
                     LinkType = ToDb(link.LinkTypeEnum)
                 };
-                result.Append(linkDb);
+                result.Add(linkDb);
             }
 
             return result;
