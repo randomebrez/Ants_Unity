@@ -145,7 +145,7 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from TemplateGraphLink where name = {graphName};";
+                    command.CommandText = $"Select * from TemplateGraph where name = '{graphName}';";
 
                     using (var reader = command.ExecuteReader())
                     {
