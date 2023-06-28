@@ -89,6 +89,7 @@
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\GraphLinkTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Environment\GroundBlock.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphLink.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainTemplate.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\BaseAnt.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\UnityLayerEnum.cs" />
     <Compile Include="Assets\_Scripts\Utilities\GlobalParameters.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInstance.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\UnitManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\PheromoneToken.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\TemplateGraph.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\Curve.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\IManager.cs" />
     <Compile Include="Assets\_Scripts\UI\SidePanels.cs" />
@@ -124,12 +126,10 @@
     <Compile Include="Assets\_Scripts\Environment\Wall.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitPortionCaracteristics.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitScanningResult.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\InstanceGraph.cs" />
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitScannerManager.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\TemplateGraph.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainTemplate.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\InstanceGraph.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
