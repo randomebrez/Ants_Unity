@@ -16,13 +16,13 @@ internal class DatabaseManager : BaseManager<DatabaseManager>
         base.Awake();
     }
 
-    public void TemplateGraphStore(GraphTemplate graph)
+    public void TemplateGraphStore(TemplateGraph graph)
     {
         // Store graph obj
-        _databaseGateway.GraphTemplateStore(DbMapper.ToDb(graph));
+        _databaseGateway.TemplateGraphStore(DbMapper.ToDb(graph));
 
         // Fetch graph to get its id
-        var dbGraph = _databaseGateway.GraphTemplateFetch(graph.Name);
+        var dbGraph = _databaseGateway.TemplateGraphFetch(graph.Name);
 
         // Fetch Template Ids
         var templateDbIds = graph.Nodes.Values.ToDictionary(t => t.Name, t => t.DbId);
@@ -35,15 +35,15 @@ internal class DatabaseManager : BaseManager<DatabaseManager>
         // Store links
         _databaseGateway.GraphLinksStore(linksDb);
     }
-    public GraphTemplate TemplateGraphFetchByName(string graphName)
+    public TemplateGraph TemplateGraphFetch(string graphName)
     {
         // Get graph obj
-        var dbGraph = _databaseGateway.GraphTemplateFetch(graphName);
+        var dbGraph = _databaseGateway.TemplateGraphFetch(graphName);
         if (dbGraph == null)
             return null;
 
         // Get all links
-        var dbLinks = _databaseGateway.GraphLinksFetch(dbGraph.Id);
+        var dbLinks = _databaseGateway.GraphLinksList(dbGraph.Id);
 
         // For each link fetch template
         var distinctTemplateIds = new List<int> { dbGraph.DecisionBrainTemplateId };
@@ -54,28 +54,33 @@ internal class DatabaseManager : BaseManager<DatabaseManager>
             if (distinctTemplateIds.Contains(link.OriginId) == false)
                 distinctTemplateIds.Add(link.OriginId);
         }
-        var dbTemplates = _databaseGateway.TemplateCaracteristicsListFetchById(distinctTemplateIds).ToDictionary(t => t.Id, t => t);
+        var dbTemplates = _databaseGateway.BrainTemplatesList(distinctTemplateIds).ToDictionary(t => t.Id, t => t);
 
         return DbMapper.ToUnity(dbGraph, dbLinks, dbTemplates);
     }
 
-
-    public void BrainTemplateStore(BrainCaracteristicsTemplate template)
+    public bool TemplateGraphExist(string graphName)
     {
-        _databaseGateway.TemplateCaracteristicStore(DbMapper.ToDb(template));
+        return _databaseGateway.TemplateGraphExist(graphName);
     }
-    public BrainCaracteristicsTemplate BrainTemplateFetch(int? id = null, string name = null)
+
+
+    public void BrainTemplateStore(BrainTemplate brainTemplate)
     {
-        BrainCaracteristicsTemplate result = null;
+        _databaseGateway.BrainTemplateStore(DbMapper.ToDb(brainTemplate));
+    }
+    public BrainTemplate BrainTemplateFetch(int? id = null, string name = null)
+    {
+        BrainTemplate result = null;
         if (id != null)
         {
-            var dbTemplate = _databaseGateway.TemplateCaracteristicsFetchById(id.Value);
+            var dbTemplate = _databaseGateway.BrainTemplateFetch(id.Value);
             if (dbTemplate != null)
                 result = DbMapper.ToUnity(dbTemplate);
         }
         else if (string.IsNullOrEmpty(name) == false)
         {
-            var dbTemplate = _databaseGateway.TemplateCaracteristicsFetchByName(name);
+            var dbTemplate = _databaseGateway.BrainTemplateFetch(name);
             if (dbTemplate != null)
                 result = DbMapper.ToUnity(dbTemplate);
         }

@@ -2,15 +2,15 @@
 
 namespace Assets.Dtos
 {
-    public class BrainCaracteristicsInstance
+    public class BrainInstance
     {
-        public BrainCaracteristicsInstance(BrainCaracteristicsTemplate template)
+        public BrainInstance(BrainTemplate template)
         {
             Template = template;
             InputPortions = new List<UnityInput>();
         }
 
-        public BrainCaracteristicsTemplate Template { get; private set; }
+        public BrainTemplate Template { get; private set; }
 
         public string UniqueName { get; set; }
 

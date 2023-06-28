@@ -2,20 +2,20 @@
 
 namespace Assets.Dtos
 {
-    public class GraphTemplate
+    public class TemplateGraph
     {
-        public GraphTemplate()
+        public TemplateGraph()
         {
-            Nodes = new Dictionary<string, BrainCaracteristicsTemplate>();
+            Nodes = new Dictionary<string, BrainTemplate>();
             Edges = new Dictionary<string, List<GraphLink>>();
         }
 
         public int DbId { get; set; }
         public string Name { get; set; }
 
-        public BrainCaracteristicsTemplate DecisionBrain { get; set; }
+        public BrainTemplate DecisionBrain { get; set; }
 
-        public Dictionary<string, BrainCaracteristicsTemplate> Nodes { get; set; }
+        public Dictionary<string, BrainTemplate> Nodes { get; set; }
 
         public Dictionary<string, List<GraphLink>> Edges { get; set; }
     }

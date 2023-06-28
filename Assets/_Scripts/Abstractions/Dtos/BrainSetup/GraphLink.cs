@@ -6,9 +6,9 @@ namespace Assets.Dtos
     {
         public string Key => Target.Name;
 
-        public BrainCaracteristicsTemplate Target { get; set; }
+        public BrainTemplate Target { get; set; }
 
-        public BrainCaracteristicsTemplate Origin { get; set; }
+        public BrainTemplate Origin { get; set; }
 
         public GraphLinkTypeEnum LinkTypeEnum { get; set; }
     }

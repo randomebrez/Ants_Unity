@@ -8,17 +8,17 @@ namespace Assets._Scripts.Utilities
 {
     public static class DbMapper
     {
-        public static GraphTemplateDb ToDb(GraphTemplate tpGraph)
+        public static TemplateGraphDb ToDb(TemplateGraph tpGraph)
         {
-            return new GraphTemplateDb
+            return new TemplateGraphDb
             {
                 Name = tpGraph.Name,
                 DecisionBrainTemplateId = tpGraph.DecisionBrain.DbId
             };
         }
-        public static GraphTemplate ToUnity(GraphTemplateDb tpGraph, List<GraphLinkDb> graphLinks, Dictionary<int, BrainTemplateDb> templates)
+        public static TemplateGraph ToUnity(TemplateGraphDb tpGraph, List<GraphLinkDb> graphLinks, Dictionary<int, BrainTemplateDb> templates)
         {
-            var result = new GraphTemplate
+            var result = new TemplateGraph
             {
                 DbId = tpGraph.Id,
                 Name = tpGraph.Name,
@@ -51,13 +51,13 @@ namespace Assets._Scripts.Utilities
         }
 
 
-        public static BrainCaracteristicsTemplate ToUnity(BrainTemplateDb templateDb)
+        public static BrainTemplate ToUnity(BrainTemplateDb templateDb)
         {
-            var caracTemplate = JsonConvert.DeserializeObject<BrainCaracteristicsTemplate>(templateDb.SerialyzedValue);
+            var caracTemplate = JsonConvert.DeserializeObject<BrainTemplate>(templateDb.SerialyzedValue);
             caracTemplate.DbId = templateDb.Id;
             return caracTemplate;
         }
-        public static BrainTemplateDb ToDb(BrainCaracteristicsTemplate caracTemplate)
+        public static BrainTemplateDb ToDb(BrainTemplate caracTemplate)
         {
             var result = new BrainTemplateDb
             {

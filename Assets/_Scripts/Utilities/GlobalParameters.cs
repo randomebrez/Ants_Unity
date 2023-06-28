@@ -58,7 +58,7 @@ namespace Assets._Scripts.Utilities
 
 
         // A bouger de là
-        public static BrainCaracteristicsTemplate SplittedDecisionBrain = new BrainCaracteristicsTemplate
+        public static BrainTemplate SplittedDecisionBrain = new BrainTemplate
         {
             Name = "DecisionSplitted",
             IsDecisionBrain = true,
@@ -84,7 +84,7 @@ namespace Assets._Scripts.Utilities
                 WeightBitNumber = 4
             }
         };
-        public static BrainCaracteristicsTemplate BigBrainDecisionBrain = new BrainCaracteristicsTemplate
+        public static BrainTemplate BigBrainDecisionBrain = new BrainTemplate
         {
             Name = "BigBrainDecision",
             IsDecisionBrain = true,

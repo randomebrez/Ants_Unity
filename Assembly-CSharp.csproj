@@ -80,11 +80,10 @@
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\SimulationParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Database\GraphTemplateDb.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\Database\TemplateGraphDb.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\PortionTypeEnum.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Pheromone.cs" />
     <Compile Include="Assets\_Scripts\System\ResourceSystem.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphInstance.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\InputParameterField.cs" />
     <Compile Include="Assets\_Scripts\Units\Ants\StatisticEnum.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\Enum\GraphLinkTypeEnum.cs" />
@@ -96,13 +95,11 @@
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBlock.cs" />
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\EnvironmentManager.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\GraphTemplate.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainCaracteristicsTemplate.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
     <Compile Include="Assets\_Scripts\Utilities\DbMapper.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\PauseMenu.cs" />
     <Compile Include="Assets\_Scripts\Units\Spawner\SpawnerAnt.cs" />
-    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainCaracteristicInstance.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainInstance.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\UnitManager.cs" />
     <Compile Include="Assets\_Scripts\Environment\PheromoneToken.cs" />
     <Compile Include="Assets\_Scripts\UI\Graphics\Curve.cs" />
@@ -130,6 +127,9 @@
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitScannerManager.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\TemplateGraph.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\BrainTemplate.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\InstanceGraph.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

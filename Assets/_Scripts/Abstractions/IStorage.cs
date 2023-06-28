@@ -5,15 +5,16 @@ namespace Assets.Abstractions
 {
     public interface IStorage
     {
-        void TemplateCaracteristicStore(BrainTemplateDb template);
-        BrainTemplateDb TemplateCaracteristicsFetchByName(string templateName);
-        public BrainTemplateDb TemplateCaracteristicsFetchById(int templateId);
-        List<BrainTemplateDb> TemplateCaracteristicsListFetchById(List<int> templateIds);
+        void BrainTemplateStore(BrainTemplateDb template);
+        BrainTemplateDb BrainTemplateFetch(string templateName);
+        BrainTemplateDb BrainTemplateFetch(int templateId);
+        List<BrainTemplateDb> BrainTemplatesList(List<int> templateIds);
 
-        void GraphTemplateStore(GraphTemplateDb graphTemplate);
-        GraphTemplateDb GraphTemplateFetch(string graphName);
+        void TemplateGraphStore(TemplateGraphDb templateGraph);
+        TemplateGraphDb TemplateGraphFetch(string graphName);
+        bool TemplateGraphExist(string graphName);
 
-        public List<GraphLinkDb> GraphLinksFetch(int graphId);
-        public void GraphLinksStore(List<GraphLinkDb> links);
+        List<GraphLinkDb> GraphLinksList(int graphId);
+        void GraphLinksStore(List<GraphLinkDb> links);
     }
 }

@@ -4,7 +4,6 @@ using Mono.Data.Sqlite;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Linq;
 
 namespace Assets._Scripts.Gateways
 {
@@ -21,20 +20,20 @@ namespace Assets._Scripts.Gateways
                 Directory.CreateDirectory(sqlFolderPath);
         }        
 
-        public void TemplateCaracteristicStore(BrainTemplateDb template)
+        public void BrainTemplateStore(BrainTemplateDb template)
         {
             using (var connection = new SqliteConnection(_dbConnexionString))
             {
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"insert into CaracteristicsTemplate (name, value) values ({BrainTemplateToSql(template)});";
+                    command.CommandText = $"insert into BrainTemplate (name, value) values ({BrainTemplateToSql(template)});";
                     command.ExecuteReader();
                 }
                 connection.Close();
             }
         }
-        public BrainTemplateDb TemplateCaracteristicsFetchByName(string templateName)
+        public BrainTemplateDb BrainTemplateFetch(string templateName)
         {
             BrainTemplateDb result;
 
@@ -43,7 +42,7 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from CaracteristicsTemplate where name = \'{templateName}\';";
+                    command.CommandText = $"Select * from BrainTemplate where name = \'{templateName}\';";
             
                     using (var reader = command.ExecuteReader())
                     {
@@ -55,7 +54,7 @@ namespace Assets._Scripts.Gateways
 
             return result;
         }
-        public BrainTemplateDb TemplateCaracteristicsFetchById(int templateId)
+        public BrainTemplateDb BrainTemplateFetch(int templateId)
         {
             BrainTemplateDb result;
 
@@ -64,7 +63,7 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from CaracteristicsTemplate where id = {templateId};";
+                    command.CommandText = $"Select * from BrainTemplate where id = {templateId};";
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -76,7 +75,7 @@ namespace Assets._Scripts.Gateways
 
             return result;
         }
-        public List<BrainTemplateDb> TemplateCaracteristicsListFetchById(List<int> templateIds)
+        public List<BrainTemplateDb> BrainTemplatesList(List<int> templateIds)
         {
             var result = new List<BrainTemplateDb>();
             var sqlFilter = new StringBuilder();
@@ -88,7 +87,7 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from CaracteristicsTemplate where id in ({sqlFilter});";
+                    command.CommandText = $"Select * from BrainTemplate where id in ({sqlFilter});";
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -103,23 +102,23 @@ namespace Assets._Scripts.Gateways
         }
 
 
-        public void GraphTemplateStore(GraphTemplateDb graphTemplate)
+        public void TemplateGraphStore(TemplateGraphDb templateGraph)
         {
             using (var connection = new SqliteConnection(_dbConnexionString))
             {
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"insert into TemplateGraph (name, decision_template_id) values ({GraphTemplateToSql(graphTemplate)});";
+                    command.CommandText = $"insert into TemplateGraph (name, decision_template_id) values ({GraphTemplateToSql(templateGraph)});";
                     command.ExecuteReader();
                 }
 
                 connection.Close();
             }
         }
-        public GraphTemplateDb GraphTemplateFetch(string graphName)
+        public TemplateGraphDb TemplateGraphFetch(string graphName)
         {
-            var result = new GraphTemplateDb();
+            var result = new TemplateGraphDb();
 
             using (var connection = new SqliteConnection(_dbConnexionString))
             {
@@ -130,7 +129,28 @@ namespace Assets._Scripts.Gateways
 
                     using (var reader = command.ExecuteReader())
                     {
-                        result = GraphTemplateFromSql(reader);
+                        result = TemplateGraphFromSql(reader);
+                    }
+                }
+                connection.Close();
+            }
+
+            return result;
+        }
+        public bool TemplateGraphExist(string graphName)
+        {
+            var result = false;
+            using (var connection = new SqliteConnection(_dbConnexionString))
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"Select * from TemplateGraphLink where name = {graphName};";
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        var graph = GraphLinkFromSql(reader);
+                        result = graph != null;
                     }
                 }
                 connection.Close();
@@ -142,24 +162,25 @@ namespace Assets._Scripts.Gateways
 
         public void GraphLinksStore(List<GraphLinkDb> links)
         {
-            var sqlRequestValues = new StringBuilder();
-            var sqlBase = "insert into TemplateGraphLink (graph_id, origin_template_id, target_template_id, link_type) values";
+            var sqlBase = "insert into GraphLink (graph_id, origin_template_id, target_template_id, link_type) values";
+
+            var sqlRequest = new StringBuilder();
             for (int i = 0; i < links.Count; i++)
-                sqlRequestValues.AppendLine($"{sqlBase} ({GraphLinkToSql(links[i])});");
+                sqlRequest.AppendLine($"{sqlBase} ({GraphLinkToSql(links[i])});");
 
             using (var connection = new SqliteConnection(_dbConnexionString))
             {
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = sqlRequestValues.ToString();
+                    command.CommandText = sqlRequest.ToString();
                     command.ExecuteReader();
                 }
 
                 connection.Close();
             }
         }
-        public List<GraphLinkDb> GraphLinksFetch(int graphId)
+        public List<GraphLinkDb> GraphLinksList(int graphId)
         {
             var result = new List<GraphLinkDb>();
 
@@ -168,7 +189,7 @@ namespace Assets._Scripts.Gateways
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"Select * from TemplateGraphLink where graph_id = {graphId};";
+                    command.CommandText = $"Select * from GraphLink where graph_id = {graphId};";
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -196,11 +217,11 @@ namespace Assets._Scripts.Gateways
 
 
         // Mapping
-        private string BrainTemplateToSql(BrainTemplateDb templateDb)
+        private string BrainTemplateToSql(BrainTemplateDb brainTemplateDb)
         {
             var result = new StringBuilder();
-            result.Append($"\'{templateDb.Name}\', ");
-            result.Append($"\'{templateDb.SerialyzedValue}\'");
+            result.Append($"\'{brainTemplateDb.Name}\', ");
+            result.Append($"\'{brainTemplateDb.SerialyzedValue}\'");
             return result.ToString();
         }
         private BrainTemplateDb BrainTemplateFromSql(SqliteDataReader reader)
@@ -218,19 +239,19 @@ namespace Assets._Scripts.Gateways
         }
 
 
-        private string GraphTemplateToSql(GraphTemplateDb graphTemplateDb)
+        private string GraphTemplateToSql(TemplateGraphDb templateGraphDb)
         {
             var result = new StringBuilder();
-            result.Append($"\'{graphTemplateDb.Name}\', ");
-            result.Append($"{graphTemplateDb.DecisionBrainTemplateId}");
+            result.Append($"\'{templateGraphDb.Name}\', ");
+            result.Append($"{templateGraphDb.DecisionBrainTemplateId}");
             return result.ToString();
         }
-        private GraphTemplateDb GraphTemplateFromSql(SqliteDataReader reader)
+        private TemplateGraphDb TemplateGraphFromSql(SqliteDataReader reader)
         {
             if (reader.HasRows == false)
                 return null;
 
-            return new GraphTemplateDb
+            return new TemplateGraphDb
             {
                 Id = int.Parse(reader["id"].ToString()),
                 Name = reader["name"].ToString(),
@@ -253,7 +274,7 @@ namespace Assets._Scripts.Gateways
             if (reader.HasRows == false)
                 return null;
 
-            var caracTemplate = new GraphLinkDb
+            return new GraphLinkDb
             {
                 Id = int.Parse(reader["id"].ToString()),
                 GraphId = int.Parse(reader["graph_id"].ToString()),
@@ -261,7 +282,6 @@ namespace Assets._Scripts.Gateways
                 TargetId = int.Parse(reader["target_template_id"].ToString()),
                 LinkType = reader["link_type"].ToString()
             };
-            return caracTemplate;
         }
     }
 }

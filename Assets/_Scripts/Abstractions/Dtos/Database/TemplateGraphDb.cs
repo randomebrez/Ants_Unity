@@ -1,6 +1,6 @@
 ﻿namespace Assets.Dtos.Database
 {
-    public class GraphTemplateDb
+    public class TemplateGraphDb
     {
         public int Id { get; set; }
 
