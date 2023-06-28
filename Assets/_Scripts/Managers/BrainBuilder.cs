@@ -355,7 +355,7 @@ namespace Assets._Scripts.Managers
                 var inputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
                 var neutralLayersVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
                 var outputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-                var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls };
+                var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls, UnityInputTypeEnum.CarryFood };
 
                 visionTp = TemplateCaracteristicsBuild("VisionTp", visionInputs, 1, inputLayerVision, neutralLayersVision, outputLayerVision, genomeParameters);
                 DatabaseManager.Instance.BrainTemplateStore(visionTp);
@@ -375,7 +375,7 @@ namespace Assets._Scripts.Managers
                 var inputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
                 var neutralLayersNoVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
                 var outputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
-                var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC };
+                var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.CarryFood };
 
                 noVisionTp = TemplateCaracteristicsBuild("NoVisionTp", noVisionInputs, 1, inputLayerNoVision, neutralLayersNoVision, outputLayerNoVision, genomeParameters);
                 DatabaseManager.Instance.BrainTemplateStore(noVisionTp);
