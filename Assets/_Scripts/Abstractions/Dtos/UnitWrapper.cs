@@ -6,6 +6,6 @@ namespace Assets.Dtos
     {
         public Unit NugetUnit { get; set; }
 
-        public GraphInstance InstanceGraph { get; set; }
+        public InstanceGraph InstanceGraph { get; set; }
     }
 }

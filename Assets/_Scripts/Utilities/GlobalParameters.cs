@@ -49,6 +49,7 @@ namespace Assets._Scripts.Utilities
         // Database
         public static int StoreFrequency = 20;
         public static string SqlFolderPath = @".\Database";
+        public static string DbFileName = "TestDb.db";
 
         // Saved brains
         public static string SavedBrainsFolder = @".\SavedBrains";
@@ -57,7 +58,7 @@ namespace Assets._Scripts.Utilities
 
 
         // A bouger de là
-        public static BrainCaracteristicsTemplate SplittedDecisionBrain = new BrainCaracteristicsTemplate
+        public static BrainTemplate SplittedDecisionBrain = new BrainTemplate
         {
             Name = "DecisionSplitted",
             IsDecisionBrain = true,
@@ -83,7 +84,7 @@ namespace Assets._Scripts.Utilities
                 WeightBitNumber = 4
             }
         };
-        public static BrainCaracteristicsTemplate BigBrainDecisionBrain = new BrainCaracteristicsTemplate
+        public static BrainTemplate BigBrainDecisionBrain = new BrainTemplate
         {
             Name = "BigBrainDecision",
             IsDecisionBrain = true,

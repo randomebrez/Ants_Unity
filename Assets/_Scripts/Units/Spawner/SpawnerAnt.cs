@@ -10,7 +10,7 @@ public class SpawnerAnt : MonoBehaviour
 
     private void Start()
     {
-        _unitContainer = transform.GetChild(1);
+        _unitContainer = transform.GetChild(0);
     }
 
     public List<BaseAnt> InstantiateUnits(UnitWrapper[] units, ScriptableAntBase.AntTypeEnum antType)

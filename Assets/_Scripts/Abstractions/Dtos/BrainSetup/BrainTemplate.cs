@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace Assets.Dtos
 {
-    public class BrainCaracteristicsTemplate
+    public class BrainTemplate
     {
-        public BrainCaracteristicsTemplate()
+        public BrainTemplate()
         {
             InputsTypes = new List<UnityInput>();
             NeutralLayers = new List<LayerCaracteristics>();
         }
+
+        public int DbId { get; set; }
 
         public string Name { get; set; }
 

@@ -1,16 +1,20 @@
-﻿using Assets.Dtos;
-using System.Threading.Tasks;
+﻿using Assets.Dtos.Database;
+using System.Collections.Generic;
 
 namespace Assets.Abstractions
 {
     public interface IStorage
     {
-        Task TemplateCaracteristicStoreAsync(BrainCaracteristicsTemplate template);
+        void BrainTemplateStore(BrainTemplateDb template);
+        BrainTemplateDb BrainTemplateFetch(string templateName);
+        BrainTemplateDb BrainTemplateFetch(int templateId);
+        List<BrainTemplateDb> BrainTemplatesList(List<int> templateIds);
 
-        Task<BrainCaracteristicsTemplate> TemplateCaracteristicsFetchAsync(string templateName);
+        void TemplateGraphStore(TemplateGraphDb templateGraph);
+        TemplateGraphDb TemplateGraphFetch(string graphName);
+        bool TemplateGraphExist(string graphName);
 
-        Task TemplateGraphStoreAsync(GraphTemplate graphTemplate);
-
-        Task<GraphTemplate> GraphTemplateFetchAsync(string graphName);
+        List<GraphLinkDb> GraphLinksList(int graphId);
+        void GraphLinksStore(List<GraphLinkDb> links);
     }
 }

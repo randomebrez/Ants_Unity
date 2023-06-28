@@ -19,18 +19,22 @@ internal class UnitManager : BaseManager<UnitManager>
     private BaseAnt _lastClicked;
     private BrainBuilder _brainGraphBuilder;
 
-    private GraphInstance _simulationCaracteristicGraph;
-    private List<BrainCaracteristicsTemplate> _distinctTemplates;
+    private InstanceGraph _simulationCaracteristicGraph;
+    private List<BrainTemplate> _distinctTemplates;
     private Dictionary<string, BrainCaracteristics> _templateBrainCaracteristics;
 
     protected override void Awake()
     {
         _neuralNetworkGateway = new NeuralNetworkGateway();
-        _brainGraphBuilder = new BrainBuilder();
         base.Awake();
 
         // Needed to set scriptable parameters in case we don't get through parameter screen
         AntScriptableStatisticsSet();
+    }
+
+    protected void Start()
+    {
+        _brainGraphBuilder = new BrainBuilder();
     }
 
     private void Update()
@@ -132,7 +136,7 @@ internal class UnitManager : BaseManager<UnitManager>
         _simulationCaracteristicGraph = _brainGraphBuilder.UserSelectionInstanceGraphGet(graphName);
 
         // For practicity : save distinct template used by the graph
-        _distinctTemplates = new List<BrainCaracteristicsTemplate>();
+        _distinctTemplates = new List<BrainTemplate>();
         var distinctTemplates = _simulationCaracteristicGraph.CaracteristicNodes.GroupBy(t => t.Value.Template.Name);
         foreach (var templateCount in distinctTemplates)
             _distinctTemplates.Add(templateCount.First().Value.Template);
@@ -144,7 +148,7 @@ internal class UnitManager : BaseManager<UnitManager>
     }
 
     //Given genomes grouped by template & following instance graph structure, Build a genome graph for each unit (i-th position in all dictionary's list correspond to the i-th unit)
-    private List<GenomeGraph> GenomeGraphListBuild(GraphInstance instanceGraph, Dictionary<string, List<Genome>> genomes)
+    private List<GenomeGraph> GenomeGraphListBuild(InstanceGraph instanceGraph, Dictionary<string, List<Genome>> genomes)
     {
         var graphs = new List<GenomeGraph>();
         var number = genomes.First().Value.Count();
@@ -236,7 +240,7 @@ internal class UnitManager : BaseManager<UnitManager>
 
 
     // Genome Generation
-    private Dictionary<string, List<Genome>> GenerateRandomGenomes(int genomeNumber, List<BrainCaracteristicsTemplate> distinctTemplates)
+    private Dictionary<string, List<Genome>> GenerateRandomGenomes(int genomeNumber, List<BrainTemplate> distinctTemplates)
     {
         var result = new Dictionary<string, List<Genome>>();
         foreach (var template in distinctTemplates)
@@ -247,7 +251,7 @@ internal class UnitManager : BaseManager<UnitManager>
 
         return result;
     }
-    private Dictionary<string, List<Genome>> GenerateMixedGenomes(List<BrainCaracteristicsTemplate> distinctTemplates, List<BaseAnt> bestUnits)
+    private Dictionary<string, List<Genome>> GenerateMixedGenomes(List<BrainTemplate> distinctTemplates, List<BaseAnt> bestUnits)
     {
         var result = new Dictionary<string, List<Genome>>();
         var couples = CreateCouples(bestUnits);
@@ -297,7 +301,7 @@ internal class UnitManager : BaseManager<UnitManager>
 
         return result.ToArray();
     }
-    private BrainCaracteristics ToBrainCarac(BrainCaracteristicsTemplate template)
+    private BrainCaracteristics ToBrainCarac(BrainTemplate template)
     {
         return new BrainCaracteristics()
         {
@@ -308,13 +312,13 @@ internal class UnitManager : BaseManager<UnitManager>
             GenomeCaracteristics = ToGenomeCarac(template, template.GenomeCaracteristics)
         };
     }
-    private BrainCaracteristics ToBrainCarac(BrainCaracteristicsInstance instance)
+    private BrainCaracteristics ToBrainCarac(BrainInstance instance)
     {
         var result = ToBrainCarac(instance.Template);
         result.BrainName = instance.UniqueName;
         return result;
     }
-    private GenomeCaracteristics ToGenomeCarac(BrainCaracteristicsTemplate template, GenomeParameters parameters)
+    private GenomeCaracteristics ToGenomeCarac(BrainTemplate template, GenomeParameters parameters)
     {
         var maxEdgeNumber = template.MaxEdgeNumberGet();
         var geneNumber = (int)(parameters.NetworkCoverage * maxEdgeNumber / 100f);

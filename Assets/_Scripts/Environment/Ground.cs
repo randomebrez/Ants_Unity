@@ -190,7 +190,7 @@ public class Ground : MonoBehaviour
                 }
                 catch(System.IndexOutOfRangeException e)
                 {
-                    continue;
+                    Debug.LogWarning(e.Message);
                 }
             }
         }
@@ -211,9 +211,9 @@ public class Ground : MonoBehaviour
                 var neighbour = _grid[xCoordinates[i], zCoordinates[i]];
                 neighbours.Add(neighbour.Block);
             }
-            catch(System.IndexOutOfRangeException e)
+            catch (System.IndexOutOfRangeException e)
             {
-                continue;
+                Debug.LogWarning(e.Message);
             }
         }
         return neighbours;

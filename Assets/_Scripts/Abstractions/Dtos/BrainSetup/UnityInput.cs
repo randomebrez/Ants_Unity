@@ -6,12 +6,13 @@ namespace Assets.Dtos
     {
         public UnityInput(InputTypeEnum type, int maxPortionIndexes = 0)
         {
+            InputType = type;
             PortionIndexes = new List<int>();
             MaxPortionIndexes = maxPortionIndexes;
             UnityInputTypes = new HashSet<UnityInputTypeEnum>();
         }
 
-        public InputTypeEnum InputType { get; private set; }
+        public InputTypeEnum InputType { get; set; }
 
         public int MaxPortionIndexes { get; set; }
 

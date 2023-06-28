@@ -97,7 +97,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
             //case SimulationParameterTypeEnum.StorageFrequency:
             //    constraint.MinValue = 1;
             //    constraint.MaxValue = 1000;
-                break;
+            //    break;
         }
 
         return constraint;
@@ -121,7 +121,7 @@ internal  class ParametersManager : BaseManager<ParametersManager>
                 break;
             //case SimulationParameterTypeEnum.StorageFrequency:
             //    GlobalParameters.StoreFrequency = int.Parse(value);
-                break;
+            //    break;
         }
     }
 
