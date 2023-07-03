@@ -62,18 +62,27 @@ namespace Assets._Scripts.Utilities
         {
             Name = "DecisionSplitted",
             IsDecisionBrain = true,
-            InputLayer = new LayerCaracteristics(0, LayerTypeEnum.Input),
-            NeutralLayers = new List<LayerCaracteristics>
+            InputLayer = new NeuronLayerCaracteristics
+            {
+                LayerType = LayerTypeEnum.Input,
+                LayerId = 0,
+                ActivationFunction = ActivationFunctionEnum.Identity
+            },
+            NeutralLayers = new List<NeuronLayerCaracteristics>
                 {
-                    new LayerCaracteristics(1, LayerTypeEnum.Neutral)
+                    new NeuronLayerCaracteristics
                     {
+                        LayerType = LayerTypeEnum.Neutral,
+                        LayerId = 1,
                         NeuronNumber = 2,
                         ActivationFunction = ActivationFunctionEnum.Tanh,
                         ActivationFunction90PercentTreshold = 0.5f
                     }
                 },
-            OutputLayer = new LayerCaracteristics(2, LayerTypeEnum.Output)
+            OutputLayer = new NeuronLayerCaracteristics
             {
+                LayerType = LayerTypeEnum.Output,
+                LayerId = 2,
                 NeuronNumber = 6,
                 ActivationFunction = ActivationFunctionEnum.Sigmoid,
                 ActivationFunction90PercentTreshold = 1
@@ -89,7 +98,12 @@ namespace Assets._Scripts.Utilities
             Name = "BigBrainDecision",
             IsDecisionBrain = true,
             NeedUnityInpus = true,
-            InputLayer = new LayerCaracteristics(0, LayerTypeEnum.Input),
+            InputLayer = new NeuronLayerCaracteristics
+            {
+                LayerType = LayerTypeEnum.Input,
+                LayerId = 0,
+                ActivationFunction = ActivationFunctionEnum.Identity
+            },
             InputsTypes = new List<UnityInput>
             {
                 //Vision
@@ -106,23 +120,29 @@ namespace Assets._Scripts.Utilities
                 },
                 new UnityInput(InputTypeEnum.CarryFood)
             },
-            NeutralLayers = new List<LayerCaracteristics>
+            NeutralLayers = new List<NeuronLayerCaracteristics>
                 {
-                    new LayerCaracteristics(1, LayerTypeEnum.Neutral)
+                    new NeuronLayerCaracteristics
                     {
+                        LayerType = LayerTypeEnum.Neutral,
+                        LayerId = 1,
                         NeuronNumber = 8,
                         ActivationFunction = ActivationFunctionEnum.Tanh,
                         ActivationFunction90PercentTreshold = 0.5f
                     },
-                    new LayerCaracteristics(2, LayerTypeEnum.Neutral)
+                    new NeuronLayerCaracteristics
                     {
+                        LayerType = LayerTypeEnum.Neutral,
+                        LayerId = 2,
                         NeuronNumber = 4,
                         ActivationFunction = ActivationFunctionEnum.Tanh,
                         ActivationFunction90PercentTreshold = 0.5f
                     }
                 },
-            OutputLayer = new LayerCaracteristics(3, LayerTypeEnum.Output)
+            OutputLayer = new NeuronLayerCaracteristics
             {
+                LayerType = LayerTypeEnum.Output,
+                LayerId = 3,
                 NeuronNumber = 6,
                 ActivationFunction = ActivationFunctionEnum.Sigmoid,
                 ActivationFunction90PercentTreshold = 1

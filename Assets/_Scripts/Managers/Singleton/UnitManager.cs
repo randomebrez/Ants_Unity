@@ -305,9 +305,9 @@ internal class UnitManager : BaseManager<UnitManager>
     {
         return new BrainCaracteristics()
         {
-            InputLayer = template.InputLayer,
-            NeutralLayers = template.NeutralLayers,
-            OutputLayer = template.OutputLayer,
+            InputLayer = ToLayerCarac(template.InputLayer),
+            NeutralLayers = template.NeutralLayers.Select(t => ToLayerCarac(t)).ToList(),
+            OutputLayer = ToLayerCarac(template.OutputLayer),
             IsDecisionBrain = template.IsDecisionBrain,
             GenomeCaracteristics = ToGenomeCarac(template, template.GenomeCaracteristics)
         };
@@ -327,6 +327,17 @@ internal class UnitManager : BaseManager<UnitManager>
         {
             GeneNumber = geneNumber,
             WeighBytesNumber = parameters.WeightBitNumber
+        };
+    }
+
+    private LayerCaracteristics ToLayerCarac(NeuronLayerCaracteristics carac)
+    {
+        return new LayerCaracteristics(carac.LayerId, carac.LayerType)
+        {
+            NeuronNumber = carac.NeuronNumber,
+            ActivationFunction = carac.ActivationFunction,
+            ActivationFunction90PercentTreshold = carac.ActivationFunction90PercentTreshold,
+            NeuronTreshold = carac.NeuronTreshold
         };
     }
 }

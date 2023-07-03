@@ -353,7 +353,7 @@ namespace Assets._Scripts.Managers
                     WeightBitNumber = 4
                 };
                 var inputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
-                var neutralLayersVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
+                var neutralLayersVision = new List<NeuronLayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
                 var outputLayerVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
                 var visionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.Food, UnityInputTypeEnum.Nest, UnityInputTypeEnum.Walls, UnityInputTypeEnum.CarryFood };
 
@@ -373,7 +373,7 @@ namespace Assets._Scripts.Managers
                     WeightBitNumber = 4
                 };
                 var inputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Input, 0);
-                var neutralLayersNoVision = new List<LayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
+                var neutralLayersNoVision = new List<NeuronLayerCaracteristics> { LayerCaracteristicsGet(LayerTypeEnum.Neutral, 1, 2, ActivationFunctionEnum.Tanh, 0.5f) };
                 var outputLayerNoVision = LayerCaracteristicsGet(LayerTypeEnum.Output, 2, 2, ActivationFunctionEnum.Sigmoid, 1);
                 var noVisionInputs = new List<UnityInputTypeEnum> { UnityInputTypeEnum.PheromoneW, UnityInputTypeEnum.PheromoneC, UnityInputTypeEnum.CarryFood };
 
@@ -414,7 +414,7 @@ namespace Assets._Scripts.Managers
             DatabaseManager.Instance.TemplateGraphStore(result);
         }
 
-        private BrainTemplate TemplateCaracteristicsBuild(string name, List<UnityInputTypeEnum> portionInputs, int maxPortionIndex, LayerCaracteristics inputLayer, List<LayerCaracteristics> neutralLayers, LayerCaracteristics outputLayer, GenomeParameters genomeParameters, bool isDecisionBrain = false)
+        private BrainTemplate TemplateCaracteristicsBuild(string name, List<UnityInputTypeEnum> portionInputs, int maxPortionIndex, NeuronLayerCaracteristics inputLayer, List<NeuronLayerCaracteristics> neutralLayers, NeuronLayerCaracteristics outputLayer, GenomeParameters genomeParameters, bool isDecisionBrain = false)
         {
             var result = new BrainTemplate
             {
@@ -451,10 +451,12 @@ namespace Assets._Scripts.Managers
             return result;
         }
         
-        private LayerCaracteristics LayerCaracteristicsGet(LayerTypeEnum layerType, int layerId, int neuronNumber = 0, ActivationFunctionEnum activationFunction = ActivationFunctionEnum.Identity, float caracteristicValue = 0f)
+        private NeuronLayerCaracteristics LayerCaracteristicsGet(LayerTypeEnum layerType, int layerId, int neuronNumber = 0, ActivationFunctionEnum activationFunction = ActivationFunctionEnum.Identity, float caracteristicValue = 0f)
         {
-            return new LayerCaracteristics(layerId, layerType)
+            return new NeuronLayerCaracteristics
             {
+                LayerType = layerType,
+                LayerId = layerId,
                 NeuronNumber = neuronNumber,
                 ActivationFunction = activationFunction,
                 ActivationFunction90PercentTreshold = caracteristicValue

@@ -8,7 +8,7 @@ namespace Assets.Dtos
         public BrainTemplate()
         {
             InputsTypes = new List<UnityInput>();
-            NeutralLayers = new List<LayerCaracteristics>();
+            NeutralLayers = new List<NeuronLayerCaracteristics>();
         }
 
         public int DbId { get; set; }
@@ -19,11 +19,11 @@ namespace Assets.Dtos
 
         public List<UnityInput> InputsTypes { get; set; }
 
-        public LayerCaracteristics InputLayer { get; set; }
+        public NeuronLayerCaracteristics InputLayer { get; set; }
 
-        public List<LayerCaracteristics> NeutralLayers { get; set; }
+        public List<NeuronLayerCaracteristics> NeutralLayers { get; set; }
 
-        public LayerCaracteristics OutputLayer { get; set; }
+        public NeuronLayerCaracteristics OutputLayer { get; set; }
 
         public bool NeedUnityInpus { get; set; }
 
