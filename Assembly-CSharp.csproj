@@ -77,6 +77,7 @@
     <Compile Include="Assets\_Scripts\Scriptable\ScriptablePheromoneBase.cs" />
     <Compile Include="Assets\_Scripts\Utilities\StaticHelper.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\UnitPortionInputValues.cs" />
+    <Compile Include="Assets\_Scripts\Managers\UI\TemplateScreenManager.cs" />
     <Compile Include="Assets\_Scripts\Gateways\DatabaseGateway.cs" />
     <Compile Include="Assets\_Scripts\Abstractions\Dtos\SimulationParameterConstraint.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitBase.cs" />
@@ -96,6 +97,8 @@
     <Compile Include="Assets\_Scripts\Units\Scanners\AntScannerBlock.cs" />
     <Compile Include="Assets\_Scripts\Utilities\Singleton.cs" />
     <Compile Include="Assets\_Scripts\Managers\Singleton\EnvironmentManager.cs" />
+    <Compile Include="Assets\_Scripts\Abstractions\Dtos\BrainSetup\NeuronLayerCaracteristics.cs" />
+    <Compile Include="Assets\_Scripts\UI\TemplateScreen\TemplateDetail.cs" />
     <Compile Include="Assets\_Scripts\UI\NeuronUI.cs" />
     <Compile Include="Assets\_Scripts\Utilities\DbMapper.cs" />
     <Compile Include="Assets\_Scripts\UI\Menus\PauseMenu.cs" />
@@ -130,6 +133,7 @@
     <Compile Include="Assets\_Scripts\Managers\BaseManager.cs" />
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitScannerManager.cs" />
+    <Compile Include="Assets\_Scripts\UI\TemplateScreen\ScrollBar.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
