@@ -134,6 +134,7 @@
     <Compile Include="Assets\_Scripts\UI\PanelZone.cs" />
     <Compile Include="Assets\_Scripts\Units\UnitScannerManager.cs" />
     <Compile Include="Assets\_Scripts\UI\TemplateScreen\ScrollBar.cs" />
+    <Compile Include="Assets\_Scripts\UI\TemplateScreen\DetailBlock.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

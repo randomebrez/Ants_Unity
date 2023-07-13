@@ -1,12 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class TemplateDetail : MonoBehaviour, IPointerDownHandler
 {
-    public GameObject InputBlock;
     public ScrollBar InputScrollBar;
 
-    public GameObject NeutralBlock;
     public ScrollBar NeutralScrollBar;
 
     // Start is called before the first frame update
@@ -60,12 +59,22 @@ public class TemplateDetail : MonoBehaviour, IPointerDownHandler
     // Button clicked
     public void OnInputAddBtnClick()
     {
-        InputScrollBar.AddItem(InputBlock);
+        var testDict = new Dictionary<string, string>
+        {
+            { "Oui", "Non" },
+            { "Vrai", "Faux" },
+            { "Carrement", "153" },
+        };
+        InputScrollBar.AddItem(testDict);
         Debug.Log($"Mouse was clicked on InputAddBtn");
     }
     public void OnNeutralLayerAddBtnClick()
     {
-        NeutralScrollBar.AddItem(NeutralBlock);
+        var testDict = new Dictionary<string, string>
+        {
+
+        };
+        NeutralScrollBar.AddItem(testDict);
         Debug.Log($"Mouse was clicked on NeutralLayerAddBtn");
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 public class ScrollBar : MonoBehaviour
 {
     public RectTransform Content;
+    public DetailBlock ItemTemplate;
     public int DisplayRowNumber;
 
     private List<RectTransform> _items;
@@ -12,12 +13,13 @@ public class ScrollBar : MonoBehaviour
     {
         _items = new List<RectTransform>();
         var windowSize = Content.parent.GetComponent<RectTransform>().rect;
-        Content.sizeDelta = new Vector2(windowSize.width, windowSize.height);
+        Content.sizeDelta = new Vector2(0, windowSize.height);
     }
 
-    public void AddItem(GameObject newObject)
+    public void AddItem(Dictionary<string, string> fields)
     {
-        var item = Instantiate(newObject, Content);
+        var item = Instantiate(ItemTemplate, Content);
+        item.Initialyze(fields);
         _items.Add(item.GetComponent<RectTransform>());
         UpdateContentHeight();
         UpdateItemsAnchors();
@@ -29,7 +31,7 @@ public class ScrollBar : MonoBehaviour
         var alpha = _items.Count / (float)DisplayRowNumber;
         var currentSize = Content.sizeDelta;
         if (alpha > 1)
-            Content.sizeDelta = new Vector2(windowSize.width, alpha * windowSize.height);
+            Content.sizeDelta = new Vector2(0, alpha * windowSize.height);
     }
 
     private void UpdateItemsAnchors()
